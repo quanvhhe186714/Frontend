@@ -10,7 +10,7 @@ import {
   Alert,
 } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-import { changePassword } from '../services/apiService';
+import { changePassword } from '../../services/user';
 
 const ChangePassword = () => {
   const navigate = useNavigate();

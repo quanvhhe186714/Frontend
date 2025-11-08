@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Box,
@@ -29,37 +29,37 @@ import {
   InputLabel,
   Alert,
   Snackbar,
-  Chip
-} from '@mui/material';
+  Chip,
+} from "@mui/material";
 import {
   AccountCircle,
   ExitToApp,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Block as BlockIcon,
-} from '@mui/icons-material';
-import { getAllUsers, deleteUser, updateUser } from '../services/apiService';
+} from "@mui/icons-material";
+import { getAllUsers, deleteUser, updateUser } from "../../services/user.js";
 
 const AdminHome = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [severity, setSeverity] = useState('success');
+  const [message, setMessage] = useState("");
+  const [severity, setSeverity] = useState("success");
   const [anchorEl, setAnchorEl] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [editDialog, setEditDialog] = useState({
     open: false,
-    user: null
+    user: null,
   });
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
-    title: '',
-    message: '',
-    action: null
+    title: "",
+    message: "",
+    action: null,
   });
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
   // Fetch users
   const fetchUsers = async () => {
@@ -68,7 +68,7 @@ const AdminHome = () => {
       const { data } = await getAllUsers();
       setUsers(data);
     } catch (error) {
-      showMessage('Lỗi khi tải danh sách người dùng', 'error');
+      showMessage("Lỗi khi tải danh sách người dùng", "error");
     } finally {
       setLoading(false);
     }
@@ -88,12 +88,12 @@ const AdminHome = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
-    navigate('/login');
+    localStorage.removeItem("userInfo");
+    navigate("/login");
   };
 
   // Message handling
-  const showMessage = (msg, sev = 'success') => {
+  const showMessage = (msg, sev = "success") => {
     setMessage(msg);
     setSeverity(sev);
     setOpenSnackbar(true);
@@ -103,14 +103,14 @@ const AdminHome = () => {
   const handleEditUser = (user) => {
     setEditDialog({
       open: true,
-      user: { ...user }
+      user: { ...user },
     });
   };
 
   const handleEditDialogClose = () => {
     setEditDialog({
       open: false,
-      user: null
+      user: null,
     });
   };
 
@@ -122,11 +122,11 @@ const AdminHome = () => {
         editDialog.user.role,
         editDialog.user.status
       );
-      showMessage('Cập nhật người dùng thành công');
+      showMessage("Cập nhật người dùng thành công");
       fetchUsers();
       handleEditDialogClose();
     } catch (error) {
-      showMessage('Lỗi khi cập nhật người dùng', 'error');
+      showMessage("Lỗi khi cập nhật người dùng", "error");
     }
   };
 
@@ -134,19 +134,19 @@ const AdminHome = () => {
   const handleDeleteClick = (user) => {
     setConfirmDialog({
       open: true,
-      title: 'Xác nhận xóa',
+      title: "Xác nhận xóa",
       message: `Bạn có chắc muốn xóa người dùng ${user.name}?`,
-      action: () => handleDelete(user._id)
+      action: () => handleDelete(user._id),
     });
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteUser(id);
-      showMessage('Xóa người dùng thành công');
+      showMessage("Xóa người dùng thành công");
       fetchUsers();
     } catch (error) {
-      showMessage('Lỗi khi xóa người dùng', 'error');
+      showMessage("Lỗi khi xóa người dùng", "error");
     }
     setConfirmDialog({ open: false });
   };
@@ -155,22 +155,36 @@ const AdminHome = () => {
   const handleBlockClick = (user) => {
     setConfirmDialog({
       open: true,
-      title: user.status === 'blocked' ? 'Mở khóa người dùng' : 'Khóa người dùng',
-      message: `Bạn có chắc muốn ${user.status === 'blocked' ? 'mở khóa' : 'khóa'} người dùng ${user.name}?`,
-      action: () => handleBlockUser(user._id, user.status === 'blocked' ? 'active' : 'blocked')
+      title:
+        user.status === "blocked" ? "Mở khóa người dùng" : "Khóa người dùng",
+      message: `Bạn có chắc muốn ${
+        user.status === "blocked" ? "mở khóa" : "khóa"
+      } người dùng ${user.name}?`,
+      action: () =>
+        handleBlockUser(
+          user._id,
+          user.status === "blocked" ? "active" : "blocked"
+        ),
     });
   };
 
   const handleBlockUser = async (id, newStatus) => {
     try {
-      const userToUpdate = users.find(u => u._id === id);
+      const userToUpdate = users.find((u) => u._id === id);
       if (userToUpdate) {
         await updateUser(id, userToUpdate.name, userToUpdate.role, newStatus);
-        showMessage(`${newStatus === 'blocked' ? 'Khóa' : 'Mở khóa'} người dùng thành công`);
+        showMessage(
+          `${
+            newStatus === "blocked" ? "Khóa" : "Mở khóa"
+          } người dùng thành công`
+        );
         fetchUsers();
       }
     } catch (error) {
-      showMessage(`Lỗi khi ${newStatus === 'blocked' ? 'khóa' : 'mở khóa'} người dùng`, 'error');
+      showMessage(
+        `Lỗi khi ${newStatus === "blocked" ? "khóa" : "mở khóa"} người dùng`,
+        "error"
+      );
     }
     setConfirmDialog({ open: false });
   };
@@ -199,18 +213,18 @@ const AdminHome = () => {
               id="menu-appbar"
               anchorEl={anchorEl}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
+                vertical: "bottom",
+                horizontal: "right",
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: "top",
+                horizontal: "right",
               }}
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => navigate('/profile')}>
+              <MenuItem onClick={() => navigate("/profile")}>
                 <AccountCircle sx={{ mr: 1 }} /> Hồ sơ
               </MenuItem>
               <MenuItem onClick={handleLogout}>
@@ -226,7 +240,7 @@ const AdminHome = () => {
           <Typography variant="h5" gutterBottom component="div">
             Quản lý người dùng
           </Typography>
-          
+
           <TableContainer>
             <Table>
               <TableHead>
@@ -240,10 +254,11 @@ const AdminHome = () => {
               </TableHead>
               <TableBody>
                 {users.map((user) => (
-                  <TableRow 
+                  <TableRow
                     key={user._id}
                     sx={{
-                      bgcolor: user.status === 'blocked' ? '#ffebee' : 'inherit'
+                      bgcolor:
+                        user.status === "blocked" ? "#ffebee" : "inherit",
                     }}
                   >
                     <TableCell>{user.name}</TableCell>
@@ -251,8 +266,10 @@ const AdminHome = () => {
                     <TableCell>{user.role}</TableCell>
                     <TableCell>
                       <Chip
-                        label={user.status === 'blocked' ? 'Đã khóa' : 'Hoạt động'}
-                        color={user.status === 'blocked' ? 'error' : 'success'}
+                        label={
+                          user.status === "blocked" ? "Đã khóa" : "Hoạt động"
+                        }
+                        color={user.status === "blocked" ? "error" : "success"}
                         variant="outlined"
                       />
                     </TableCell>
@@ -264,7 +281,9 @@ const AdminHome = () => {
                         <EditIcon />
                       </IconButton>
                       <IconButton
-                        color={user.status === 'blocked' ? 'success' : 'warning'}
+                        color={
+                          user.status === "blocked" ? "success" : "warning"
+                        }
                         onClick={() => handleBlockClick(user)}
                       >
                         <BlockIcon />
@@ -292,21 +311,25 @@ const AdminHome = () => {
             margin="dense"
             label="Tên"
             fullWidth
-            value={editDialog.user?.name || ''}
-            onChange={(e) => setEditDialog({
-              ...editDialog,
-              user: { ...editDialog.user, name: e.target.value }
-            })}
+            value={editDialog.user?.name || ""}
+            onChange={(e) =>
+              setEditDialog({
+                ...editDialog,
+                user: { ...editDialog.user, name: e.target.value },
+              })
+            }
           />
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Vai trò</InputLabel>
             <Select
-              value={editDialog.user?.role || ''}
+              value={editDialog.user?.role || ""}
               label="Vai trò"
-              onChange={(e) => setEditDialog({
-                ...editDialog,
-                user: { ...editDialog.user, role: e.target.value }
-              })}
+              onChange={(e) =>
+                setEditDialog({
+                  ...editDialog,
+                  user: { ...editDialog.user, role: e.target.value },
+                })
+              }
             >
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
@@ -328,15 +351,15 @@ const AdminHome = () => {
       >
         <DialogTitle>{confirmDialog.title}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {confirmDialog.message}
-          </DialogContentText>
+          <DialogContentText>{confirmDialog.message}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDialog({ open: false })}>
-            Hủy
-          </Button>
-          <Button onClick={confirmDialog.action} variant="contained" color="error">
+          <Button onClick={() => setConfirmDialog({ open: false })}>Hủy</Button>
+          <Button
+            onClick={confirmDialog.action}
+            variant="contained"
+            color="error"
+          >
             Xác nhận
           </Button>
         </DialogActions>
@@ -351,7 +374,7 @@ const AdminHome = () => {
         <Alert
           onClose={() => setOpenSnackbar(false)}
           severity={severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {message}
         </Alert>

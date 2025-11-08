@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyProfile, updateMyProfile } from '../services/apiService';
+import { getMyProfile, updateMyProfile } from '../../services/user.js';
 import {
   Container,
   Box,
@@ -104,7 +104,6 @@ const Profile = () => {
           localStorage.setItem('userInfo', JSON.stringify(userInfo));
         }
 
-        // Gọi updateMyProfile để lưu URL avatar vào database
         await updateMyProfile(formData.name, result.avatarUrl);
         
         setMessage('success:Upload và cập nhật ảnh thành công!');

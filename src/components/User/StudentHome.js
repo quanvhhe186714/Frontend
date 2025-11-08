@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Box,
@@ -14,18 +14,18 @@ import {
   Grid,
   Card,
   CardContent,
-} from '@mui/material';
+} from "@mui/material";
 import {
   AccountCircle,
   Settings,
   ExitToApp,
   Lock as LockIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 const StudentHome = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -36,18 +36,18 @@ const StudentHome = () => {
   };
 
   const handleProfile = () => {
-    navigate('/profile');
+    navigate("/profile");
     handleClose();
   };
 
   const handleChangePassword = () => {
-    navigate('/change-password');
+    navigate("/change-password");
     handleClose();
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
-    navigate('/login');
+    localStorage.removeItem("userInfo");
+    navigate("/login");
   };
 
   return (
@@ -74,13 +74,13 @@ const StudentHome = () => {
               id="menu-appbar"
               anchorEl={anchorEl}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
+                vertical: "bottom",
+                horizontal: "right",
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: "top",
+                horizontal: "right",
               }}
               open={Boolean(anchorEl)}
               onClose={handleClose}
@@ -105,9 +105,9 @@ const StudentHome = () => {
             <Paper
               sx={{
                 p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
               }}
             >
               <Typography variant="h4" gutterBottom>

@@ -1,17 +1,14 @@
 // src/components/AdminUserList.js
 import React, { useState, useEffect } from 'react';
-import { getAllUsers, deleteUser, updateUser } from '../services/apiService';
-
+import { getAllUsers, deleteUser, updateUser } from '../../services/user.js';
 const AdminUserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
-
-  // 1. Lấy danh sách người dùng
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data } = await getAllUsers(); // Yêu cầu quyền Admin
+      const { data } = await getAllUsers();
       setUsers(data);
       setLoading(false);
     } catch (error) {
@@ -19,38 +16,30 @@ const AdminUserList = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchUsers();
   }, []);
-
-  // 2. Xử lý xóa
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc muốn xóa người dùng này?')) {
       try {
-        await deleteUser(id); // Yêu cầu quyền Admin
+        await deleteUser(id); 
         setMessage('Xóa thành công!');
-        fetchUsers(); // Tải lại danh sách
+        fetchUsers(); 
       } catch (error) {
         setMessage(error.response?.data?.message || 'Lỗi khi xóa');
       }
     }
   };
-  
-  // 3. Xử lý thay đổi vai trò (ví dụ)
   const handleRoleChange = async (id, name, newRole) => {
       try {
-          // Admin có thể cập nhật tên và vai trò
           await updateUser(id, name, newRole); 
           setMessage('Cập nhật vai trò thành công!');
-          fetchUsers(); // Tải lại danh sách
+          fetchUsers(); 
       } catch (error) {
           setMessage(error.response?.data?.message || 'Lỗi cập nhật vai trò');
       }
   };
-
   if (loading) return <div>Đang tải...</div>;
-
   return (
     <div>
       <h2>Quản lý Người dùng (Admin)</h2>
@@ -91,5 +80,4 @@ const AdminUserList = () => {
     </div>
   );
 };
-
 export default AdminUserList;

@@ -1,0 +1,115 @@
+.admin-page {
+  font-family: "Inter", sans-serif;
+  background-color: #fff;
+  color: #222;
+  min-height: 100vh;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ff6600;
+  color: #fff;
+  padding: 12px 24px;
+
+  .logout-btn {
+    margin-left: 12px;
+    background: #fff;
+    color: #ff6600;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+}
+
+.admin-main {
+  padding: 20px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e5e5;
+    text-align: left;
+  }
+
+  .blocked {
+    background-color: #ffecec;
+  }
+
+  .status {
+    padding: 3px 8px;
+    border-radius: 6px;
+    &.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    &.error {
+      background: #ffebee;
+      color: #c62828;
+    }
+  }
+
+  button {
+    margin-right: 6px;
+    border: none;
+    cursor: pointer;
+    background: none;
+    font-size: 16px;
+
+    &.primary {
+      color: #ff6600;
+    }
+    &.danger {
+      color: #c62828;
+    }
+  }
+}
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .dialog-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 320px;
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+  }
+}
+
+.snackbar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #323232;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  animation: fadein 0.3s ease;
+}

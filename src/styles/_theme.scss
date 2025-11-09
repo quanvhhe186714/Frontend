@@ -1,0 +1,27 @@
+@use "variables" as *;
+
+.light-theme {
+  --color-primary: #{$color-primary};
+  --color-secondary: #{$color-secondary};
+  --color-background: #{$color-white};
+  --color-surface: #{$color-gray-100};
+  --color-text: #{$color-gray-800};
+  --color-text-secondary: #{$color-gray-600};
+  --color-border: #{$color-gray-200};
+  --color-success: #{$color-success};
+  --color-warning: #{$color-warning};
+  --color-danger: #{$color-danger};
+}
+
+.dark-theme {
+  --color-primary: #{$color-primary};
+  --color-secondary: #3399ff;
+  --color-background: #121212;
+  --color-surface: #1e1e1e;
+  --color-text: #ffffff;
+  --color-text-secondary: #aaaaaa;
+  --color-border: #333333;
+  --color-success: #4caf50;
+  --color-warning: #ffd54f;
+  --color-danger: #e57373;
+}

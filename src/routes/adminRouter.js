@@ -3,7 +3,7 @@ const AdminRoute = ({ children }) => {
   try {
     const userInfoStr = localStorage.getItem("userInfo");
     if (!userInfoStr) {
-      return <Navigate to="/login" />;
+      return <Navigate to="/events" />;
     }
     const userInfo = JSON.parse(userInfoStr);
     if (

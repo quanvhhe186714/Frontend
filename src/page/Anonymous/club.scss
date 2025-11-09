@@ -1,0 +1,24 @@
+.club-list-page {
+  padding: 60px 40px;
+  background: #f9f9f9;
+  min-height: 100vh;
+
+  .page-title {
+    text-align: center;
+    color: #ff6600;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    font-weight: 600;
+  }
+
+  .club-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* ✅ 4 cột cố định */
+    align-items: stretch;
+    gap: 24px; /* khoảng cách giữa các card */
+    padding: 40px;
+    justify-content: center;
+    align-items: stretch;
+    box-sizing: border-box;
+  }
+}

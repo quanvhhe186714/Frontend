@@ -1,65 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./student-home.scss";
 
 const StudentHome = () => {
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    navigate("/login");
-  };
-
-  const menuItems = [
-    { title: "Hồ sơ", onClick: () => navigate("/profile") },
-    { title: "Đổi mật khẩu", onClick: () => navigate("/change-password") },
-    { title: "Đăng xuất", onClick: handleLogout },
-  ];
 
   return (
     <div className="student-home">
-      {/* Header */}
-      <header className="student-header">
-        <h1>Student Dashboard</h1>
-        <div className="header-right">
-          <div
-            className="avatar"
-            onClick={() => setMenuOpen(!menuOpen)}
-            title={userInfo?.user?.name}
-          >
-            {userInfo?.user?.avatar ? (
-              <img src={userInfo.user.avatar} alt="avatar" />
-            ) : (
-              userInfo?.user?.name?.charAt(0)
-            )}
-          </div>
-
-          {menuOpen && (
-            <div className="dropdown-menu">
-              {menuItems.map((item, i) => (
-                <div
-                  key={i}
-                  className="dropdown-item"
-                  onClick={() => {
-                    item.onClick();
-                    setMenuOpen(false);
-                  }}
-                >
-                  {item.title}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </header>
-
       {/* Welcome Section */}
       <section className="welcome-section">
         <div className="welcome-box">
-          <h2>Chào mừng, {userInfo?.user?.name}!</h2>
-          <p>Bạn đang đăng nhập với vai trò Student</p>
+          <h2>Chào mừng, {userInfo?.user?.name || "Sinh viên"}!</h2>
+          <p>Bạn đang đăng nhập với vai trò <strong>Student</strong></p>
         </div>
       </section>
 

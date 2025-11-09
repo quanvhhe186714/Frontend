@@ -70,7 +70,7 @@ const Profile = () => {
     try {
       setSaving(true);
       const token = JSON.parse(localStorage.getItem("userInfo"))?.token;
-      const res = await fetch("http://localhost:9999/api/users/upload-avatar", {
+      const res = await fetch("http://localhost:9999/users/upload-avatar", {
         method: "POST",
         headers: { Authorization: token },
         body: form,

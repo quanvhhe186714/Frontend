@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { getAllUsers, deleteUser, updateUser } from "../../services/user";
-import "./admin.scss"; // bạn sẽ tạo SCSS riêng cho trang admin
+import "./admin.scss";
 
 const AdminHome = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -30,12 +28,6 @@ const AdminHome = () => {
     fetchUsers();
   }, []);
 
-  // 🧹 Đăng xuất
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    navigate("/login");
-  };
-
   // ✏️ Mở form chỉnh sửa
   const handleEdit = (user) => setEditUser({ ...user });
 
@@ -50,7 +42,7 @@ const AdminHome = () => {
       setMessage("Cập nhật thành công");
       setEditUser(null);
       fetchUsers();
-    } catch (error) {
+    } catch {
       setMessage("Lỗi khi cập nhật người dùng");
     }
   };
@@ -95,63 +87,52 @@ const AdminHome = () => {
     });
 
   return (
-    <div className="admin-page">
-      <header className="admin-header">
-        <h1>Admin Dashboard</h1>
-        <div className="admin-user">
-          <span>{userInfo?.user?.name}</span>
-          <button onClick={() => navigate("/profile")}>Hồ sơ</button>
-          <button onClick={handleLogout} className="logout-btn">
-            Đăng xuất
-          </button>
-        </div>
-      </header>
+    <div className="admin-page container">
+      <h1 className="admin-title">👑 Quản lý người dùng</h1>
 
-      <main className="admin-main">
-        {loading ? (
-          <p>Đang tải dữ liệu...</p>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Tên</th>
-                <th>Email</th>
-                <th>Vai trò</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
+      {loading ? (
+        <p>Đang tải dữ liệu...</p>
+      ) : (
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Tên</th>
+              <th>Email</th>
+              <th>Vai trò</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr
+                key={u._id}
+                className={u.status === "blocked" ? "blocked" : ""}
+              >
+                <td>{u.name}</td>
+                <td>{u.email}</td>
+                <td>{u.role}</td>
+                <td>
+                  <span
+                    className={`status ${
+                      u.status === "blocked" ? "error" : "success"
+                    }`}
+                  >
+                    {u.status === "blocked" ? "Đã khóa" : "Hoạt động"}
+                  </span>
+                </td>
+                <td>
+                  <button onClick={() => handleEdit(u)}>✏️</button>
+                  <button onClick={() => confirmBlock(u)}>
+                    {u.status === "blocked" ? "🔓" : "🔒"}
+                  </button>
+                  <button onClick={() => confirmDelete(u)}>🗑️</button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr
-                  key={u._id}
-                  className={u.status === "blocked" ? "blocked" : ""}
-                >
-                  <td>{u.name}</td>
-                  <td>{u.email}</td>
-                  <td>{u.role}</td>
-                  <td>
-                    <span
-                      className={`status ${
-                        u.status === "blocked" ? "error" : "success"
-                      }`}
-                    >
-                      {u.status === "blocked" ? "Đã khóa" : "Hoạt động"}
-                    </span>
-                  </td>
-                  <td>
-                    <button onClick={() => handleEdit(u)}>✏️</button>
-                    <button onClick={() => confirmBlock(u)}>
-                      {u.status === "blocked" ? "🔓" : "🔒"}
-                    </button>
-                    <button onClick={() => confirmDelete(u)}>🗑️</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </main>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       {message && <div className="snackbar">{message}</div>}
 

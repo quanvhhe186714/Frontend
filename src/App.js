@@ -6,13 +6,13 @@ import {
   Navigate,
 } from "react-router-dom";
 import "./styles/global.scss"; // SCSS theme + global style
-import Login from "./components/Anonymous/Login";
-import Register from "./components/Anonymous/Register";
-import Profile from "./components/User/Profile";
-import ChangePassword from "./components/User/ChangePassword";
-import StudentHome from "./components/User/StudentHome";
-import AdminHome from "./components/Admin/AdminHome";
-import EventList from "./components/Anonymous/Event";
+import Login from "./page/Anonymous/Login";
+import Register from "./page/Anonymous/Register";
+import Profile from "./page/User/Profile";
+import ChangePassword from "./page/User/ChangePassword";
+import StudentHome from "./page/User/StudentHome";
+import AdminHome from "./page/Admin/AdminHome";
+import EventList from "./page/Anonymous/Event";
 import AdminRoute from "./routes/adminRouter";
 import ProtectedRoute from "./routes/protectRouter";
 function App() {

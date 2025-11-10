@@ -17,6 +17,7 @@ import AdminRoute from "./adminRouter";
 import ProtectedRoute from "./protectRouter";
 import ManagerRoute from "./managerRouter";
 import ManagerRequests from "../page/Manager/ManagerRequests";
+import Messages from "../page/User/Messages";
 
 const AppRoutes = () => {
   return (
@@ -51,6 +52,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <StudentHome />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/messages"
+        element={
+          <ProtectedRoute>
+            <Messages />
           </ProtectedRoute>
         }
       />

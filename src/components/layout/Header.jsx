@@ -24,6 +24,7 @@ const Header = () => {
           {userInfo ? (
             <>
               <Link to="/profile">Hồ sơ</Link>
+              <Link to="/messages">Tin nhắn</Link>
               {userInfo.user?.role === "manager" && (
                 <Link to="/manager/requests">Quản lý yêu cầu</Link>
               )}

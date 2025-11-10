@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../layoutcss/_header.scss";
+import NotificationBell from "../Notification/NotificationBell";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -61,6 +62,11 @@ const Header = () => {
               {userInfo.user?.role === "admin" && (
                 <Link to="/admin">Quản trị</Link>
               )}
+
+              <div style={{ display: 'flex', alignItems: 'center' }}> 
+                  <NotificationBell /> 
+              </div>
+              
               <div className="user-menu" style={{ position: "relative" }}>
                 <button
                   className="avatar-button"

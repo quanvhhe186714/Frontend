@@ -1,0 +1,190 @@
+$color-primary: var(--color-primary, #ff6600);
+$color-text: var(--color-text, #212121);
+$color-surface: var(--color-surface, #ffffff);
+$color-separator: var(--color-gray-300, #ccc);
+$color-unread: rgba(var(--color-primary-rgb, 255, 102, 0), 0.1); 
+
+.notification-bell-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.notification-bell-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $color-text;
+    padding: 8px;
+    position: relative;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+
+    svg {
+        width: 24px; 
+        height: 24px;
+        transition: fill 0.3s ease;
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    &.active {
+        transform: scale(1.1); 
+    }
+}
+
+.notification-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: var(--color-danger, #e74c3c); 
+    color: white;
+    border-radius: 50%;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 15px;
+    text-align: center;
+    line-height: 1;
+    transform: scale(1);
+    animation: pulse-ring 1s infinite; 
+
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb, 231, 76, 60), 0.4); }
+        70% { box-shadow: 0 0 0 5px rgba(var(--color-danger-rgb, 231, 76, 60), 0); }
+        100% { box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb, 231, 76, 60), 0); }
+    }
+}
+
+.notification-dropdown-container {
+    position: absolute;
+    top: calc(100% + 10px); 
+    right: 0;
+    width: 380px;
+    max-height: 500px;
+    background-color: $color-surface;
+    border: 1px solid $color-separator;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid $color-separator;
+
+    h3 {
+        margin: 0;
+        font-size: 1.1em;
+        font-weight: 600;
+        color: $color-text;
+    }
+    .btn-mark-all {
+        background: none;
+        border: none;
+        color: $color-primary;
+        font-size: 0.9em;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        &:hover {
+            background-color: rgba($color-separator, 0.2);
+        }
+    }
+}
+
+.dropdown-content {
+    max-height: 400px;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba($color-separator, 0.5);
+        border-radius: 10px;
+    }
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba($color-separator, 0.5);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    
+    &.unread {
+        background-color: $color-unread; 
+    }
+
+    &:hover {
+        background-color: rgba($color-separator, 0.2);
+    }
+    
+    .content-box {
+        flex-grow: 1;
+    }
+
+    .message {
+        margin: 0;
+        font-size: 0.95em;
+        line-height: 1.3;
+        color: $color-text;
+        font-weight: 400;
+
+        .unread & {
+            font-weight: 600; 
+        }
+    }
+
+    .timestamp {
+        display: block;
+        font-size: 0.8em;
+        color: var(--color-gray-600, #777);
+        margin-top: 4px;
+    }
+
+    .unread-dot {
+        width: 8px;
+        height: 8px;
+        background-color: $color-primary;
+        border-radius: 50%;
+        margin-left: 10px;
+        flex-shrink: 0;
+    }
+}
+
+.dropdown-footer {
+    padding: 8px;
+    border-top: 1px solid $color-separator;
+    text-align: center;
+    
+    button {
+        background: none;
+        border: none;
+        color: var(--color-gray-600, #777);
+        font-size: 0.9em;
+        cursor: pointer;
+        padding: 4px 8px;
+        &:hover {
+            color: $color-text;
+        }
+    }
+}

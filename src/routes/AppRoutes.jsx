@@ -17,6 +17,7 @@ import AdminRoute from "./adminRouter";
 import ProtectedRoute from "./protectRouter";
 import ManagerRoute from "./managerRouter";
 import ManagerRequests from "../page/Manager/ManagerRequests";
+import ManageClubs from "../page/Manager/ManageClubs";
 import Messages from "../page/User/Messages";
 
 const AppRoutes = () => {
@@ -83,6 +84,14 @@ const AppRoutes = () => {
           </ManagerRoute>
         }
       />
+      <Route
+        path="/manager/clubs"
+        element={
+          <ProtectedRoute>
+            <ManageClubs />
+          </ProtectedRoute>
+        }
+      />
 
       {/* 🏠 Default redirect */}
       <Route
@@ -97,7 +106,7 @@ const AppRoutes = () => {
             } else if (userInfo?.user?.role === "manager") {
               return <Navigate to="/manager/requests" />;
             } else {
-              return <Navigate to="/student" />;
+              return <Navigate to="/event" />;
             }
           } catch {
             localStorage.removeItem("userInfo");

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getAllUsers, deleteUser, updateUser } from "../../services/user";
+import { getClubsForAdmin, approveClub, rejectClub } from "../../services/club";
 import "./admin.scss";
 
 const AdminHome = () => {
@@ -8,6 +9,8 @@ const AdminHome = () => {
   const [message, setMessage] = useState("");
   const [editUser, setEditUser] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState(null);
+  const [pendingClubs, setPendingClubs] = useState([]);
+  const [clubsLoading, setClubsLoading] = useState(true);
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
@@ -26,6 +29,7 @@ const AdminHome = () => {
 
   useEffect(() => {
     fetchUsers();
+    fetchPendingClubs();
   }, []);
 
   // ✏️ Mở form chỉnh sửa
@@ -86,12 +90,88 @@ const AdminHome = () => {
       },
     });
 
+  // 🏷️ Lấy danh sách CLB pending để duyệt
+  const fetchPendingClubs = async () => {
+    try {
+      setClubsLoading(true);
+      const { data } = await getClubsForAdmin({ status: "pending" });
+      setPendingClubs(data || []);
+    } catch (error) {
+      setMessage("Lỗi khi tải danh sách CLB chờ duyệt");
+      setPendingClubs([]);
+    } finally {
+      setClubsLoading(false);
+    }
+  };
+
+  // ✅ Duyệt CLB
+  const handleApproveClub = async (clubId) => {
+    try {
+      await approveClub(clubId);
+      setMessage("Đã duyệt CLB. User được nâng lên Manager nếu cần.");
+      fetchPendingClubs();
+    } catch {
+      setMessage("Lỗi khi duyệt CLB");
+    }
+  };
+
+  // ❌ Từ chối CLB
+  const handleRejectClub = async (clubId) => {
+    try {
+      await rejectClub(clubId);
+      setMessage("Đã từ chối yêu cầu tạo CLB.");
+      fetchPendingClubs();
+    } catch {
+      setMessage("Lỗi khi từ chối CLB");
+    }
+  };
+
   return (
     <div className="admin-page container">
-      <h1 className="admin-title">👑 Quản lý người dùng</h1>
+      <h1 className="admin-title">👑 Quản trị</h1>
+
+      {/* Section: Duyệt CLB */}
+      <section className="admin-section">
+        <h2>📝 Yêu cầu tạo CLB (chờ duyệt)</h2>
+        {clubsLoading ? (
+          <p>Đang tải danh sách CLB...</p>
+        ) : pendingClubs.length === 0 ? (
+          <p>Không có yêu cầu tạo CLB nào.</p>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Tên CLB</th>
+                <th>Người đề xuất</th>
+                <th>Mô tả</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingClubs.map((c) => (
+                <tr key={c._id}>
+                  <td>{c.name}</td>
+                  <td>
+                    {c.managerId?.name} ({c.managerId?.email})
+                  </td>
+                  <td>{c.description}</td>
+                  <td>
+                    <span className="status">{c.status}</span>
+                  </td>
+                  <td>
+                    <button onClick={() => handleApproveClub(c._id)}>✅ Duyệt</button>
+                    <button onClick={() => handleRejectClub(c._id)}>❌ Từ chối</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
 
       {loading ? (
-        <p>Đang tải dữ liệu...</p>
+        <p>Đang tải danh sách người dùng...</p>
       ) : (
         <table className="admin-table">
           <thead>
@@ -156,6 +236,7 @@ const AdminHome = () => {
             >
               <option value="student">Student</option>
               <option value="admin">Admin</option>
+              <option value="manager">Manager</option>
             </select>
             <div className="dialog-actions">
               <button onClick={() => setEditUser(null)}>Hủy</button>

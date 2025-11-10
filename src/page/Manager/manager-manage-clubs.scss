@@ -1,0 +1,83 @@
+/* Styles for Manager Manage Clubs page */
+.manager-manage-clubs-page {
+  .page-title {
+    margin: 16px 0;
+    font-weight: 600;
+  }
+  .actions {
+    margin: 12px 0 20px 0;
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      &.primary {
+        background: #0d6efd;
+        color: #fff;
+      }
+    }
+  }
+  .message {
+    margin: 10px 0;
+    padding: 10px 12px;
+    background: #f6f6f6;
+    border-radius: 6px;
+  }
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      text-align: left;
+      background: #fafafa;
+    }
+    button {
+      margin-right: 8px;
+    }
+  }
+  .drawer {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 420px;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.08);
+    padding: 16px;
+    overflow-y: auto;
+    display: none;
+  }
+  .drawer.open {
+    display: block;
+  }
+  .form {
+    .form-group {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    input, textarea, select {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    .primary {
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  }
+}
+
+

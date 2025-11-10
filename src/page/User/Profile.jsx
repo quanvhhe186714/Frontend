@@ -35,8 +35,7 @@ const Profile = () => {
   };
 
   const handleBack = () => {
-    const role = JSON.parse(localStorage.getItem("userInfo"))?.user?.role;
-    navigate(role === "admin" ? "/admin" : "/student");
+    navigate("/event");
   };
 
   const handleSubmit = async (e) => {
@@ -115,6 +114,26 @@ const Profile = () => {
               />
             </div>
             <p className="role">Vai trò: {user.role}</p>
+            <div className="joined-clubs">
+              <h4>CLB đã tham gia</h4>
+              {Array.isArray(user.joinedClubs) && user.joinedClubs.length > 0 ? (
+                <ul>
+                  {user.joinedClubs.map((c, idx) => (
+                    <li key={idx} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      {c.clubId?.logo && (
+                        <img src={c.clubId.logo} alt="" style={{ width: 20, height: 20, borderRadius: 4 }} />
+                      )}
+                      <span>{c.clubId?.name || "Không rõ"}</span>
+                      <small style={{ color: "#666" }}>
+                        ({new Date(c.joinedAt).toLocaleDateString("vi-VN")})
+                      </small>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Chưa tham gia CLB nào.</p>
+              )}
+            </div>
           </div>
 
           <div className="profile-right">

@@ -17,6 +17,84 @@ import "../../components/messages/messages.scss";
 const THREAD_LIMIT = 20;
 const MESSAGE_LIMIT = 20;
 
+const formatDateTime = (value) => {
+  if (!value) {
+    return "";
+  }
+  try {
+    return new Date(value).toLocaleString("vi-VN");
+  } catch {
+    return "";
+  }
+};
+
+const buildConversationHeader = (thread, currentUserId) => {
+  if (!thread) {
+    return { title: "", meta: "" };
+  }
+
+  const participants = thread.participants || [];
+  const otherUsers = participants
+    .filter(
+      (participant) =>
+        participant.user &&
+        currentUserId &&
+        participant.user &&
+        (participant.user._id || participant.user.id) !== currentUserId
+    )
+    .map((participant) => participant.user?.name || "Người dùng");
+
+  let title = "";
+
+  switch (thread.type) {
+    case "DIRECT": {
+      const names =
+        otherUsers.length > 0
+          ? otherUsers.join(", ")
+          : participants
+              .filter((participant) => participant.user)
+              .map((participant) => participant.user?.name || "Người dùng")
+              .join(", ");
+      title = names ? `với ${names}` : "trực tiếp";
+      break;
+    }
+    case "USER_CLUB": {
+      const clubName =
+        participants.find((participant) => participant.club)?.club?.name || "";
+      title = clubName ? `với CLB ${clubName}` : "giữa người dùng và CLB";
+      break;
+    }
+    case "CLUB_BROADCAST": {
+      const clubName =
+        participants.find((participant) => participant.club)?.club?.name || "";
+      title = clubName ? `từ CLB ${clubName}` : "từ câu lạc bộ";
+      break;
+    }
+    case "EVENT": {
+      const eventTitle =
+        participants.find((participant) => participant.event)?.event?.title ||
+        "";
+      title = eventTitle ? `về sự kiện ${eventTitle}` : "về sự kiện";
+      break;
+    }
+    default:
+      title = "";
+  }
+
+  const time =
+    thread.lastMessage?.createdAt ||
+    thread.updatedAt ||
+    thread.createdAt ||
+    null;
+
+  const meta = [thread.type, formatDateTime(time)].filter(Boolean).join(" • ");
+
+  return {
+    title,
+    meta,
+  };
+};
+
 const Messages = () => {
   const [threads, setThreads] = useState([]);
   const [threadsPage, setThreadsPage] = useState(1);
@@ -48,28 +126,25 @@ const Messages = () => {
   const currentUserId =
     userInfo?.user?._id || userInfo?.user?.id || userInfo?.user?.userId;
 
-  const loadThreads = useCallback(
-    async (page = 1) => {
-      setThreadsLoading(true);
-      setError("");
-      try {
-        const response = await fetchThreads({ page, limit: THREAD_LIMIT });
-        const payload = response.data?.data;
-        setThreads(payload?.items || []);
-        setThreadsPagination(payload?.pagination || { totalPages: 1 });
-        setThreadsPage(page);
-      } catch (err) {
-        setError(
-          err.response?.data?.error ||
-            err.response?.data?.message ||
-            "Không thể tải danh sách hội thoại."
-        );
-      } finally {
-        setThreadsLoading(false);
-      }
-    },
-    []
-  );
+  const loadThreads = useCallback(async (page = 1) => {
+    setThreadsLoading(true);
+    setError("");
+    try {
+      const response = await fetchThreads({ page, limit: THREAD_LIMIT });
+      const payload = response.data?.data;
+      setThreads(payload?.items || []);
+      setThreadsPagination(payload?.pagination || { totalPages: 1 });
+      setThreadsPage(page);
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Không thể tải danh sách hội thoại."
+      );
+    } finally {
+      setThreadsLoading(false);
+    }
+  }, []);
 
   const loadMessages = useCallback(
     async (threadKey, page = 1, replace = true) => {
@@ -87,10 +162,17 @@ const Messages = () => {
         setMessages((prev) =>
           replace ? normalized : [...normalized, ...prev]
         );
-        setMessagesPagination(payload?.pagination || { totalPages: 1 });
+        setMessagesPagination(
+          payload?.pagination || { totalPages: 1, page, limit: MESSAGE_LIMIT }
+        );
         setMessagesPage(page);
 
-        await markThreadRead(threadKey);
+        try {
+          await markThreadRead(threadKey);
+        } catch (markError) {
+          // Giữ lịch sử tin nhắn hiển thị ngay cả khi đánh dấu đã đọc thất bại
+          console.warn("Không thể đánh dấu đã đọc:", markError);
+        }
       } catch (err) {
         setError(
           err.response?.data?.error ||
@@ -152,12 +234,28 @@ const Messages = () => {
   const handleCreateThread = useCallback(
     async (payload) => {
       setError("");
-      const response = await createThread(payload);
-      const newThread = response.data?.data;
-      await loadThreads(1);
-      if (newThread?.threadKey) {
-        setSelectedThread(newThread);
-        await loadMessages(newThread.threadKey, 1, true);
+      try {
+        const response = await createThread(payload);
+        const newThread = response.data?.data;
+        await loadThreads(1);
+        if (newThread?.threadKey) {
+          setSelectedThread(newThread);
+          setMessages(newThread?.lastMessage ? [newThread.lastMessage] : []);
+          setMessagesPage(1);
+          setMessagesPagination({
+            totalPages: 1,
+            page: 1,
+            limit: MESSAGE_LIMIT,
+            total: newThread?.lastMessage ? 1 : 0,
+          });
+          await loadMessages(newThread.threadKey, 1, true);
+        }
+      } catch (err) {
+        setError(
+          err.response?.data?.error ||
+            err.response?.data?.message ||
+            "Không thể tạo hội thoại."
+        );
       }
     },
     [loadMessages, loadThreads]
@@ -213,11 +311,25 @@ const Messages = () => {
     loadMessages,
   ]);
 
+  const conversationHeader = useMemo(
+    () => buildConversationHeader(selectedThread, currentUserId),
+    [selectedThread, currentUserId]
+  );
+
+  useEffect(() => {
+    if (!selectedThread && threads.length > 0) {
+      handleSelectThread(threads[0]);
+    }
+  }, [threads, selectedThread, handleSelectThread]);
+
   return (
     <div className="messages-page">
-      <div className="messages__column">
+      <aside className="messages__sidebar">
         <div className="messages__threads-header">
-          <h2>Trung tâm tin nhắn</h2>
+          <div>
+            <h2>Trung tâm tin nhắn</h2>
+            <p className="messages__subtitle">Lịch sử trò chuyện của bạn</p>
+          </div>
           <button
             type="button"
             className="messages__button messages__button--primary"
@@ -242,11 +354,27 @@ const Messages = () => {
           currentUserId={currentUserId}
           onTogglePin={handleTogglePin}
         />
-      </div>
+      </aside>
 
-      <div className="messages__column">
+      <main className="messages__chat-column">
         {selectedThread ? (
           <>
+            <div className="messages__chat-heading">
+              <div className="messages__chat-heading-text">
+                <span className="messages__chat-label">Cuộc trò chuyện</span>
+                <h2>
+                  {conversationHeader.title
+                    ? conversationHeader.title
+                    : "Trực tiếp"}
+                </h2>
+                {conversationHeader.meta && (
+                  <span className="messages__chat-meta">
+                    {conversationHeader.meta}
+                  </span>
+                )}
+              </div>
+            </div>
+
             <ChatWindow
               messages={messages}
               loading={messagesLoading}
@@ -264,7 +392,65 @@ const Messages = () => {
             Hãy chọn một hội thoại để bắt đầu trò chuyện.
           </div>
         )}
-      </div>
+      </main>
+
+      <aside className="messages__info-column">
+        {selectedThread ? (
+          <div className="messages__info-content">
+            <h3>Thông tin hội thoại</h3>
+            <div className="messages__info-item">
+              <span>Loại hội thoại</span>
+              <strong>{selectedThread.type}</strong>
+            </div>
+            <div className="messages__info-item">
+              <span>Tin nhắn đã trao đổi</span>
+              <strong>{selectedThread.messageCount || messages.length}</strong>
+            </div>
+            <div className="messages__info-item">
+              <span>Trạng thái ghim</span>
+              <strong>{selectedThread.meta?.isPinned ? "Đang ghim" : "Không"}</strong>
+            </div>
+
+            <div className="messages__participants-section">
+              <span className="messages__participants-title">
+                Thành viên tham gia
+              </span>
+              <ul>
+                {(selectedThread.participants || []).map((participant) => {
+                  if (participant.user) {
+                    return (
+                      <li key={`user-${participant.user._id || participant.user.id}`}>
+                        👤 {participant.user.name}
+                      </li>
+                    );
+                  }
+                  if (participant.club) {
+                    return (
+                      <li key={`club-${participant.club._id || participant.club.id}`}>
+                        🏛️ {participant.club.name}
+                      </li>
+                    );
+                  }
+                  if (participant.event) {
+                    return (
+                      <li
+                        key={`event-${participant.event._id || participant.event.id}`}
+                      >
+                        🎉 {participant.event.title}
+                      </li>
+                    );
+                  }
+                  return null;
+                })}
+              </ul>
+            </div>
+          </div>
+        ) : (
+          <div className="messages__placeholder">
+            Thông tin hội thoại sẽ hiển thị tại đây.
+          </div>
+        )}
+      </aside>
 
       <NewThreadModal
         isOpen={showNewThread}

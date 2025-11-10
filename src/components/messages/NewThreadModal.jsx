@@ -1,50 +1,122 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./messages.scss";
+import { fetchMessageUsers } from "../../services/message";
 
-const DEFAULT_FORM = {
+const createDefaultForm = () => ({
   type: "DIRECT",
-  participantIds: "",
+  participantIds: [],
   clubId: "",
   eventId: "",
   content: "",
-};
+});
 
 const NewThreadModal = ({ isOpen, onClose, onCreate, currentUserId }) => {
-  const [form, setForm] = useState(DEFAULT_FORM);
+  const [form, setForm] = useState(createDefaultForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [userSearch, setUserSearch] = useState("");
 
-  if (!isOpen) {
-    return null;
-  }
+  const loadUsers = useCallback(
+    async (searchTerm = "") => {
+      setUsersLoading(true);
+      try {
+        const response = await fetchMessageUsers({
+          search: searchTerm,
+          limit: 50,
+        });
+        setAvailableUsers(response.data?.data || []);
+      } catch (err) {
+        setError(
+          err.response?.data?.error ||
+            err.response?.data?.message ||
+            "Không thể tải danh sách người dùng."
+        );
+      } finally {
+        setUsersLoading(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    setForm(createDefaultForm());
+    setError("");
+    setUserSearch("");
+    loadUsers();
+  }, [isOpen, loadUsers]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    if (name === "type") {
+      setForm({
+        type: value,
+        participantIds: value === "DIRECT" ? [] : "",
+        clubId: "",
+        eventId: "",
+        content: "",
+      });
+      setError("");
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
+  const handleUserSelect = (event) => {
+    const selected = Array.from(event.target.selectedOptions).map(
+      (option) => option.value
+    );
+
+    setForm((prev) => ({
+      ...prev,
+      participantIds: selected,
+    }));
+  };
+
+  const sanitizeParticipantIds = () => {
+    if (Array.isArray(form.participantIds)) {
+      return form.participantIds.filter(Boolean);
+    }
+
+    if (typeof form.participantIds === "string") {
+      return form.participantIds
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  };
+
   const buildParticipantsPayload = () => {
     switch (form.type) {
       case "DIRECT": {
-        const ids = form.participantIds
-          .split(",")
-          .map((value) => value.trim())
-          .filter(Boolean);
+        const ids = sanitizeParticipantIds().filter(
+          (id) => id !== currentUserId
+        );
+        const uniqueIds = [...new Set(ids)];
 
         if (!currentUserId) {
           throw new Error("Không xác định được người dùng hiện tại.");
         }
 
-        if (ids.length === 0) {
-          throw new Error("Vui lòng nhập ít nhất một userId.");
+        if (uniqueIds.length === 0) {
+          throw new Error("Vui lòng chọn ít nhất một người nhận.");
         }
 
         const participants = [
           { userId: currentUserId },
-          ...ids.map((id) => ({ userId: id })),
+          ...uniqueIds.map((id) => ({ userId: id })),
         ];
 
         return participants;
@@ -92,7 +164,7 @@ const NewThreadModal = ({ isOpen, onClose, onCreate, currentUserId }) => {
         content: form.content.trim() || undefined,
       });
 
-      setForm(DEFAULT_FORM);
+      setForm(createDefaultForm());
       onClose();
     } catch (err) {
       setError(err.message || "Không thể tạo hội thoại.");
@@ -101,23 +173,51 @@ const NewThreadModal = ({ isOpen, onClose, onCreate, currentUserId }) => {
     }
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   const renderTypeFields = () => {
     switch (form.type) {
       case "DIRECT":
         return (
           <div className="messages__form-group">
-            <label>User ID (cách nhau bằng dấu phẩy)</label>
-            <input
-              type="text"
+            <label>Người nhận</label>
+            <div className="messages__user-search">
+              <input
+                type="text"
+                value={userSearch}
+                onChange={(event) => setUserSearch(event.target.value)}
+                placeholder="Nhập tên hoặc email người nhận"
+              />
+              <button
+                type="button"
+                className="messages__button messages__button--ghost"
+                onClick={() => loadUsers(userSearch)}
+                disabled={usersLoading}
+              >
+                {usersLoading ? "Đang tìm..." : "Tìm"}
+              </button>
+            </div>
+            <select
+              multiple
               name="participantIds"
-              value={form.participantIds}
-              onChange={handleChange}
-              placeholder="vd: 65f1a..., 65f1b..."
-              required
-            />
-            <small>
-              Hệ thống tự động thêm bạn vào participants, chỉ cần nhập người nhận.
-            </small>
+              value={Array.isArray(form.participantIds) ? form.participantIds : []}
+              onChange={handleUserSelect}
+              size={6}
+              disabled={usersLoading}
+            >
+              {availableUsers.map((user) => (
+                <option key={user._id} value={user._id}>
+                  {user.name} ({user.email})
+                </option>
+              ))}
+            </select>
+            {availableUsers.length === 0 && !usersLoading && (
+              <small>Không tìm thấy người dùng phù hợp.</small>
+            )}
+            {usersLoading && <small>Đang tải danh sách người dùng...</small>}
+            <small>Giữ Ctrl/Cmd để chọn nhiều người nhận.</small>
           </div>
         );
 
@@ -189,7 +289,7 @@ const NewThreadModal = ({ isOpen, onClose, onCreate, currentUserId }) => {
             type="button"
             className="messages__icon-button"
             onClick={() => {
-              setForm(DEFAULT_FORM);
+              setForm(createDefaultForm());
               setError("");
               onClose();
             }}
@@ -230,7 +330,7 @@ const NewThreadModal = ({ isOpen, onClose, onCreate, currentUserId }) => {
               type="button"
               className="messages__button messages__button--ghost"
               onClick={() => {
-                setForm(DEFAULT_FORM);
+                setForm(createDefaultForm());
                 setError("");
                 onClose();
               }}

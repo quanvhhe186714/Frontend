@@ -34,19 +34,6 @@ const ChatWindow = ({ messages, loading, currentUserId, onLoadMore }) => {
 
   return (
     <div className="messages__chat-window">
-      <div className="messages__chat-header">
-        <h3>Cuộc trò chuyện</h3>
-        {onLoadMore && (
-          <button
-            type="button"
-            className="messages__button messages__button--ghost"
-            onClick={onLoadMore}
-          >
-            Tải thêm
-          </button>
-        )}
-      </div>
-
       <div className="messages__chat-body">
         {loading ? (
           <div className="messages__placeholder">Đang tải tin nhắn...</div>
@@ -68,7 +55,7 @@ const ChatWindow = ({ messages, loading, currentUserId, onLoadMore }) => {
                   isMine ? "messages__bubble--mine" : ""
                 }`}
               >
-                <div className="messages__bubble-header">
+                <div className="messages__bubble-top">
                   <span className="messages__bubble-sender">
                     {isMine
                       ? "Bạn"
@@ -79,9 +66,7 @@ const ChatWindow = ({ messages, loading, currentUserId, onLoadMore }) => {
                   </span>
                 </div>
                 {message.content && (
-                  <div className="messages__bubble-content">
-                    {message.content}
-                  </div>
+                  <p className="messages__bubble-text">{message.content}</p>
                 )}
                 <AttachmentList attachments={message.attachments} />
               </div>
@@ -90,6 +75,17 @@ const ChatWindow = ({ messages, loading, currentUserId, onLoadMore }) => {
         )}
         <div ref={bottomRef} />
       </div>
+      {!loading && messages.length > 0 && onLoadMore && (
+        <div className="messages__load-more">
+          <button
+            type="button"
+            className="messages__button messages__button--ghost"
+            onClick={onLoadMore}
+          >
+            Xem tin nhắn cũ hơn
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { getMyManagedClubs, createClub, updateClub, deleteClub } from "../../services/club";
+import {
+  getMyManagedClubs,
+  createClub,
+  updateClub,
+  deleteClub,
+} from "../../services/club";
 import "./manager-manage-clubs.scss";
 
 const ManageClubs = () => {
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [editingClub, setEditingClub] = useState(null); // null = create, object = edit
-  const [form, setForm] = useState({ name: "", description: "", category: "Other", logo: "" });
+  const [editingClub, setEditingClub] = useState(null);
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    category: "Other",
+    logo: "",
+  });
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
@@ -86,7 +96,9 @@ const ManageClubs = () => {
         {message && <div className="message">{message}</div>}
 
         <div className="actions">
-          <button className="btn primary" onClick={openCreate}>➕ Tạo CLB</button>
+          <button className="btn primary" onClick={openCreate}>
+            ➕ Tạo CLB
+          </button>
         </div>
 
         {loading ? (
@@ -121,7 +133,10 @@ const ManageClubs = () => {
           </table>
         )}
 
-        <div className={`drawer ${showForm ? "open" : ""}`} style={{display: showForm ? "block" : "none"}}>
+        <div
+          className={`drawer ${showForm ? "open" : ""}`}
+          style={{ display: showForm ? "block" : "none" }}
+        >
           <div className="drawer-content" onClick={(e) => e.stopPropagation()}>
             <h3>{editingClub ? "Chỉnh sửa CLB" : "Tạo CLB mới"}</h3>
             <form onSubmit={handleSubmit} className="form">
@@ -137,7 +152,9 @@ const ManageClubs = () => {
                 <label>Mô tả</label>
                 <textarea
                   value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
                   rows="3"
                 />
               </div>
@@ -145,7 +162,9 @@ const ManageClubs = () => {
                 <label>Danh mục</label>
                 <select
                   value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, category: e.target.value })
+                  }
                 >
                   <option value="Technology">Technology</option>
                   <option value="Sports">Sports</option>
@@ -155,15 +174,29 @@ const ManageClubs = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label>Logo (URL)</label>
+                <label>Logo (chọn ảnh)</label>
                 <input
-                  value={form.logo}
-                  onChange={(e) => setForm({ ...form, logo: e.target.value })}
-                  placeholder="https://..."
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setForm({ ...form, logo: e.target.files[0] })
+                  }
                 />
               </div>
               <div className="form-actions">
-                <button type="button" onClick={() => { setEditingClub(null); setForm({ name: "", description: "", category: "Other", logo: "" }); setShowForm(false); }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingClub(null);
+                    setForm({
+                      name: "",
+                      description: "",
+                      category: "Other",
+                      logo: "",
+                    });
+                    setShowForm(false);
+                  }}
+                >
                   Hủy
                 </button>
                 <button type="submit" className="primary" disabled={submitting}>
@@ -179,5 +212,3 @@ const ManageClubs = () => {
 };
 
 export default ManageClubs;
-
-

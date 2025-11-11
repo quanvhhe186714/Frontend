@@ -8,13 +8,18 @@ export const getClubDetailById = async (id) => {
   return await api.get(`/clubs/${id}`);
 };
 
-export const createClub = async (data) => {
-  return await api.post("/clubs", data);
-};
-
-export const updateClub = async (clubId, data) => {
-  return await api.put(`/clubs/${clubId}`, data);
-};
+export const createClub = (formData) =>
+  api.post("/clubs", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+export const updateClub = (id, formData) =>
+  api.put(`/clubs/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
 export const deleteClub = async (clubId) => {
   return await api.delete(`/clubs/${clubId}`);

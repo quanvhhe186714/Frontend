@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyProfile, updateMyProfile } from "../../services/user";
+import orderService from "../../services/order";
 import "./profile.scss";
 
 const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({ name: "", avatar: "" });
+  const [orders, setOrders] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -20,8 +22,13 @@ const Profile = () => {
           name: data.name,
           avatar: data.avatar || "",
         });
+        
+        // Fetch Orders
+        const ordersData = await orderService.getMyOrders();
+        setOrders(ordersData);
+
       } catch (err) {
-        setMessage("❌ Không thể tải hồ sơ. Bạn đã đăng nhập chưa?");
+        setMessage("Please login.");
       } finally {
         setLoading(false);
       }
@@ -35,7 +42,7 @@ const Profile = () => {
   };
 
   const handleBack = () => {
-    navigate("/event");
+    navigate("/");
   };
 
   const handleSubmit = async (e) => {
@@ -50,9 +57,9 @@ const Profile = () => {
         userInfo.user.avatar = data.avatar;
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
       }
-      setMessage("✅ Cập nhật thành công!");
+      setMessage("Updated successfully!");
     } catch (err) {
-      setMessage("❌ Lỗi khi cập nhật hồ sơ");
+      setMessage("Update failed");
     } finally {
       setSaving(false);
     }
@@ -61,8 +68,7 @@ const Profile = () => {
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return setMessage("❌ File quá lớn (tối đa 5MB)");
-
+    
     const form = new FormData();
     form.append("avatar", file);
 
@@ -78,27 +84,27 @@ const Profile = () => {
       if (res.ok) {
         setFormData((prev) => ({ ...prev, avatar: result.avatarUrl }));
         setUser((prev) => ({ ...prev, avatar: result.avatarUrl }));
-        setMessage("✅ Upload ảnh thành công!");
+        setMessage("Avatar uploaded!");
       } else {
         throw new Error(result.message);
       }
     } catch (err) {
-      setMessage("❌ Upload ảnh thất bại!");
+      setMessage("Avatar upload failed!");
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <div className="loading">⏳ Đang tải hồ sơ...</div>;
+  if (loading) return <div className="loading">Loading...</div>;
   if (!user) return <div className="error">{message}</div>;
 
   return (
     <div className="profile-container">
       <div className="profile-box">
         <div className="profile-header">
-          <h2>Hồ sơ của bạn</h2>
+          <h2>My Profile</h2>
           <button onClick={handleBack} className="outline-btn">
-            ← Quay lại
+            ← Back
           </button>
         </div>
 
@@ -108,43 +114,16 @@ const Profile = () => {
           <div className="profile-left">
             <div className="avatar-wrapper">
               <img
-                src={formData.avatar || user.avatar || "/default-avatar.png"}
+                src={formData.avatar || user.avatar || "https://via.placeholder.com/150"}
                 alt="avatar"
                 className="avatar"
               />
             </div>
-            <p className="role">Vai trò: {user.role}</p>
-            <div className="joined-clubs">
-              <h4>CLB đã tham gia</h4>
-              {Array.isArray(user.joinedClubs) && user.joinedClubs.length > 0 ? (
-                <ul>
-                  {user.joinedClubs.map((c, idx) => (
-                    <li key={idx} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                      {c.clubId?.logo && (
-                        <img src={c.clubId.logo} alt="" style={{ width: 20, height: 20, borderRadius: 4 }} />
-                      )}
-                      <span>{c.clubId?.name || "Không rõ"}</span>
-                      <small style={{ color: "#666" }}>
-                        ({new Date(c.joinedAt).toLocaleDateString("vi-VN")})
-                      </small>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>Chưa tham gia CLB nào.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="profile-right">
+            <p className="role">Role: {user.role}</p>
+            
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Email</label>
-                <input type="email" value={user.email} disabled />
-              </div>
-
-              <div className="form-group">
-                <label>Họ và tên</label>
+                <label>Name</label>
                 <input
                   type="text"
                   name="name"
@@ -153,20 +132,42 @@ const Profile = () => {
                   required
                 />
               </div>
-
-              <div className="form-group">
-                <label>Ảnh đại diện</label>
+               <div className="form-group">
+                <label>Avatar</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleAvatarUpload}
                 />
               </div>
-
               <button type="submit" className="primary-btn" disabled={saving}>
-                {saving ? "💾 Đang lưu..." : "Lưu thay đổi"}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </form>
+
+          </div>
+
+          <div className="profile-right">
+            <h3>Order History</h3>
+            {orders.length === 0 ? <p>No orders yet.</p> : (
+                <div className="orders-list">
+                    {orders.map(order => (
+                        <div key={order._id} className="order-card">
+                            <div className="order-header">
+                                <span>#{order._id.substring(0,8)}</span>
+                                <span className={`status ${order.status}`}>{order.status}</span>
+                            </div>
+                            <p className="date">{new Date(order.createdAt).toLocaleDateString()}</p>
+                            <p className="total">Total: ${order.totalAmount}</p>
+                            <ul className="order-items">
+                                {order.items.map((item, i) => (
+                                    <li key={i}>{item.quantity}x {item.name}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,0 +1,226 @@
+// Variables
+$primary-color: #229ED9; // Telegram Blue
+$secondary-color: #0088cc;
+$dark-bg: #17212b; // Telegram Dark Theme BG
+$darker-bg: #0e1621; // Telegram Darker BG
+$text-color: #ffffff;
+$card-bg: #242f3d; // Telegram Message BG
+
+.shop-home, .product-list-page, .cart-page {
+    padding: 2rem;
+    color: $text-color;
+    background: $darker-bg;
+    min-height: 80vh;
+}
+
+// Hero
+.hero {
+    text-align: center;
+    padding: 5rem 0;
+    background: radial-gradient(circle at center, $dark-bg 0%, $darker-bg 100%);
+    
+    h1 {
+        font-size: 4rem;
+        color: white;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 20px rgba(34, 158, 217, 0.5);
+    }
+    
+    p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.8;
+    }
+    
+    .cta-btn {
+        padding: 1rem 3rem;
+        font-size: 1.2rem;
+        background: $primary-color;
+        border: none;
+        border-radius: 50px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 5px 15px rgba(34, 158, 217, 0.4);
+        
+        &:hover {
+            transform: translateY(-2px);
+            background: lighten($primary-color, 5%);
+        }
+    }
+}
+
+// Features
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+    
+    .feature-card {
+        background: $card-bg;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        border: 1px solid rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+        
+        &:hover { transform: translateY(-5px); }
+        
+        h3 { color: $primary-color; margin: 1rem 0; }
+    }
+}
+
+// Products
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    
+    .product-card {
+        background: $card-bg;
+        border-radius: 20px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s;
+        border: 1px solid rgba(255,255,255,0.05);
+        
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            
+            h3 { font-size: 1.5rem; margin: 0; color: white; }
+            .price { 
+                font-size: 1.5rem; 
+                color: $primary-color; 
+                font-weight: bold;
+            }
+        }
+        
+        .desc { opacity: 0.7; margin-bottom: 1rem; flex-grow: 1; color: #aaa; }
+        
+        .features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+            
+            li {
+                margin-bottom: 0.5rem;
+                color: #ddd;
+                &:before { content: "✓ "; color: $primary-color; margin-right: 5px; }
+            }
+        }
+        
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: $primary-color;
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            
+            &:hover {
+                background: lighten($primary-color, 5%);
+            }
+        }
+    }
+}
+
+// Cart
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+    background: $card-bg;
+    border-radius: 10px;
+    overflow: hidden;
+    
+    th, td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    th { background: rgba(0,0,0,0.2); color: $primary-color; }
+    
+    button {
+        background: rgba(255,255,255,0.1);
+        border: none;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin: 0 5px;
+        cursor: pointer;
+        &:hover { background: rgba(255,255,255,0.2); }
+    }
+    
+    .remove-btn {
+        background: #e74c3c;
+        &:hover { background: #c0392b; }
+    }
+}
+
+.cart-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
+    
+    .coupon-section {
+        display: flex;
+        gap: 10px;
+        
+        input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: $card-bg;
+            color: white;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: $secondary-color;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+    }
+    
+    .totals {
+        text-align: right;
+        p { margin: 5px 0; opacity: 0.8; }
+        .discount { color: #2ecc71; }
+        h3 { font-size: 1.5rem; margin-top: 10px; color: $primary-color; }
+    }
+    
+    .checkout-btn {
+        padding: 1rem 3rem;
+        background: linear-gradient(to right, $primary-color, $secondary-color);
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        
+        &:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+    }
+}

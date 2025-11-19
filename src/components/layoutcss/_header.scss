@@ -1,47 +1,118 @@
+$primary-color: #00d2ff;
+$bg-color: #0f0c29;
+
 .app-header {
-  background-color: #ff6600;
+  background-color: rgba(15, 12, 41, 0.95);
   color: white;
   padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
 
   .header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
   }
 
   .logo a {
     color: white;
     font-weight: bold;
     text-decoration: none;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: -webkit-linear-gradient(#fff, $primary-color);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .nav-links {
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    gap: 2rem;
 
     a {
-      color: white;
+      color: rgba(255,255,255,0.7);
       text-decoration: none;
       font-weight: 500;
+      transition: color 0.3s;
 
       &:hover {
-        text-decoration: underline;
+        color: $primary-color;
       }
     }
+    
+    .btn-register {
+        border: 1px solid $primary-color;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        color: $primary-color;
+        
+        &:hover {
+            background: $primary-color;
+            color: #000;
+        }
+    }
+  }
 
-    .btn-logout {
-      background: transparent;
-      border: 1px solid white;
-      color: white;
-      padding: 0.3rem 0.8rem;
-      border-radius: 5px;
-      cursor: pointer;
+  .user-menu {
+    position: relative;
+    
+    .avatar-button {
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        cursor: pointer;
+        
+        img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid $primary-color;
+        }
+    }
 
-      &:hover {
-        background-color: white;
-        color: #ff6600;
-      }
+    .dropdown {
+        position: absolute;
+        right: 0;
+        top: 120%;
+        background: #1a1a2e;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        width: 180px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        
+        button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px 15px;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: background 0.2s;
+            
+            &:hover {
+                background: rgba(255,255,255,0.05);
+                color: white;
+            }
+            
+            &.logout {
+                color: #ff4d4d;
+                border-top: 1px solid rgba(255,255,255,0.05);
+            }
+        }
     }
   }
 }

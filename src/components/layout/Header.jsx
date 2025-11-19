@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../layoutcss/_header.scss";
-import NotificationBell from "../Notification/NotificationBell";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -16,103 +15,54 @@ const Header = () => {
     navigate("/login");
   };
 
-  // Cập nhật userInfo khi đổi route hoặc có event từ tab khác
   useEffect(() => {
     try {
       setUserInfo(JSON.parse(localStorage.getItem("userInfo")));
     } catch {
       setUserInfo(null);
     }
-    // đóng menu khi chuyển trang
     setOpenMenu(false);
   }, [location]);
-  useEffect(() => {
-    const onStorage = (e) => {
-      if (e.key === "userInfo") {
-        try {
-          setUserInfo(JSON.parse(e.newValue));
-        } catch {
-          setUserInfo(null);
-        }
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
 
   return (
     <header className="app-header">
       <div className="container header-container">
         <h1 className="logo">
-          <Link to="/">FPT Clubs</Link>
+          <Link to="/">TelePremium</Link>
         </h1>
 
-        <nav className="nav-links" style={{ overflow: "visible" }}>
-          <Link to="/event">Sự kiện</Link>
-          <Link to="/club">Câu lạc bộ</Link>
+        <nav className="nav-links">
+          <Link to="/products">Products</Link>
+          <Link to="/cart">Cart</Link>
+          
           {userInfo ? (
-            <>
-              <Link to="/messages">Tin nhắn</Link>
-              <Link to="/manager/clubs">CLB của tôi</Link>
-              {userInfo.user?.role === "manager" && (
-                <>
-                  <Link to="/manager/requests">Quản lý yêu cầu</Link>
-                </>
-              )}
-              {userInfo.user?.role === "admin" && (
-                <Link to="/admin">Quản trị</Link>
-              )}
-
-              <div style={{ display: 'flex', alignItems: 'center' }}> 
-                  <NotificationBell /> 
-              </div>
-              
-              <div className="user-menu" style={{ position: "relative" }}>
-                <button
-                  className="avatar-button"
-                  onClick={() => setOpenMenu((v) => !v)}
-                  aria-label="user-menu"
-                >
-                  <img
-                    src={userInfo.user?.avatar || "/default-avatar.png"}
+            <div className="user-menu">
+              <button
+                className="avatar-button"
+                onClick={() => setOpenMenu((v) => !v)}
+              >
+                <img
+                    src={userInfo.user?.avatar || "https://via.placeholder.com/30"}
                     alt="avatar"
-                    style={{ width: 28, height: 28, borderRadius: "50%" }}
-                  />
-                </button>
-                {openMenu && (
-                  <div
-                    className="dropdown"
-                    style={{
-                      position: "absolute",
-                      right: 0,
-                      top: "calc(100% + 8px)",
-                      background: "#fff",
-                      border: "1px solid #eee",
-                      borderRadius: 8,
-                      minWidth: 180,
-                      zIndex: 1000,
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                      overflow: "visible",
-                    }}
-                  >
-                    <button onClick={() => { setOpenMenu(false); navigate("/profile"); }} className="dropdown-item" style={{ width: "100%", textAlign: "left", padding: "10px 14px", background: "transparent", border: "none", cursor: "pointer", color: "#222" }}>
-                      Hồ sơ
-                    </button>
-                    <button onClick={() => { setOpenMenu(false); navigate("/change-password"); }} className="dropdown-item" style={{ width: "100%", textAlign: "left", padding: "10px 14px", background: "transparent", border: "none", cursor: "pointer", color: "#222" }}>
-                      Đổi mật khẩu
-                    </button>
-                    <button onClick={() => { setOpenMenu(false); handleLogout(); }} className="dropdown-item" style={{ width: "100%", textAlign: "left", padding: "10px 14px", background: "transparent", border: "none", cursor: "pointer", color: "#d9534f" }}>
-                      Đăng xuất
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
+                />
+                <span>{userInfo.user?.name}</span>
+              </button>
+              
+              {openMenu && (
+                <div className="dropdown">
+                  <button onClick={() => navigate("/profile")}>My Profile</button>
+                  {userInfo.user?.role === "admin" && (
+                    <button onClick={() => navigate("/admin")}>Admin Dashboard</button>
+                  )}
+                  <button onClick={handleLogout} className="logout">Logout</button>
+                </div>
+              )}
+            </div>
           ) : (
-            <>
-              <Link to="/login">Đăng nhập</Link>
-              <Link to="/register">Đăng ký</Link>
-            </>
+            <div className="auth-links">
+              <Link to="/login">Login</Link>
+              <Link to="/register" className="btn-register">Register</Link>
+            </div>
           )}
         </nav>
       </div>

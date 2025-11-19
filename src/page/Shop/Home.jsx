@@ -12,6 +12,14 @@ const Home = () => {
           <p>Unlock the full potential of Telegram with exclusive features.</p>
           <button className="cta-btn" onClick={() => navigate('/products')}>View Packages</button>
         </div>
+        <div style={{ marginTop: 24 }}>
+          <img
+            src="/telepremium.png"
+            alt="Telegram Premium"
+            style={{ width: 220, height: 'auto' }}
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        </div>
       </section>
       
       <section className="features">

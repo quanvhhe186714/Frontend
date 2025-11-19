@@ -1,0 +1,110 @@
+@import "../Shop/shop.scss";
+
+.portal-page {
+  padding: 1.5rem 2rem;
+  color: #fff;
+  background: #0e1621;
+  min-height: 80vh;
+}
+
+.portal-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #17212b;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.market-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1.2rem;
+}
+
+.market-filter {
+  background: #17212b;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.market-filter h4 {
+  margin: 0 0 .6rem;
+}
+
+.market-filter ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: .4rem;
+}
+
+.market-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.service-card {
+  display: grid;
+  grid-template-columns: 96px 1fr 160px;
+  gap: 1rem;
+  background: #17212b;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: .8rem;
+  align-items: center;
+}
+
+.service-card .thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-card .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-card .meta h3 {
+  margin: 0 0 .3rem;
+  font-size: 1.05rem;
+}
+
+.service-card .meta p {
+  margin: 0;
+  opacity: .8;
+  font-size: .92rem;
+}
+
+.service-card .actions {
+  display: grid;
+  gap: .4rem;
+  justify-items: end;
+}
+
+.service-card .price {
+  color: #00d2ff;
+  font-weight: 700;
+}
+
+.link-btn {
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: .5rem .8rem;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+

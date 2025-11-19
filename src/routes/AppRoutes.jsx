@@ -10,6 +10,16 @@ import AdminHome from "../page/Admin/AdminHome";
 import Home from "../page/Shop/Home";
 import ProductList from "../page/Shop/ProductList";
 import Cart from "../page/Shop/Cart";
+import ProductDetail from "../page/Shop/ProductDetail";
+import Checkout from "../page/Shop/Checkout";
+
+// Portal pages (market-like)
+import SanPham from "../page/Portal/SanPham";
+import DichVu from "../page/Portal/DichVu";
+import HoTro from "../page/Portal/HoTro";
+import ChiaSe from "../page/Portal/ChiaSe";
+import CongCu from "../page/Portal/CongCu";
+import Faqs from "../page/Portal/Faqs";
 
 import AdminRoute from "./adminRouter";
 import ProtectedRoute from "./protectRouter";
@@ -20,9 +30,19 @@ const AppRoutes = () => {
       {/* 🌐 Public Shop Routes */}
       <Route path="/" element={<Home />} />
       <Route path="/products" element={<ProductList />} />
+      <Route path="/products/:id" element={<ProductDetail />} />
       <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
+      {/* Portal style pages */}
+      <Route path="/san-pham" element={<SanPham />} />
+      <Route path="/dich-vu" element={<DichVu />} />
+      <Route path="/ho-tro" element={<HoTro />} />
+      <Route path="/chia-se" element={<ChiaSe />} />
+      <Route path="/cong-cu" element={<CongCu />} />
+      <Route path="/faqs" element={<Faqs />} />
 
       {/* 👤 Protected routes */}
       <Route

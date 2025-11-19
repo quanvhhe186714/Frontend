@@ -53,37 +53,35 @@ const Cart = () => {
           if (res.success) {
               setDiscount(res.discountAmount);
               setAppliedCoupon(res.code);
-              alert(res.message);
+              const el = document.createElement('div');
+              el.className = 'simple-toast';
+              el.innerText = res.message;
+              document.body.appendChild(el);
+              setTimeout(() => document.body.removeChild(el), 1500);
           }
       } catch (error) {
-          alert(error.response?.data?.message || "Invalid Coupon");
+          const el = document.createElement('div');
+          el.className = 'simple-toast';
+          el.innerText = error.response?.data?.message || "Invalid Coupon";
+          document.body.appendChild(el);
+          setTimeout(() => document.body.removeChild(el), 1500);
           setDiscount(0);
           setAppliedCoupon(null);
       }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     const userInfo = localStorage.getItem("userInfo");
     if (!userInfo) {
-        alert("Please login to checkout");
-        navigate("/login");
-        return;
+      const el = document.createElement('div');
+      el.className = 'simple-toast';
+      el.innerText = 'Please login to checkout';
+      document.body.appendChild(el);
+      setTimeout(() => document.body.removeChild(el), 1500);
+      navigate("/login");
+      return;
     }
-    
-    try {
-        await orderService.createOrder({
-            items: cart,
-            paymentMethod: "bank_transfer",
-            couponCode: appliedCoupon
-        });
-        alert("Order placed successfully!");
-        localStorage.removeItem("cart");
-        setCart([]);
-        navigate("/profile"); 
-    } catch (error) {
-        console.error("Checkout failed", error);
-        alert(error.response?.data?.message || "Checkout failed");
-    }
+    navigate("/checkout");
   };
 
   const total = Math.max(0, subTotal - discount);
@@ -109,13 +107,13 @@ const Cart = () => {
               {cart.map((item) => (
                 <tr key={item.productId}>
                   <td>{item.name}</td>
-                  <td>${item.price}</td>
+                  <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}</td>
                   <td>
                     <button onClick={() => updateQuantity(item.productId, -1)}>-</button>
                     {item.quantity}
                     <button onClick={() => updateQuantity(item.productId, 1)}>+</button>
                   </td>
-                  <td>${item.price * item.quantity}</td>
+                  <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price * item.quantity)}</td>
                   <td><button className="remove-btn" onClick={() => removeItem(item.productId)}>Remove</button></td>
                 </tr>
               ))}
@@ -134,9 +132,9 @@ const Cart = () => {
             </div>
             
             <div className="totals">
-                <p>Subtotal: ${subTotal}</p>
-                {discount > 0 && <p className="discount">Discount: -${discount}</p>}
-                <h3>Total: ${total}</h3>
+                <p>Subtotal: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subTotal)}</p>
+                {discount > 0 && <p className="discount">Discount: -{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(discount)}</p>}
+                <h3>Total: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</h3>
             </div>
             
             <button className="checkout-btn" onClick={handleCheckout}>Checkout</button>

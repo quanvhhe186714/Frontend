@@ -158,11 +158,25 @@ const Profile = () => {
                                 <span className={`status ${order.status}`}>{order.status}</span>
                             </div>
                             <p className="date">{new Date(order.createdAt).toLocaleDateString()}</p>
-                            <p className="total">Total: ${order.totalAmount}</p>
+                            <p className="total">Total: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount)}</p>
+                            {order.paymentDetails?.telegramUsername && (
+                              <p>Telegram: {order.paymentDetails.telegramUsername}</p>
+                            )}
                             <ul className="order-items">
-                                {order.items.map((item, i) => (
-                                    <li key={i}>{item.quantity}x {item.name}</li>
-                                ))}
+                                {order.items.map((item, i) => {
+                                  let expiry = null;
+                                  if (item.durationMonths && order.createdAt) {
+                                    const d = new Date(order.createdAt);
+                                    d.setMonth(d.getMonth() + item.durationMonths);
+                                    expiry = d.toLocaleDateString();
+                                  }
+                                  return (
+                                    <li key={i}>
+                                      {item.quantity}x {item.name}
+                                      {expiry && <span style={{ marginLeft: 8, opacity: 0.8 }}>(Expiry: {expiry})</span>}
+                                    </li>
+                                  );
+                                })}
                             </ul>
                         </div>
                     ))}

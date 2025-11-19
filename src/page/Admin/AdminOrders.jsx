@@ -58,7 +58,7 @@ const AdminOrders = () => {
                             <button onClick={() => updateStatus(o._id, "paid")}>Mark Paid</button>
                         )}
                         {o.status === "paid" && (
-                            <button onClick={() => updateStatus(o._id, "completed")}>Complete</button>
+                            <button onClick={() => updateStatus(o._id, "delivered")}>Mark Delivered</button>
                         )}
                         <button onClick={() => updateStatus(o._id, "failed")}>Fail</button>
                     </td>

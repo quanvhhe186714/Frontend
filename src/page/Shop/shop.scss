@@ -86,6 +86,7 @@ $card-bg: #242f3d; // Telegram Message BG
         flex-direction: column;
         transition: transform 0.3s;
         border: 1px solid rgba(255,255,255,0.05);
+        position: relative;
         
         &:hover {
             transform: translateY(-5px);
@@ -134,6 +135,13 @@ $card-bg: #242f3d; // Telegram Message BG
             &:hover {
                 background: lighten($primary-color, 5%);
             }
+        }
+
+        &.skeleton {
+            .skl-line { height: 12px; background: rgba(255,255,255,0.08); border-radius: 6px; margin: 8px 0; }
+            .skl-title { width: 60%; height: 20px; background: rgba(255,255,255,0.08); border-radius: 6px; }
+            .skl-price { width: 80px; height: 20px; background: rgba(255,255,255,0.08); border-radius: 6px; }
+            .skl-btn { height: 44px; background: rgba(255,255,255,0.08); border-radius: 10px; }
         }
     }
 }
@@ -222,5 +230,71 @@ $card-bg: #242f3d; // Telegram Message BG
             transform: translateY(-2px);
             filter: brightness(1.1);
         }
+    }
+}
+
+.loading {
+    text-align: center;
+    padding: 3rem;
+}
+
+.simple-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    z-index: 2000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+// Product Detail
+.product-detail-page {
+    padding: 2rem;
+    .detail-card {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 2rem;
+        background: $card-bg;
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .detail-image { width: 100%; border-radius: 16px; background: #111; }
+    .detail-right {
+        .price { color: $primary-color; font-size: 1.6rem; font-weight: bold; }
+        .desc { color: #aaa; }
+        .guide { margin-top: 1rem; opacity: 0.9; }
+        .actions { display: flex; gap: 10px; margin-top: 1.2rem; 
+            button { padding: 12px 20px; border-radius: 10px; border: none; background: $primary-color; color: #000; font-weight: bold; cursor: pointer; }
+        }
+    }
+}
+
+// Checkout
+.checkout-page {
+    padding: 2rem;
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 2rem;
+    }
+    .checkout-form {
+        background: $card-bg; padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+        .form-group { margin-bottom: 1rem; display: grid; gap: 6px;
+            input, select { padding: 10px; border-radius: 8px; border: 1px solid #333; background: #1b2530; color: white; }
+            &.row { grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
+            button { padding: 10px 16px; border-radius: 8px; border: none; background: #3a7bd5; color: white; cursor: pointer; }
+        }
+        .checkout-btn { margin-top: 10px; padding: 12px 24px; background: linear-gradient(90deg, $primary-color, $secondary-color); border: none; color: white; border-radius: 999px; cursor: pointer; font-weight: 700; }
+    }
+    .order-summary {
+        background: $card-bg; padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+        ul { list-style: none; padding: 0; }
+        li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.06); }
+        .summary-total { display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; color: $primary-color; }
     }
 }

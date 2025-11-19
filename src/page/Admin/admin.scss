@@ -59,6 +59,24 @@ $primary-color: #00d2ff;
             cursor: pointer;
         }
     }
+
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 1rem;
+            border-radius: 10px;
+            display: grid;
+            gap: 4px;
+            span { opacity: 0.7; font-size: 0.9rem; }
+            strong { font-size: 1.4rem; color: $primary-color; }
+        }
+    }
     
     .admin-table {
         width: 100%;

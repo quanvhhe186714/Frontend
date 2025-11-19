@@ -5,6 +5,11 @@ const getProducts = async () => {
   return response.data;
 };
 
+const getProductById = async (id) => {
+  const response = await api.get(`/products/${id}`);
+  return response.data;
+};
+
 const createProduct = async (data) => {
   const response = await api.post("/products", data);
   return response.data;
@@ -22,6 +27,7 @@ const deleteProduct = async (id) => {
 
 const productService = {
   getProducts,
+  getProductById,
   createProduct,
   updateProduct,
   deleteProduct,

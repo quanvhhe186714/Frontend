@@ -28,11 +28,17 @@ const Header = () => {
     <header className="app-header">
       <div className="container header-container">
         <h1 className="logo">
-          <Link to="/">TelePremium</Link>
+          <Link to="/">ShopNamBS</Link>
         </h1>
 
         <nav className="nav-links">
-          <Link to="/products">Products</Link>
+          <Link to="/san-pham">Sản phẩm</Link>
+          <Link to="/dich-vu">Dịch vụ</Link>
+          <Link to="/ho-tro">Hỗ trợ</Link>
+          <Link to="/chia-se">Chia sẻ</Link>
+          <Link to="/cong-cu">Công cụ</Link>
+          <Link to="/faqs">FAQs</Link>
+          <Link to="/products">Premium</Link>
           <Link to="/cart">Cart</Link>
           
           {userInfo ? (

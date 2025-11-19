@@ -35,6 +35,22 @@ api.interceptors.request.use(
   }
 );
 
-
+// Global response interceptor: handle 401 to logout gracefully
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    if (status === 401) {
+      localStorage.removeItem('userInfo');
+      if (typeof window !== 'undefined') {
+        const current = window.location.pathname;
+        if (current !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

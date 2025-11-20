@@ -1,8 +1,9 @@
-$primary-color: #00d2ff;
+$primary-color: #0088cc;
 
 .admin-page {
     padding: 2rem;
-    color: white;
+    color: #000;
+    background: #ffffff;
     
     .admin-title {
         text-align: center;
@@ -17,17 +18,23 @@ $primary-color: #00d2ff;
         margin-bottom: 2rem;
         
         button {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid transparent;
+            background: rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.1);
             padding: 10px 20px;
-            color: white;
+            color: #000;
             cursor: pointer;
             border-radius: 5px;
             font-weight: bold;
+            transition: all 0.2s;
             
-            &.active, &:hover {
+            &:hover {
+                background: rgba(0,0,0,0.1);
+            }
+            
+            &.active {
                 background: $primary-color;
-                color: #000;
+                color: #fff;
+                border-color: $primary-color;
             }
         }
     }
@@ -37,26 +44,41 @@ $primary-color: #00d2ff;
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
-        background: rgba(255,255,255,0.05);
+        background: #f8f9fa;
         padding: 1rem;
         border-radius: 10px;
+        border: 1px solid rgba(0,0,0,0.1);
         
-        input {
+        input, select {
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #444;
-            background: #222;
-            color: white;
+            border: 1px solid rgba(0,0,0,0.2);
+            background: #ffffff;
+            color: #000;
             flex: 1;
+            
+            &::placeholder {
+                color: rgba(0,0,0,0.5);
+            }
+        }
+        
+        select {
+            cursor: pointer;
         }
         
         button {
             padding: 10px 20px;
             background: $primary-color;
+            color: #fff;
             border: none;
             border-radius: 5px;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.2s;
+            
+            &:hover {
+                background: #006699;
+            }
         }
     }
 
@@ -67,28 +89,54 @@ $primary-color: #00d2ff;
         margin-bottom: 1.5rem;
 
         .stat-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: #f8f9fa;
+            border: 1px solid rgba(0,0,0,0.1);
             padding: 1rem;
             border-radius: 10px;
             display: grid;
             gap: 4px;
-            span { opacity: 0.7; font-size: 0.9rem; }
-            strong { font-size: 1.4rem; color: $primary-color; }
+            span { 
+                opacity: 0.7; 
+                font-size: 0.9rem; 
+                color: #000;
+            }
+            strong { 
+                font-size: 1.4rem; 
+                color: $primary-color; 
+            }
         }
     }
     
     .admin-table {
         width: 100%;
         border-collapse: collapse;
+        background: #ffffff;
         
         th, td {
             padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            color: #000;
         }
         
-        th { color: $primary-color; }
+        th { 
+            color: $primary-color; 
+            font-weight: 600;
+            background: #f8f9fa;
+        }
+        
+        td {
+            background: #ffffff;
+            
+            select {
+                padding: 5px 10px;
+                border: 1px solid rgba(0,0,0,0.2);
+                border-radius: 5px;
+                background: #ffffff;
+                color: #000;
+                cursor: pointer;
+            }
+        }
         
         button {
             background: #333;
@@ -98,19 +146,52 @@ $primary-color: #00d2ff;
             border-radius: 3px;
             margin-right: 5px;
             cursor: pointer;
+            transition: all 0.2s;
             
-            &:hover { background: #555; }
+            &:hover { 
+                background: #555; 
+            }
+            
+            &.edit-btn {
+                background: $primary-color;
+                
+                &:hover {
+                    background: #006699;
+                }
+            }
+            
+            &.delete-btn {
+                background: #e74c3c;
+                
+                &:hover {
+                    background: #c0392b;
+                }
+            }
         }
         
         .status {
             padding: 3px 8px;
             border-radius: 10px;
             font-size: 0.8rem;
+            font-weight: 600;
             
             &.paid { background: #2ecc71; color: white; }
             &.pending { background: #f1c40f; color: black; }
             &.failed { background: #e74c3c; color: white; }
             &.completed { background: #3498db; color: white; }
         }
+    }
+    
+    h3 {
+        color: #000;
+        margin-bottom: 1rem;
+    }
+    
+    p {
+        color: #000;
+    }
+    
+    div {
+        color: #000;
     }
 }

@@ -107,7 +107,7 @@ $card-bg: #242f3d; // Telegram Message BG
             }
         }
         
-        .desc { opacity: 0.7; margin-bottom: 1rem; flex-grow: 1; color: #aaa; }
+        .desc { opacity: 1; margin-bottom: 1rem; flex-grow: 1; color: #fff; }
         
         .features {
             list-style: none;
@@ -116,7 +116,7 @@ $card-bg: #242f3d; // Telegram Message BG
             
             li {
                 margin-bottom: 0.5rem;
-                color: #ddd;
+                color: #fff;
                 &:before { content: "✓ "; color: $primary-color; margin-right: 5px; }
             }
         }
@@ -143,6 +143,24 @@ $card-bg: #242f3d; // Telegram Message BG
             .skl-price { width: 80px; height: 20px; background: rgba(255,255,255,0.08); border-radius: 6px; }
             .skl-btn { height: 44px; background: rgba(255,255,255,0.08); border-radius: 10px; }
         }
+    }
+}
+
+// Tabs for product categories
+.tabs {
+    .tab {
+        background: #1b2530;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 8px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+    }
+    .tab.active {
+        background: linear-gradient(90deg, $primary-color, $secondary-color);
+        color: #000;
+        border-color: transparent;
+        font-weight: 700;
     }
 }
 
@@ -265,11 +283,51 @@ $card-bg: #242f3d; // Telegram Message BG
     }
     .detail-image { width: 100%; border-radius: 16px; background: #111; }
     .detail-right {
+        h2 { color: #ffffff; margin-bottom: 1rem; }
+        h4 { color: #ffffff; margin: 1rem 0 0.5rem 0; }
         .price { color: $primary-color; font-size: 1.6rem; font-weight: bold; }
-        .desc { color: #aaa; }
-        .guide { margin-top: 1rem; opacity: 0.9; }
-        .actions { display: flex; gap: 10px; margin-top: 1.2rem; 
-            button { padding: 12px 20px; border-radius: 10px; border: none; background: $primary-color; color: #000; font-weight: bold; cursor: pointer; }
+        .desc { color: #ffffff; line-height: 1.6; margin-bottom: 1rem; }
+        .features {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 1rem 0;
+            li {
+                color: #ffffff;
+                margin-bottom: 0.5rem;
+                &:before { content: "✓ "; color: $primary-color; margin-right: 5px; }
+            }
+        }
+        .guide { 
+            margin-top: 1rem; 
+            color: #ffffff;
+            h4 { color: #ffffff; margin-bottom: 0.5rem; }
+            ol {
+                padding-left: 1.5rem;
+                margin: 0.5rem 0;
+                li {
+                    color: #ffffff;
+                    margin-bottom: 0.5rem;
+                    line-height: 1.6;
+                }
+            }
+        }
+        .actions { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 1.2rem; 
+            button { 
+                padding: 12px 20px; 
+                border-radius: 10px; 
+                border: none; 
+                background: $primary-color; 
+                color: #ffffff; 
+                font-weight: bold; 
+                cursor: pointer;
+                &:last-child {
+                    background: #333;
+                    color: #ffffff;
+                }
+            }
         }
     }
 }
@@ -277,24 +335,599 @@ $card-bg: #242f3d; // Telegram Message BG
 // Checkout
 .checkout-page {
     padding: 2rem;
+    color: #ffffff;
+    
+    h2 {
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+    }
+    
     .checkout-grid {
         display: grid;
         grid-template-columns: 1.2fr 1fr;
         gap: 2rem;
     }
     .checkout-form {
-        background: $card-bg; padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
-        .form-group { margin-bottom: 1rem; display: grid; gap: 6px;
-            input, select { padding: 10px; border-radius: 8px; border: 1px solid #333; background: #1b2530; color: white; }
-            &.row { grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
-            button { padding: 10px 16px; border-radius: 8px; border: none; background: #3a7bd5; color: white; cursor: pointer; }
+        background: $card-bg; 
+        padding: 1.5rem; 
+        border-radius: 16px; 
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #ffffff;
+        
+        .form-group { 
+            margin-bottom: 1rem; 
+            display: grid; 
+            gap: 6px;
+            
+            label {
+                color: #ffffff;
+                font-weight: 500;
+            }
+            
+            input, select { 
+                padding: 10px; 
+                border-radius: 8px; 
+                border: 1px solid #333; 
+                background: #1b2530; 
+                color: #ffffff;
+                
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+            }
+            
+            &.row { 
+                grid-template-columns: 1fr auto; 
+                align-items: center; 
+                gap: 10px; 
+            }
+            
+            button { 
+                padding: 10px 16px; 
+                border-radius: 8px; 
+                border: none; 
+                background: #3a7bd5; 
+                color: #ffffff; 
+                cursor: pointer; 
+            }
         }
-        .checkout-btn { margin-top: 10px; padding: 12px 24px; background: linear-gradient(90deg, $primary-color, $secondary-color); border: none; color: white; border-radius: 999px; cursor: pointer; font-weight: 700; }
+        .checkout-btn { 
+            margin-top: 10px; 
+            padding: 12px 24px; 
+            background: linear-gradient(90deg, $primary-color, $secondary-color); 
+            border: none; 
+            color: #ffffff; 
+            border-radius: 999px; 
+            cursor: pointer; 
+            font-weight: 700; 
+        }
     }
     .order-summary {
-        background: $card-bg; padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
-        ul { list-style: none; padding: 0; }
-        li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.06); }
-        .summary-total { display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; color: $primary-color; }
+        background: $card-bg; 
+        padding: 1.5rem; 
+        border-radius: 16px; 
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #ffffff;
+        
+        h3 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            color: #ffffff;
+        }
+        
+        ul { 
+            list-style: none; 
+            padding: 0; 
+        }
+        
+        li { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 6px 0; 
+            border-bottom: 1px dashed rgba(255,255,255,0.06);
+            color: #ffffff;
+            
+            span {
+                color: #ffffff;
+            }
+        }
+        
+        .summary-total { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: bold; 
+            margin-top: 10px; 
+            color: $primary-color;
+            
+            span {
+                color: $primary-color;
+            }
+        }
+    }
+}
+
+// Payment Page
+.payment-page {
+    padding: 2rem;
+    color: #ffffff;
+    background: $darker-bg;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .payment-container {
+        max-width: 600px;
+        width: 100%;
+        
+        h2 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+    }
+    
+    .payment-form {
+        background: $card-bg;
+        padding: 2rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.08);
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            display: grid;
+            gap: 8px;
+            
+            label {
+                color: #ffffff;
+                font-weight: 500;
+                font-size: 1rem;
+            }
+            
+            input {
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid #333;
+                background: #1b2530;
+                color: #ffffff;
+                font-size: 1rem;
+                
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+            }
+            
+            small {
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 0.85rem;
+            }
+        }
+        
+        .payment-generate-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, $primary-color, $secondary-color);
+            border: none;
+            color: #ffffff;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            
+            &:hover:not(:disabled) {
+                transform: translateY(-2px);
+                filter: brightness(1.1);
+            }
+            
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+    }
+    
+    .qr-display {
+        .qr-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .qr-recipient {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            
+            .qr-recipient-icon {
+                font-size: 1.5rem;
+                color: #ff4444;
+            }
+            
+            .qr-recipient-info {
+                flex: 1;
+                
+                .qr-recipient-name {
+                    font-weight: 600;
+                    color: #1a1a1a;
+                    font-size: 1rem;
+                    margin-bottom: 0.25rem;
+                }
+                
+                .qr-recipient-phone {
+                    color: #666;
+                    font-size: 0.9rem;
+                }
+            }
+        }
+        
+        .qr-code-wrapper {
+            background: #ffffff;
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .qr-code-image {
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+            display: block;
+        }
+        
+        .qr-info {
+            text-align: center;
+            
+            .qr-amount {
+                color: #333;
+                font-size: 1rem;
+                margin: 0.5rem 0;
+                
+                strong {
+                    color: #229ED9;
+                    font-size: 1.1rem;
+                }
+            }
+            
+            .qr-content-text {
+                color: #666;
+                font-size: 0.9rem;
+                margin: 0.5rem 0;
+                
+                strong {
+                    color: #333;
+                }
+            }
+            
+            .qr-note {
+                color: #999;
+                font-size: 0.85rem;
+                font-style: italic;
+                margin: 0.5rem 0 0 0;
+                text-align: center;
+            }
+        }
+        
+        .qr-logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.5rem;
+            border-top: 1px solid #e0e0e0;
+            
+            .qr-logo-vietqr {
+                color: #ff4444;
+                font-weight: 700;
+                font-size: 0.9rem;
+            }
+            
+            .qr-logo-napas {
+                background: linear-gradient(135deg, #00a651 0%, #00c9ff 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                font-weight: 600;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .qr-actions {
+            display: flex;
+            gap: 1rem;
+            
+            button {
+                flex: 1;
+                padding: 12px;
+                border-radius: 10px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                border: none;
+            }
+            
+            .qr-back-btn {
+                background: rgba(255, 255, 255, 0.1);
+                color: #ffffff;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                
+                &:hover {
+                    background: rgba(255, 255, 255, 0.15);
+                }
+            }
+            
+            .qr-close-btn {
+                background: linear-gradient(90deg, $primary-color, $secondary-color);
+                color: #ffffff;
+                
+                &:hover {
+                    transform: translateY(-2px);
+                    filter: brightness(1.1);
+                }
+            }
+        }
+    }
+}
+
+// QR Modal
+.qr-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 1rem;
+}
+
+.qr-modal {
+    background: #ffffff;
+    border-radius: 20px;
+    max-width: 420px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    
+    .qr-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        
+        .qr-modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.8rem;
+            color: #666;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+            padding: 0;
+            
+            &:hover {
+                background: #f0f0f0;
+                color: #000;
+            }
+        }
+        
+        h3 {
+            color: #333;
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .qr-modal-actions {
+            width: 36px;
+            
+            .qr-share-btn {
+                background: transparent;
+                border: none;
+                font-size: 1.3rem;
+                cursor: pointer;
+                padding: 0;
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s;
+                
+                &:hover {
+                    background: #f0f0f0;
+                }
+            }
+        }
+    }
+    
+    .qr-payment-amount {
+        background: linear-gradient(135deg, #229ED9 0%, #0088cc 100%);
+        padding: 1.5rem;
+        text-align: center;
+        margin: 0;
+        
+        .qr-payment-label {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 0.9rem;
+            margin: 0 0 0.75rem 0;
+            font-weight: 500;
+        }
+        
+        .qr-payment-value {
+            color: #ffffff;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.5px;
+        }
+    }
+    
+    .qr-card-container {
+        padding: 1.5rem;
+    }
+    
+    .qr-card {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid #e8e8e8;
+    }
+    
+    .qr-recipient-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+        
+        .qr-recipient-icon {
+            font-size: 1.4rem;
+            color: #ff4444;
+        }
+        
+        .qr-recipient-info {
+            flex: 1;
+            
+            .qr-recipient-name {
+                font-weight: 700;
+                color: #1a1a1a;
+                font-size: 1.05rem;
+                margin-bottom: 0.25rem;
+                letter-spacing: 0.5px;
+            }
+            
+            .qr-recipient-phone {
+                color: #666;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .qr-recipient-dropdown {
+            color: #999;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+    }
+    
+    .qr-code-wrapper {
+        background: #ffffff;
+        padding: 1.25rem;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .qr-code-image {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        display: block;
+    }
+    
+    .qr-logos {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #e0e0e0;
+        
+        .qr-logo-vietqr {
+            color: #ff4444;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .qr-logo-napas {
+            color: #00a651;
+            font-weight: 600;
+            font-size: 0.95rem;
+            font-style: italic;
+        }
+    }
+    
+    .qr-info-section {
+        text-align: center;
+        padding: 0 0.5rem;
+        
+        .qr-content-text {
+            color: #333;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+            font-weight: 500;
+            
+            strong {
+                color: #229ED9;
+            }
+        }
+        
+        .qr-note {
+            color: #999;
+            font-size: 0.85rem;
+            margin: 0.75rem 0 0 0;
+            line-height: 1.4;
+        }
+    }
+    
+    .qr-modal-footer {
+        padding: 1rem 1.5rem 1.5rem;
+        border-top: 1px solid #f0f0f0;
+    }
+    
+    .qr-complete-btn {
+        width: 100%;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(34, 158, 217, 0.3);
+        
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(34, 158, 217, 0.4);
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
     }
 }

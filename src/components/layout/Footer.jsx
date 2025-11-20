@@ -4,8 +4,8 @@ const Footer = () => {
   return (
     <footer className="app-footer">
       <div className="container">
-        <p>© {new Date().getFullYear()} FPT Club Management System</p>
-        <p>Developed by SDN302 Group 302</p>
+        <p>© {new Date().getFullYear()} MMOS - Digital Services Platform</p>
+        <p>Chuyên cung cấp VIA, PROXY và Dịch vụ Mạng Xã Hội</p>
       </div>
     </footer>
   );

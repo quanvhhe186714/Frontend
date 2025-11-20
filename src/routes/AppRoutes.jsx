@@ -12,6 +12,7 @@ import ProductList from "../page/Shop/ProductList";
 import Cart from "../page/Shop/Cart";
 import ProductDetail from "../page/Shop/ProductDetail";
 import Checkout from "../page/Shop/Checkout";
+import Payment from "../page/Shop/Payment";
 
 // Portal pages (market-like)
 import SanPham from "../page/Portal/SanPham";
@@ -33,6 +34,7 @@ const AppRoutes = () => {
       <Route path="/products/:id" element={<ProductDetail />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
+      <Route path="/payment" element={<Payment />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 

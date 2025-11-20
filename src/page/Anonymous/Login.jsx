@@ -24,8 +24,7 @@ const Login = () => {
       localStorage.setItem("userInfo", JSON.stringify(data));
 
       if (data.user?.role === "admin") navigate("/admin");
-      else if (data.user?.role === "manager") navigate("/manager/requests");
-      else navigate("/event");
+      else navigate("/profile");
     } catch (err) {
       setError(err.response?.data?.message || "Đăng nhập thất bại");
     } finally {

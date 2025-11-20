@@ -1,7 +1,7 @@
 // === Public Routes ===
 import api from "./apiService";
-export const registerUser = (name, email, password, role = "student") =>
-  api.post("/users/register", { name, email, password, role });
+export const registerUser = (name, email, password) =>
+  api.post("/users/register", { name, email, password });
 
 export const loginUser = (email, password) =>
   api.post("/users/login", { email, password });

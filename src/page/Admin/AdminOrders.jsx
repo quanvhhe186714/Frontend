@@ -55,12 +55,12 @@ const AdminOrders = () => {
                     <td>{new Date(o.createdAt).toLocaleDateString()}</td>
                     <td>
                         {o.status === "pending" && (
-                            <button onClick={() => updateStatus(o._id, "paid")}>Mark Paid</button>
+                            <button className="edit-btn" onClick={() => updateStatus(o._id, "paid")}>Mark Paid</button>
                         )}
                         {o.status === "paid" && (
-                            <button onClick={() => updateStatus(o._id, "delivered")}>Mark Delivered</button>
+                            <button className="edit-btn" onClick={() => updateStatus(o._id, "delivered")}>Mark Delivered</button>
                         )}
-                        <button onClick={() => updateStatus(o._id, "failed")}>Fail</button>
+                        <button className="delete-btn" onClick={() => updateStatus(o._id, "failed")}>Fail</button>
                     </td>
                 </tr>
             ))}

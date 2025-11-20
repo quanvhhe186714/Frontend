@@ -4,6 +4,7 @@ import AdminProducts from "./AdminProducts";
 import AdminOrders from "./AdminOrders";
 import AdminUserList from "./AdminUserList";
 import AdminCoupons from "./AdminCoupons";
+import AdminTransactions from "./AdminTransactions";
 import orderService from "../../services/order";
 
 const AdminHome = () => {
@@ -37,6 +38,7 @@ const AdminHome = () => {
         <button className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>Users</button>
         <button className={activeTab === "products" ? "active" : ""} onClick={() => setActiveTab("products")}>Products</button>
         <button className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>Orders</button>
+        <button className={activeTab === "transactions" ? "active" : ""} onClick={() => setActiveTab("transactions")}>Transactions</button>
         <button className={activeTab === "coupons" ? "active" : ""} onClick={() => setActiveTab("coupons")}>Coupons</button>
       </div>
 
@@ -44,6 +46,7 @@ const AdminHome = () => {
         {activeTab === "users" && <AdminUserList />} 
         {activeTab === "products" && <AdminProducts />}
         {activeTab === "orders" && <AdminOrders />}
+        {activeTab === "transactions" && <AdminTransactions />}
         {activeTab === "coupons" && <AdminCoupons />}
       </div>
     </div>

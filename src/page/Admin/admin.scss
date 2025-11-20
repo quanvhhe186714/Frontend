@@ -1,6 +1,35 @@
 $primary-color: #0088cc;
 
 .admin-page {
+    .admin-filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: center;
+
+        select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.2);
+            background: #fff;
+            color: #000;
+        }
+
+        .outline-btn {
+            background: transparent;
+            border: 1px solid rgba(0,0,0,0.2);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            &:hover { background: rgba(0,0,0,0.05); }
+        }
+    }
+
+    .info-text {
+        color: #000;
+        margin-bottom: 1rem;
+    }
     padding: 2rem;
     color: #000;
     background: #ffffff;

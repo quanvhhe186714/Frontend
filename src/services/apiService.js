@@ -2,8 +2,8 @@
 import axios from 'axios';
 
 // URL của backend API
-const BASE_URL = 'http://localhost:9999/';
-const API_URL = `${BASE_URL}/`;
+const BASE_URL = 'https://shopnambs-4bru.onrender.com';
+const API_URL = BASE_URL;
 
 /**
  * Tạo một instance axios với cấu hình cơ bản,

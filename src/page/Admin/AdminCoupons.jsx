@@ -77,7 +77,7 @@ const AdminCoupons = () => {
                     <td>{new Date(c.expirationDate).toLocaleDateString()}</td>
                     <td>{c.usedCount}/{c.usageLimit}</td>
                     <td>
-                        <button onClick={() => handleDelete(c._id)}>Delete</button>
+                        <button className="delete-btn" onClick={() => handleDelete(c._id)}>Delete</button>
                     </td>
                 </tr>
             ))}

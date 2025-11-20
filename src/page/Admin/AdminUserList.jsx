@@ -74,7 +74,7 @@ const AdminUserList = () => {
                 </select>
               </td>
               <td>
-                <button onClick={() => handleDelete(user._id)}>Delete</button>
+                <button className="delete-btn" onClick={() => handleDelete(user._id)}>Delete</button>
               </td>
             </tr>
           ))}

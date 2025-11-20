@@ -28,6 +28,12 @@ api.interceptors.request.use(
     if (userInfo && userInfo.token) {
       config.headers['Authorization'] = userInfo.token; // Token đã có 'Bearer ' từ backend
     }
+    
+    // Nếu là FormData, không set Content-Type để axios tự động set với boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => {

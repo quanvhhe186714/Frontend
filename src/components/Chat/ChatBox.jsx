@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import messageService from "../../services/message";
+import { getAvatarUrl } from "../../utils/avatarHelper";
 import "./ChatBox.scss";
 
 const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
@@ -20,6 +21,7 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
     }, 3000); // Cập nhật mỗi 3 giây
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConversation, isAdmin, selectedUserId]);
 
   useEffect(() => {
@@ -91,6 +93,34 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
     setMessages([]);
   };
 
+  const handleDeleteMessage = async (messageId) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa tin nhắn này?")) {
+      return;
+    }
+
+    try {
+      console.log("🗑️ Attempting to delete message:", messageId);
+      const result = await messageService.deleteMessage(messageId);
+      console.log("✅ Delete successful:", result);
+      // Reload messages after deletion
+      setTimeout(() => {
+        loadMessages();
+      }, 300);
+    } catch (error) {
+      console.error("❌ Failed to delete message:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText
+      });
+      const errorMessage = error.response?.data?.message 
+        || error.message 
+        || "Không thể xóa tin nhắn. Vui lòng thử lại.";
+      alert(errorMessage);
+    }
+  };
+
   const showConversationsList = isAdmin && !selectedConversation;
 
   return (
@@ -130,8 +160,21 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
                 onClick={() => handleConversationClick(conv)}
               >
                 <div className="conv-avatar">
-                  {conv.sender?.avatar ? (
-                    <img src={conv.sender.avatar} alt={conv.sender.name} />
+                  {getAvatarUrl(conv.sender?.avatar) ? (
+                    <>
+                      <img 
+                        src={getAvatarUrl(conv.sender.avatar)} 
+                        alt={conv.sender.name}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const placeholder = e.target.parentElement.querySelector('.avatar-placeholder');
+                          if (placeholder) placeholder.style.display = 'flex';
+                        }}
+                      />
+                      <div className="avatar-placeholder" style={{ display: 'none' }}>
+                        {conv.sender?.name?.charAt(0).toUpperCase()}
+                      </div>
+                    </>
                   ) : (
                     <div className="avatar-placeholder">
                       {conv.sender?.name?.charAt(0).toUpperCase()}
@@ -177,8 +220,21 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
                 return (
                   <div key={msg._id} className={`message ${isMyMessage ? 'sent' : 'received'}`}>
                     <div className="message-avatar">
-                      {msg.sender?.avatar ? (
-                        <img src={msg.sender.avatar} alt={msg.sender.name} />
+                      {getAvatarUrl(msg.sender?.avatar) ? (
+                        <>
+                          <img 
+                            src={getAvatarUrl(msg.sender.avatar)} 
+                            alt={msg.sender.name}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const placeholder = e.target.parentElement.querySelector('.avatar-placeholder');
+                              if (placeholder) placeholder.style.display = 'flex';
+                            }}
+                          />
+                          <div className="avatar-placeholder" style={{ display: 'none' }}>
+                            {msg.sender?.name?.charAt(0).toUpperCase()}
+                          </div>
+                        </>
                       ) : (
                         <div className="avatar-placeholder">
                           {msg.sender?.name?.charAt(0).toUpperCase()}
@@ -188,14 +244,25 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
                     <div className="message-content">
                       <div className="message-header">
                         <span className="message-name">{msg.sender?.name}</span>
-                        <span className="message-time">
-                          {new Date(msg.createdAt).toLocaleString('vi-VN', { 
-                            day: '2-digit',
-                            month: '2-digit',
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </span>
+                        <div className="message-header-right">
+                          <span className="message-time">
+                            {new Date(msg.createdAt).toLocaleString('vi-VN', { 
+                              day: '2-digit',
+                              month: '2-digit',
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </span>
+                          {isAdmin && (
+                            <button
+                              className="message-delete-btn"
+                              onClick={() => handleDeleteMessage(msg._id)}
+                              title="Xóa tin nhắn"
+                            >
+                              🗑️
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div className="message-text">{msg.content}</div>
                     </div>

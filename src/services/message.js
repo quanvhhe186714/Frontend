@@ -25,12 +25,18 @@ const getUnreadCount = async () => {
   return response.data;
 };
 
+const deleteMessage = async (messageId) => {
+  const response = await api.delete(`/messages/${messageId}`);
+  return response.data;
+};
+
 const messageService = {
   sendMessage,
   getMyMessages,
   getAllConversations,
   getConversationMessages,
-  getUnreadCount
+  getUnreadCount,
+  deleteMessage
 };
 
 export default messageService;

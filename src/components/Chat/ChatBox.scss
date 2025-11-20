@@ -240,10 +240,32 @@
             color: rgba(0, 0, 0, 0.8);
           }
           
+          .message-header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+          
           .message-time {
             font-size: 0.75rem;
             color: rgba(0, 0, 0, 0.6);
             white-space: nowrap;
+          }
+          
+          .message-delete-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            opacity: 0.6;
+            transition: all 0.2s;
+            
+            &:hover {
+              opacity: 1;
+              background: rgba(255, 0, 0, 0.1);
+            }
           }
         }
         

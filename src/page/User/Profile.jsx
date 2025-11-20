@@ -8,7 +8,7 @@ import "./profile.scss";
 const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [formData, setFormData] = useState({ name: "", avatar: "" });
+  const [formData, setFormData] = useState({ name: "" });
   const [orders, setOrders] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,6 @@ const Profile = () => {
         setUser(data);
         setFormData({
           name: data.name,
-          avatar: data.avatar || "",
         });
         
         // Fetch Orders
@@ -67,12 +66,11 @@ const Profile = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      const { data } = await updateMyProfile(formData.name, formData.avatar);
+      const { data } = await updateMyProfile(formData.name, "");
       setUser(data);
       const userInfo = JSON.parse(localStorage.getItem("userInfo"));
       if (userInfo) {
         userInfo.user.name = data.name;
-        userInfo.user.avatar = data.avatar;
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
       }
       setMessage("Updated successfully!");
@@ -83,34 +81,10 @@ const Profile = () => {
     }
   };
 
-  const handleAvatarUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const form = new FormData();
-    form.append("avatar", file);
 
-    try {
-      setSaving(true);
-      const token = JSON.parse(localStorage.getItem("userInfo"))?.token;
-      const res = await fetch("http://localhost:9999/users/upload-avatar", {
-        method: "POST",
-        headers: { Authorization: token },
-        body: form,
-      });
-      const result = await res.json();
-      if (res.ok) {
-        setFormData((prev) => ({ ...prev, avatar: result.avatarUrl }));
-        setUser((prev) => ({ ...prev, avatar: result.avatarUrl }));
-        setMessage("Avatar uploaded!");
-      } else {
-        throw new Error(result.message);
-      }
-    } catch (err) {
-      setMessage("Avatar upload failed!");
-    } finally {
-      setSaving(false);
-    }
+  const handleAvatarError = (e) => {
+    e.target.style.display = 'none';
+    // Show placeholder sẽ được xử lý bởi CSS
   };
 
   const handleTopup = async (e) => {
@@ -162,11 +136,9 @@ const Profile = () => {
         <div className="profile-content">
           <div className="profile-left">
             <div className="avatar-wrapper">
-              <img
-                src={formData.avatar || user.avatar || "https://via.placeholder.com/150"}
-                alt="avatar"
-                className="avatar"
-              />
+              <div className="avatar-placeholder">
+                {user?.name?.charAt(0).toUpperCase() || "U"}
+              </div>
             </div>
             <p className="role">Role: {user.role}</p>
             
@@ -179,14 +151,6 @@ const Profile = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                />
-              </div>
-               <div className="form-group">
-                <label>Avatar</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
                 />
               </div>
               <button type="submit" className="primary-btn" disabled={saving}>

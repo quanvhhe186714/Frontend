@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import messageService from "../../services/message";
+import { getAvatarUrl } from "../../utils/avatarHelper";
 import "./ChatWidget.scss";
 
 const ChatWidget = ({ isAdmin = false }) => {
@@ -156,8 +157,21 @@ const ChatWidget = ({ isAdmin = false }) => {
                     onClick={() => handleConversationClick(conv)}
                   >
                     <div className="conv-avatar">
-                      {conv.sender?.avatar ? (
-                        <img src={conv.sender.avatar} alt={conv.sender.name} />
+                      {getAvatarUrl(conv.sender?.avatar) ? (
+                        <>
+                          <img 
+                            src={getAvatarUrl(conv.sender.avatar)} 
+                            alt={conv.sender.name}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const placeholder = e.target.parentElement.querySelector('.avatar-placeholder');
+                              if (placeholder) placeholder.style.display = 'flex';
+                            }}
+                          />
+                          <div className="avatar-placeholder" style={{ display: 'none' }}>
+                            {conv.sender?.name?.charAt(0).toUpperCase()}
+                          </div>
+                        </>
                       ) : (
                         <div className="avatar-placeholder">
                           {conv.sender?.name?.charAt(0).toUpperCase()}
@@ -192,8 +206,21 @@ const ChatWidget = ({ isAdmin = false }) => {
                     return (
                       <div key={msg._id} className={`message ${isMyMessage ? 'sent' : 'received'}`}>
                         <div className="message-avatar">
-                          {msg.sender?.avatar ? (
-                            <img src={msg.sender.avatar} alt={msg.sender.name} />
+                          {getAvatarUrl(msg.sender?.avatar) ? (
+                            <>
+                              <img 
+                                src={getAvatarUrl(msg.sender.avatar)} 
+                                alt={msg.sender.name}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  const placeholder = e.target.parentElement.querySelector('.avatar-placeholder');
+                                  if (placeholder) placeholder.style.display = 'flex';
+                                }}
+                              />
+                              <div className="avatar-placeholder" style={{ display: 'none' }}>
+                                {msg.sender?.name?.charAt(0).toUpperCase()}
+                              </div>
+                            </>
                           ) : (
                             <div className="avatar-placeholder">
                               {msg.sender?.name?.charAt(0).toUpperCase()}

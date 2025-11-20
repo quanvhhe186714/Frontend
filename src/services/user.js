@@ -27,3 +27,10 @@ export const blockUser = (id, status) => api.put(`/users/${id}`, { status });
 
 export const changePassword = (oldPassword, newPassword) =>
   api.put("/users/change-password", { oldPassword, newPassword });
+
+// Upload avatar
+export const uploadAvatar = (formData) => {
+  // Token sẽ được tự động thêm bởi interceptor trong apiService
+  // Content-Type sẽ được axios tự động set cho FormData
+  return api.post("/users/upload-avatar", formData);
+};

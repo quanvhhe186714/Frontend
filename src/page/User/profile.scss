@@ -53,12 +53,29 @@ $card-bg: #ffffff;
         .avatar-wrapper {
             text-align: center;
             margin-bottom: 1rem;
+            position: relative;
+            
             img {
                 width: 150px;
                 height: 150px;
                 border-radius: 50%;
                 border: 3px solid $primary-color;
                 object-fit: cover;
+            }
+            
+            .avatar-placeholder {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                border: 3px solid $primary-color;
+                background: linear-gradient(135deg, $primary-color, #667eea);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                font-size: 48px;
+                margin: 0 auto;
             }
         }
         

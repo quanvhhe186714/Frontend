@@ -240,3 +240,110 @@ $card-bg: #ffffff;
     }
   }
 }
+
+// Mobile Responsive
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+    
+    .profile-box {
+      padding: 1.5rem;
+    }
+    
+    .profile-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .profile-content {
+      flex-direction: column;
+      gap: 2rem;
+      
+      .profile-left,
+      .profile-right {
+        min-width: 100%;
+      }
+      
+      .avatar-wrapper {
+        .avatar-placeholder,
+        img {
+          width: 120px;
+          height: 120px;
+        }
+        
+        .avatar-placeholder {
+          font-size: 40px;
+        }
+      }
+    }
+    
+    .wallet-card {
+      padding: 1.25rem;
+      
+      .wallet-balance {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .topup-form {
+        .form-group {
+          input, select {
+            width: 100%;
+          }
+        }
+      }
+      
+      .topup-instructions {
+        .qr-preview img {
+          width: 180px;
+        }
+      }
+    }
+    
+    .wallet-history {
+      padding: 1rem;
+      overflow-x: auto;
+      
+      table {
+        min-width: 600px;
+        font-size: 0.9rem;
+        
+        th, td {
+          padding: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 0.75rem;
+    
+    .profile-box {
+      padding: 1rem;
+    }
+    
+    .profile-content {
+      .avatar-wrapper {
+        .avatar-placeholder,
+        img {
+          width: 100px;
+          height: 100px;
+        }
+        
+        .avatar-placeholder {
+          font-size: 36px;
+        }
+      }
+    }
+    
+    .wallet-card {
+      .topup-instructions .qr-preview img {
+        width: 150px;
+      }
+    }
+  }
+}

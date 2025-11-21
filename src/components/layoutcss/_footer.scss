@@ -11,3 +11,22 @@ footer {
         color: #ffffff;
     }
 }
+
+// Mobile Responsive
+@media (max-width: 768px) {
+    footer {
+        padding: 1.5rem 1rem;
+        font-size: 0.85rem;
+        
+        p {
+            margin: 0.25rem 0;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    footer {
+        padding: 1rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}

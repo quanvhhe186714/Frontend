@@ -18,18 +18,32 @@ $card-bg: #242f3d; // Telegram Message BG
     text-align: center;
     padding: 5rem 0;
     background: radial-gradient(circle at center, $dark-bg 0%, $darker-bg 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    
+    .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
     
     h1 {
         font-size: 4rem;
         color: white;
         margin-bottom: 1rem;
         text-shadow: 0 0 20px rgba(34, 158, 217, 0.5);
+        line-height: 1.2;
     }
     
     p {
         font-size: 1.2rem;
         margin-bottom: 2rem;
         opacity: 0.8;
+        max-width: 600px;
+        padding: 0 1rem;
     }
     
     .cta-btn {
@@ -49,9 +63,25 @@ $card-bg: #242f3d; // Telegram Message BG
             background: lighten($primary-color, 5%);
         }
     }
+    
+    img {
+        max-width: 100%;
+        height: auto;
+    }
 }
 
 // Features
+.features {
+    padding: 2rem 0;
+    
+    h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+}
+
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -68,7 +98,16 @@ $card-bg: #242f3d; // Telegram Message BG
         
         &:hover { transform: translateY(-5px); }
         
-        h3 { color: $primary-color; margin: 1rem 0; }
+        h3 { 
+            color: $primary-color; 
+            margin: 1rem 0; 
+            font-size: 1.3rem;
+        }
+        
+        p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
     }
 }
 
@@ -908,7 +947,7 @@ $card-bg: #242f3d; // Telegram Message BG
         border-top: 1px solid #f0f0f0;
     }
     
-    .qr-complete-btn {
+        .qr-complete-btn {
         width: 100%;
         padding: 0.875rem;
         background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
@@ -929,5 +968,179 @@ $card-bg: #242f3d; // Telegram Message BG
         &:active {
             transform: translateY(0);
         }
+    }
+}
+
+// Mobile Responsive
+@media (max-width: 768px) {
+    .shop-home, .product-list-page, .cart-page {
+        padding: 1rem;
+    }
+
+    .hero {
+        padding: 3rem 1rem;
+        
+        h1 {
+            font-size: 2.5rem;
+        }
+        
+        p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .cta-btn {
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+        }
+        
+        img {
+            max-width: 180px;
+        }
+    }
+
+    .features {
+        padding: 1.5rem 0;
+        
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        
+        .feature-card {
+            padding: 1.5rem;
+            
+            h3 {
+                font-size: 1.2rem;
+            }
+        }
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        
+        .product-card {
+            padding: 1.5rem;
+        }
+    }
+
+    .product-detail-page {
+        padding: 1rem;
+        
+        .detail-card {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+    }
+
+    .checkout-page {
+        padding: 1rem;
+        
+        h2 {
+            font-size: 1.5rem;
+        }
+        
+        .checkout-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .checkout-form,
+        .order-summary {
+            padding: 1.25rem;
+        }
+    }
+
+    .cart-table {
+        font-size: 0.9rem;
+        
+        th, td {
+            padding: 0.75rem 0.5rem;
+        }
+    }
+
+    .cart-summary {
+        align-items: stretch;
+        
+        .coupon-section {
+            flex-direction: column;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+        }
+    }
+
+    .qr-modal {
+        max-width: 95%;
+        margin: 1rem;
+        
+        .qr-modal-header {
+            padding: 1rem;
+            
+            h3 {
+                font-size: 1.1rem;
+            }
+        }
+        
+        .qr-payment-amount {
+            padding: 1.25rem;
+            
+            .qr-payment-value {
+                font-size: 1.8rem;
+            }
+        }
+        
+        .qr-card-container {
+            padding: 1rem;
+        }
+        
+        .qr-code-image {
+            max-width: 250px;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 2rem 1rem;
+        
+        h1 {
+            font-size: 2rem;
+        }
+        
+        p {
+            font-size: 0.9rem;
+        }
+        
+        .cta-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+        }
+    }
+
+    .features h2 {
+        font-size: 1.75rem;
+    }
+
+    .feature-card,
+    .product-card {
+        padding: 1.25rem;
+    }
+
+    .cart-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }

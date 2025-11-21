@@ -10,6 +10,7 @@ const Header = () => {
     () => JSON.parse(localStorage.getItem("userInfo"))
   );
   const [openMenu, setOpenMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("userInfo");
@@ -23,6 +24,7 @@ const Header = () => {
       setUserInfo(null);
     }
     setOpenMenu(false);
+    setMobileMenuOpen(false);
   }, [location]);
 
   return (
@@ -32,15 +34,25 @@ const Header = () => {
           <Link to="/">ShopNamBS</Link>
         </h1>
 
-        <nav className="nav-links">
-          <Link to="/san-pham">Sản phẩm</Link>
-          <Link to="/dich-vu">Dịch vụ</Link>
-          <Link to="/ho-tro">Hỗ trợ</Link>
-          <Link to="/chia-se">Chia sẻ</Link>
-          <Link to="/cong-cu">Công cụ</Link>
-          <Link to="/faqs">FAQs</Link>
-          <Link to="/products">Premium</Link>
-          <Link to="/cart">Cart</Link>
+        <button 
+          className="mobile-menu-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+          <Link to="/san-pham" onClick={() => setMobileMenuOpen(false)}>Sản phẩm</Link>
+          <Link to="/dich-vu" onClick={() => setMobileMenuOpen(false)}>Dịch vụ</Link>
+          <Link to="/ho-tro" onClick={() => setMobileMenuOpen(false)}>Hỗ trợ</Link>
+          <Link to="/chia-se" onClick={() => setMobileMenuOpen(false)}>Chia sẻ</Link>
+          <Link to="/cong-cu" onClick={() => setMobileMenuOpen(false)}>Công cụ</Link>
+          <Link to="/faqs" onClick={() => setMobileMenuOpen(false)}>FAQs</Link>
+          <Link to="/products" onClick={() => setMobileMenuOpen(false)}>Premium</Link>
+          <Link to="/cart" onClick={() => setMobileMenuOpen(false)}>Cart</Link>
           
           {userInfo ? (
             <div className="user-menu">
@@ -69,18 +81,18 @@ const Header = () => {
               
               {openMenu && (
                 <div className="dropdown">
-                  <button onClick={() => navigate("/profile")}>My Profile</button>
+                  <button onClick={() => { navigate("/profile"); setMobileMenuOpen(false); }}>My Profile</button>
                   {userInfo.user?.role === "admin" && (
-                    <button onClick={() => navigate("/admin")}>Admin Dashboard</button>
+                    <button onClick={() => { navigate("/admin"); setMobileMenuOpen(false); }}>Admin Dashboard</button>
                   )}
-                  <button onClick={handleLogout} className="logout">Logout</button>
+                  <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="logout">Logout</button>
                 </div>
               )}
             </div>
           ) : (
             <div className="auth-links">
-              <Link to="/login">Login</Link>
-              <Link to="/register" className="btn-register">Register</Link>
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+              <Link to="/register" className="btn-register" onClick={() => setMobileMenuOpen(false)}>Register</Link>
             </div>
           )}
         </nav>

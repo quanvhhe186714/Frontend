@@ -2,7 +2,11 @@
 import axios from 'axios';
 
 // URL của backend API
-const BASE_URL = 'https://shopnambs-4bru.onrender.com';
+const BASE_URL =
+  process.env.REACT_APP_API_URL ||
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:9999"
+    : "https://shopnambs-4bru.onrender.com");
 const API_URL = BASE_URL;
 
 /**

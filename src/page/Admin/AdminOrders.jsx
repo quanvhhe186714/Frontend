@@ -22,10 +22,11 @@ const AdminOrders = () => {
 
   const updateStatus = async (id, status) => {
     try {
-        await orderService.updateOrderStatus(id, status);
-        fetchOrders();
+      await orderService.updateOrderStatus(id, status);
+      fetchOrders();
     } catch (error) {
-        alert("Failed to update status");
+      const msg = error?.response?.data?.message || "Failed to update status";
+      alert(msg);
     }
   };
 
@@ -48,7 +49,12 @@ const AdminOrders = () => {
                 <tr key={o._id}>
                     <td>{o._id.substring(0, 8)}...</td>
                     <td>{o.user?.name || "Unknown"}</td>
-                    <td>${o.totalAmount}</td>
+                    <td>
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(o.totalAmount)}
+                    </td>
                     <td>
                         <span className={`status ${o.status}`}>{o.status}</span>
                     </td>

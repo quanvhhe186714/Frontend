@@ -6,12 +6,10 @@ const ChiaSe = () => {
     <div className="portal-page">
       <div className="portal-hero">
         <h2>Chia sẻ</h2>
-        <div>Bài viết kinh nghiệm, tips, case study (đang cập nhật)</div>
+        <p>Khu vực nội dung đang được chủ dự án cập nhật.</p>
       </div>
     </div>
   );
 };
 
 export default ChiaSe;
-
-

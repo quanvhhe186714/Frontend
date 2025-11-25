@@ -31,7 +31,7 @@ const Header = () => {
     <header className="app-header">
       <div className="container header-container">
         <h1 className="logo">
-          <Link to="/">ShopNamBS</Link>
+          <Link to="/">WEB BUFF MXH</Link>
         </h1>
 
         <button 

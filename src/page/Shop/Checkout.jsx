@@ -11,10 +11,12 @@ const Checkout = () => {
     name: "",
     email: "",
     telegramUsername: "",
-    paymentMethod: "momo",
+    paymentMethod: "momo", // momo hoặc bank_transfer (vietinbank)
     couponCode: ""
   });
   const [submitting, setSubmitting] = useState(false);
+  const [discount, setDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [qrModal, setQrModal] = useState({ 
     open: false, 
     imageUrl: "", 
@@ -35,17 +37,22 @@ const Checkout = () => {
   }, []);
 
   const subTotal = useMemo(() => cart.reduce((s, i) => s + i.price * i.quantity, 0), [cart]);
+  const total = useMemo(() => Math.max(0, subTotal - discount), [subTotal, discount]);
 
   const applyCoupon = async () => {
     if (!form.couponCode.trim()) return;
     try {
       const res = await orderService.validateCoupon(form.couponCode, subTotal);
+      setDiscount(res.discountAmount || 0);
+      setAppliedCoupon(form.couponCode);
       const el = document.createElement('div');
       el.className = 'simple-toast';
       el.innerText = `Áp dụng mã thành công: -${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(res.discountAmount)}`;
       document.body.appendChild(el);
       setTimeout(() => document.body.removeChild(el), 1500);
     } catch (e) {
+      setDiscount(0);
+      setAppliedCoupon(null);
       const el = document.createElement('div');
       el.className = 'simple-toast';
       el.innerText = e.response?.data?.message || "Mã không hợp lệ";
@@ -74,14 +81,22 @@ const Checkout = () => {
         }
       });
 
-      // Luôn hiển thị QR code với số tiền cần thanh toán
+      // Hiển thị QR code cho cả MoMo và VietinBank
       const content = `MMOS-${created._id}`;
       try {
+        // Xác định bank dựa trên payment method
+        let bankCode = "vietinbank"; // Mặc định VietinBank
+        if (form.paymentMethod === "momo") {
+          bankCode = "momo";
+        } else if (form.paymentMethod === "bank_transfer") {
+          bankCode = "vietinbank";
+        }
+        
         const res = await api.get("/payments/qr", {
           params: { 
             amount: created.totalAmount, 
             content,
-            bank: "mb" // Mặc định dùng MB Bank
+            bank: bankCode
           },
         });
         
@@ -141,17 +156,39 @@ const Checkout = () => {
           <div className="form-group">
             <label>Phương thức thanh toán</label>
             <select value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}>
-              <option value="momo">MOMO</option>
-              <option value="bank_transfer">Banking</option>
-              <option value="vnpay">VNPay</option>
-              <option value="fake">Giả lập</option>
+              <option value="momo">MoMo</option>
+              <option value="bank_transfer">VietinBank</option>
             </select>
           </div>
 
           <div className="form-group row">
-            <input placeholder="Mã giảm giá" value={form.couponCode} onChange={(e) => setForm({ ...form, couponCode: e.target.value })} />
-            <button type="button" onClick={applyCoupon}>Áp dụng</button>
+            <input 
+              placeholder="Mã giảm giá" 
+              value={form.couponCode} 
+              onChange={(e) => {
+                setForm({ ...form, couponCode: e.target.value });
+                if (!e.target.value.trim()) {
+                  setDiscount(0);
+                  setAppliedCoupon(null);
+                }
+              }}
+              disabled={!!appliedCoupon}
+            />
+            {appliedCoupon ? (
+              <button type="button" onClick={() => {
+                setForm({ ...form, couponCode: "" });
+                setDiscount(0);
+                setAppliedCoupon(null);
+              }}>Hủy</button>
+            ) : (
+              <button type="button" onClick={applyCoupon}>Áp dụng</button>
+            )}
           </div>
+          {appliedCoupon && discount > 0 && (
+            <div className="coupon-applied">
+              <span>✓ Mã {appliedCoupon} đã áp dụng: -{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(discount)}</span>
+            </div>
+          )}
 
           <button type="submit" className="checkout-btn" disabled={submitting || cart.length === 0}>
             {submitting ? "Đang xử lý..." : "Thanh toán"}
@@ -173,8 +210,20 @@ const Checkout = () => {
             </ul>
           )}
           <div className="summary-total">
-            <span>Tạm tính</span>
-            <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subTotal)}</span>
+            <div className="summary-row">
+              <span>Tạm tính</span>
+              <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subTotal)}</span>
+            </div>
+            {discount > 0 && (
+              <div className="summary-row discount-row">
+                <span>Giảm giá</span>
+                <span>-{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(discount)}</span>
+              </div>
+            )}
+            <div className="summary-row total-row">
+              <span>Tổng cộng</span>
+              <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</span>
+            </div>
           </div>
         </div>
       </div>

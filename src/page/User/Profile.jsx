@@ -23,7 +23,7 @@ const Profile = () => {
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [topupAmount, setTopupAmount] = useState("");
-  const [selectedBank, setSelectedBank] = useState("mb");
+  const [selectedBank, setSelectedBank] = useState("vietinbank");
   const [topupInstructions, setTopupInstructions] = useState(null);
   const [topupLoading, setTopupLoading] = useState(false);
   const [activeSection, setActiveSection] = useState("account");
@@ -325,8 +325,8 @@ const Profile = () => {
                         value={selectedBank}
                         onChange={(e) => setSelectedBank(e.target.value)}
                       >
-                        <option value="mb">MB Bank</option>
-                        <option value="cake">CAKE Bank</option>
+                        <option value="vietinbank">VietinBank</option>
+                        <option value="momo">MoMo</option>
                       </select>
                     </div>
                     <button className="primary-btn" type="submit" disabled={topupLoading}>

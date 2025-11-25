@@ -51,7 +51,6 @@ const Header = () => {
           <Link to="/chia-se" onClick={() => setMobileMenuOpen(false)}>Chia sẻ</Link>
           <Link to="/cong-cu" onClick={() => setMobileMenuOpen(false)}>Công cụ</Link>
           <Link to="/faqs" onClick={() => setMobileMenuOpen(false)}>FAQs</Link>
-          <Link to="/products" onClick={() => setMobileMenuOpen(false)}>Premium</Link>
           <Link to="/cart" onClick={() => setMobileMenuOpen(false)}>Cart</Link>
           
           {userInfo ? (

@@ -154,6 +154,54 @@
   cursor: pointer;
 }
 
+/* New: marketplace category buttons (like reference images) */
+.svc-section {
+  margin-top: 1.2rem;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 1rem;
+}
+.svc-title {
+  font-weight: 700;
+  margin: 0 0 .8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #000;
+}
+.svc-grid {
+  display: grid;
+  gap: .6rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.svc-item {
+  background: #0b86bd;
+  border: 1px solid rgba(0,0,0,0.15);
+  color: #fff;
+  border-radius: 10px;
+  padding: .85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .12s ease;
+}
+.svc-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.15);
+}
+.svc-icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.svc-item strong {
+  font-weight: 600;
+}
+
 // Support Page
 .support-content {
   display: grid;

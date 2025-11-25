@@ -8,14 +8,14 @@ const Home = () => {
     <div className="shop-home">
       <section className="hero">
         <div className="hero-content">
-          <h1>Telegram Premium</h1>
-          <p>Unlock the full potential of Telegram with exclusive features.</p>
-          <button className="cta-btn" onClick={() => navigate('/products')}>View Packages</button>
+          <h1>WEB BUFF MXH</h1>
+          <p>Nền tảng tăng trưởng mạng xã hội đa kênh: nhanh, ổn định, giá tốt.</p>
+          <button className="cta-btn" onClick={() => navigate('/dich-vu')}>Xem dịch vụ</button>
         </div>
         <div style={{ marginTop: 24 }}>
           <img
-            src="/telepremium.png"
-            alt="Telegram Premium"
+            src="/buffmxh.png"
+            alt="WEB BUFF MXH"
             style={{ width: 220, height: 'auto' }}
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
@@ -23,31 +23,31 @@ const Home = () => {
       </section>
       
       <section className="features">
-        <h2>Premium Features</h2>
+        <h2>Dịch vụ nổi bật</h2>
         <div className="feature-grid">
           <div className="feature-card">
-            <h3>🚀 Double Limits</h3>
-            <p>Up to 1000 channels, 20 folders, 10 pins, 20 public links, and more.</p>
+            <h3>🌐 Đa nền tảng</h3>
+            <p>Facebook, TikTok, YouTube, Telegram, Instagram, và hơn thế nữa.</p>
           </div>
           <div className="feature-card">
-            <h3>📂 4 GB Uploads</h3>
-            <p>Upload media and files up to 4 GB each.</p>
+            <h3>⚡ Tốc độ & ổn định</h3>
+            <p>Xử lý nhanh, hạn chế tụt, phù hợp chiến dịch số lượng lớn.</p>
           </div>
           <div className="feature-card">
-            <h3>⚡ Faster Downloads</h3>
-            <p>Download media and documents at maximum speed.</p>
+            <h3>🛡️ Bảo hành</h3>
+            <p>Chính sách bảo hành rõ ràng, hỗ trợ khôi phục khi tụt.</p>
           </div>
           <div className="feature-card">
-            <h3>💬 Voice-to-Text</h3>
-            <p>Read the transcript of any voice message.</p>
+            <h3>⚙️ Tuỳ chỉnh</h3>
+            <p>Nhận chiến dịch theo yêu cầu: nguồn, tốc độ, khu vực, lịch chạy.</p>
           </div>
           <div className="feature-card">
-            <h3>🚫 No Ads</h3>
-            <p>No more sponsored messages in public channels.</p>
+            <h3>🤝 Hỗ trợ 24/7</h3>
+            <p>Tư vấn và theo dõi tiến độ qua Telegram/Email.</p>
           </div>
            <div className="feature-card">
-            <h3>✨ Unique Reactions</h3>
-            <p>React with more emojis including animated ones.</p>
+            <h3>💰 Giá cạnh tranh</h3>
+            <p>Bảng giá minh bạch, ưu đãi cho đơn số lượng lớn.</p>
           </div>
         </div>
       </section>

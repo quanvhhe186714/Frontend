@@ -199,6 +199,73 @@ const DichVu = () => {
         </aside>
 
         <div className="market-list">
+          {/* Quick Actions layout like reference images */}
+          <div className="svc-section">
+            <div className="svc-title">Dịch vụ buff Facebook</div>
+            <div className="svc-grid">
+              {["Tăng like bài viết","Tăng sub/follow","Tăng like fanpage","Tăng comment","Tăng like comment","Tăng share bài viết","Tăng share vào group","Tăng share livestream","Đánh giá 5* sao FANPAGE","Tăng mắt livestream","Tăng member group","Tăng view video","Tăng view story","Tăng like reels","Tăng view reels","Tăng comment reels","Tăng share reels"].map((label, idx) => (
+                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
+                  <span className="svc-icon">👍</span><strong>{label}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="svc-section">
+            <div className="svc-title">Dịch vụ buff Tiktok</div>
+            <div className="svc-grid">
+              {["Tăng lượt tim video","Tăng follow tiktok","Tăng view tiktok","Tăng comment tiktok","Tăng lượt share tiktok","Thêm vào yêu thích","Tăng mắt livestream","Tăng comment livestream","Tăng tim livestream","Tăng share livestream","Điểm chiến đấu (PK) Tiktok","Tăng like comment tiktok"].map((label, idx) => (
+                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
+                  <span className="svc-icon">🎵</span><strong>{label}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="svc-section">
+            <div className="svc-title">Dịch vụ buff Youtube</div>
+            <div className="svc-grid">
+              {["Tăng like video","Tăng like short video","Tăng view video","Tăng view video short","Tăng sub Youtube","Tăng comment video","Tăng like comment video","Tăng mắt livestream","View youtube 4000h"].map((label, idx) => (
+                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
+                  <span className="svc-icon">▶️</span><strong>{label}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="svc-section">
+            <div className="svc-title">Dịch vụ buff Twitter (X)</div>
+            <div className="svc-grid">
+              {["Tăng Like","Tăng Follow","Tăng lượt xem","Tăng Retweet","Tăng Comment","Tăng mắt livestream"].map((label, idx) => (
+                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
+                  <span className="svc-icon">𝕏</span><strong>{label}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="svc-section">
+            <div className="svc-title">Dịch vụ buff Telegram</div>
+            <div className="svc-grid">
+              {["Member & Sub Telegram","View Bài Viết Telegram","Cảm Xúc Bài Viết Telegram","Referrals for Game Bots"].map((label, idx) => (
+                <div key={idx} className="svc-item" onClick={() => navigate("/products")}>
+                  <span className="svc-icon">✈️</span><strong>{label}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="svc-section">
+            <div className="svc-title">Dịch vụ buff Instagram</div>
+            <div className="svc-grid">
+              {["Tăng lượt like","Tăng lượt comment","Tăng lượt theo dõi","Tăng lượt xem","Tăng mắt livestream"].map((label, idx) => (
+                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
+                  <span className="svc-icon">📸</span><strong>{label}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {filteredServices.length === 0 ? (
             <div className="service-card">
               <div className="meta">

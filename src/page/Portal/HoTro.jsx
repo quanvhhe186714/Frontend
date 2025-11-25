@@ -28,8 +28,8 @@ const HoTro = () => {
         <div className="support-info">
           <h3>Thông tin liên hệ</h3>
           <ul>
-            <li>📧 Email: nambansao@gmail.com</li>
-            <li>💬 Telegram: @nambansao</li>
+            <li>📧 Email: ShopMXH@gmail.com</li>
+            <li>💬 Telegram: @WebbuffMXH</li>
             <li>🕐 Giờ làm việc: 08:00 - 22:00 (Hàng ngày)</li>
             <li>⚡ Phản hồi nhanh trong vòng 5-15 phút</li>
           </ul>

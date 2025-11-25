@@ -17,6 +17,7 @@ import Payment from "../page/Shop/Payment";
 // Portal pages (market-like)
 import SanPham from "../page/Portal/SanPham";
 import DichVu from "../page/Portal/DichVu";
+import FacebookServiceDetail from "../page/Portal/FacebookServiceDetail";
 import HoTro from "../page/Portal/HoTro";
 import ChiaSe from "../page/Portal/ChiaSe";
 import CongCu from "../page/Portal/CongCu";
@@ -41,6 +42,7 @@ const AppRoutes = () => {
       {/* Portal style pages */}
       <Route path="/san-pham" element={<SanPham />} />
       <Route path="/dich-vu" element={<DichVu />} />
+      <Route path="/dich-vu/facebook/:id" element={<FacebookServiceDetail />} />
       <Route path="/ho-tro" element={<HoTro />} />
       <Route path="/chia-se" element={<ChiaSe />} />
       <Route path="/cong-cu" element={<CongCu />} />

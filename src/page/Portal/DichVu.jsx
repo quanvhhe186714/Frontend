@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import productService from "../../services/product";
+import facebookService from "../../services/facebook/facebookService";
 import "./portal.scss";
 
 const DichVu = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [facebookServices, setFacebookServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("ALL");
 
   useEffect(() => {
     loadProducts();
+    loadFacebookServices();
   }, []);
 
   const loadProducts = async () => {
@@ -19,6 +22,15 @@ const DichVu = () => {
       setProducts(data);
     } catch (error) {
       console.error("Failed to load products", error);
+    }
+  };
+
+  const loadFacebookServices = async () => {
+    try {
+      const data = await facebookService.getServices();
+      setFacebookServices(data);
+    } catch (error) {
+      console.error("Failed to load Facebook services", error);
     } finally {
       setLoading(false);
     }
@@ -203,11 +215,24 @@ const DichVu = () => {
           <div className="svc-section">
             <div className="svc-title">Dịch vụ buff Facebook</div>
             <div className="svc-grid">
-              {["Tăng like bài viết","Tăng sub/follow","Tăng like fanpage","Tăng comment","Tăng like comment","Tăng share bài viết","Tăng share vào group","Tăng share livestream","Đánh giá 5* sao FANPAGE","Tăng mắt livestream","Tăng member group","Tăng view video","Tăng view story","Tăng like reels","Tăng view reels","Tăng comment reels","Tăng share reels"].map((label, idx) => (
-                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
-                  <span className="svc-icon">👍</span><strong>{label}</strong>
-                </div>
-              ))}
+              {facebookServices.length > 0 ? (
+                facebookServices.map((service) => (
+                  <div 
+                    key={service._id} 
+                    className="svc-item" 
+                    onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                  >
+                    <span className="svc-icon">{service.icon || "👍"}</span>
+                    <strong>{service.name}</strong>
+                  </div>
+                ))
+              ) : (
+                ["Tăng like bài viết","Tăng sub/follow","Tăng like fanpage","Tăng comment","Tăng like comment","Tăng share bài viết","Tăng share vào group","Tăng share livestream","Đánh giá 5* sao FANPAGE","Tăng mắt livestream","Tăng member group","Tăng view video","Tăng view story","Tăng like reels","Tăng view reels","Tăng comment reels","Tăng share reels"].map((label, idx) => (
+                  <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
+                    <span className="svc-icon">👍</span><strong>{label}</strong>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

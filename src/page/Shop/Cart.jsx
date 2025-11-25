@@ -28,6 +28,10 @@ const Cart = () => {
   const updateQuantity = (productId, delta) => {
     const newCart = cart.map(item => {
         if (item.productId === productId) {
+            // Nếu là dịch vụ, không cho phép thay đổi quantity (phải xóa và thêm lại)
+            if (item.type === "service") {
+              return item; // Giữ nguyên
+            }
             return { ...item, quantity: Math.max(1, item.quantity + delta) };
         }
         return item;
@@ -106,12 +110,29 @@ const Cart = () => {
             <tbody>
               {cart.map((item) => (
                 <tr key={item.productId}>
-                  <td>{item.name}</td>
+                  <td>
+                    <div>
+                      <strong>{item.name}</strong>
+                      {item.type === "service" && item.serviceQuantity && (
+                        <div style={{ fontSize: "0.85rem", color: "#666", marginTop: "0.25rem" }}>
+                          Số lượng: {item.serviceQuantity} {item.serviceUnitLabel}
+                          {item.server && ` - ${item.server.name}`}
+                          {item.emotion && ` - ${item.emotion}`}
+                        </div>
+                      )}
+                    </div>
+                  </td>
                   <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}</td>
                   <td>
-                    <button onClick={() => updateQuantity(item.productId, -1)}>-</button>
-                    {item.quantity}
-                    <button onClick={() => updateQuantity(item.productId, 1)}>+</button>
+                    {item.type === "service" ? (
+                      <span>1</span>
+                    ) : (
+                      <>
+                        <button onClick={() => updateQuantity(item.productId, -1)}>-</button>
+                        {item.quantity}
+                        <button onClick={() => updateQuantity(item.productId, 1)}>+</button>
+                      </>
+                    )}
                   </td>
                   <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price * item.quantity)}</td>
                   <td><button className="remove-btn" onClick={() => removeItem(item.productId)}>Remove</button></td>

@@ -1,7 +1,23 @@
 import api from "./apiService";
 
-const sendMessage = async (content, receiverId = null) => {
-  const response = await api.post("/messages", { content, receiverId });
+const sendMessage = async (payload) => {
+  const { content, receiverId = null, attachments = [] } =
+    typeof payload === "object" && payload !== null
+      ? payload
+      : { content: payload, receiverId: null, attachments: [] };
+
+  const formData = new FormData();
+  if (content) {
+    formData.append("content", content);
+  }
+  if (receiverId) {
+    formData.append("receiverId", receiverId);
+  }
+  attachments.forEach((file) => {
+    formData.append("attachments", file);
+  });
+
+  const response = await api.post("/messages", formData);
   return response.data;
 };
 

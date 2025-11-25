@@ -2,28 +2,35 @@ import Header from "./Header";
 import Footer from "./Footer";
 import ChatWidget from "../Chat/ChatWidget";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const MainLayout = ({ children }) => {
-  const [userInfo, setUserInfo] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const location = useLocation();
+  const [userInfo, setUserInfo] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("userInfo"));
+    } catch {
+      return null;
+    }
+  });
+
+  const isAdmin = userInfo?.user?.role === "admin";
+  const shouldShowChat = !!userInfo;
 
   useEffect(() => {
     try {
-      const info = JSON.parse(localStorage.getItem("userInfo"));
-      setUserInfo(info);
-      setIsAdmin(info?.user?.role === "admin");
+      setUserInfo(JSON.parse(localStorage.getItem("userInfo")));
     } catch {
       setUserInfo(null);
-      setIsAdmin(false);
     }
-  }, []);
+  }, [location]);
 
   return (
     <>
       <Header />
       <main className="main-content">{children}</main>
       <Footer />
-      {userInfo && <ChatWidget isAdmin={isAdmin} />}
+      {shouldShowChat && <ChatWidget isAdmin={isAdmin} />}
     </>
   );
 };

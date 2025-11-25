@@ -267,17 +267,20 @@
     
     .chat-input {
       display: flex;
+      flex-direction: column;
       gap: 0.5rem;
       padding: 1rem;
       background: white;
       border-top: 1px solid #e0e0e0;
       
-      input {
-        flex: 1;
+      textarea {
+        width: 100%;
+        resize: none;
         padding: 0.75rem;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         font-size: 0.95rem;
+        font-family: inherit;
         
         &:focus {
           outline: none;
@@ -290,7 +293,66 @@
         }
       }
       
-      button {
+      .chat-input__toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+      
+      .chat-attach-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 1px dashed #229ED9;
+        background: rgba(34, 158, 217, 0.1);
+        color: #0b6fa4;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        
+        &:hover:not(:disabled) {
+          background: rgba(34, 158, 217, 0.2);
+        }
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+      
+      .chat-input__hint {
+        font-size: 0.8rem;
+        color: #666;
+      }
+      
+      .chat-attachments {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      
+      .chat-attachment {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f1f9ff;
+        border: 1px solid #cfe7ff;
+        border-radius: 6px;
+        padding: 0.35rem 0.5rem;
+        font-size: 0.85rem;
+        
+        button {
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          color: #ff5c5c;
+          font-size: 1rem;
+          line-height: 1;
+        }
+      }
+      
+      > button {
+        align-self: flex-end;
         padding: 0.75rem 1.5rem;
         background: linear-gradient(135deg, #229ED9 0%, #0088cc 100%);
         color: white;
@@ -308,6 +370,33 @@
         &:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+        }
+      }
+    }
+    
+    .message-attachments {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+      
+      .message-attachment {
+        a {
+          color: inherit;
+          text-decoration: none;
+          word-break: break-all;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+        
+        img {
+          width: 160px;
+          max-height: 160px;
+          object-fit: cover;
+          border-radius: 6px;
+          border: 1px solid rgba(0, 0, 0, 0.1);
         }
       }
     }

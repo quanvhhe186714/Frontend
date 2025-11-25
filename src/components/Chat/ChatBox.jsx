@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import messageService from "../../services/message";
+import { BASE_URL } from "../../services/apiService";
 import { getAvatarUrl } from "../../utils/avatarHelper";
 import "./ChatBox.scss";
 
 const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [pendingFiles, setPendingFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  const MAX_FILES = 5;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
   useEffect(() => {
     loadMessages();
@@ -62,15 +67,20 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() && pendingFiles.length === 0) return;
 
     try {
       const receiverId = isAdmin && selectedConversation 
         ? selectedConversation.sender._id 
         : null;
-      
-      await messageService.sendMessage(newMessage, receiverId);
+
+      await messageService.sendMessage({
+        content: newMessage.trim(),
+        receiverId,
+        attachments: pendingFiles
+      });
       setNewMessage("");
+      setPendingFiles([]);
       // Reload messages after a short delay to ensure the message is saved
       setTimeout(() => {
         loadMessages();
@@ -91,6 +101,56 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
   const handleConversationClick = (conv) => {
     setSelectedConversation(conv);
     setMessages([]);
+  };
+
+  const getAttachmentUrl = (url = "") => {
+    if (url.startsWith("http")) return url;
+    return `${BASE_URL}${url}`;
+  };
+
+  const addFiles = (files) => {
+    const list = Array.from(files || []);
+    if (!list.length) return;
+    const validated = [];
+    list.forEach((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`${file.name} vượt quá giới hạn 10MB và sẽ bị bỏ qua.`);
+        return;
+      }
+      validated.push(file);
+    });
+    if (!validated.length) return;
+    setPendingFiles((prev) => {
+      const combined = [...prev, ...validated];
+      if (combined.length > MAX_FILES) {
+        alert(`Chỉ gửi tối đa ${MAX_FILES} tệp trong một tin nhắn.`);
+      }
+      return combined.slice(0, MAX_FILES);
+    });
+  };
+
+  const handleFileChange = (e) => {
+    addFiles(e.target.files);
+    e.target.value = "";
+  };
+
+  const handlePaste = (e) => {
+    if (!e.clipboardData) return;
+    const items = e.clipboardData.items || [];
+    const files = [];
+    for (const item of items) {
+      if (item.kind === "file") {
+        const file = item.getAsFile();
+        if (file) files.push(file);
+      }
+    }
+    if (files.length) {
+      addFiles(files);
+    }
+  };
+
+  const handleRemoveAttachment = (index) => {
+    setPendingFiles((prev) => prev.filter((_, idx) => idx !== index));
   };
 
   const handleDeleteMessage = async (messageId) => {
@@ -122,6 +182,9 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
   };
 
   const showConversationsList = isAdmin && !selectedConversation;
+  const canSend =
+    (!!newMessage.trim() || pendingFiles.length > 0) &&
+    !(isAdmin && !selectedConversation);
 
   return (
     <div className="chat-box-container">
@@ -264,7 +327,34 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
                           )}
                         </div>
                       </div>
-                      <div className="message-text">{msg.content}</div>
+                      {msg.content && (
+                        <div className="message-text">{msg.content}</div>
+                      )}
+                      {Array.isArray(msg.attachments) && msg.attachments.length > 0 && (
+                        <div className="message-attachments">
+                          {msg.attachments.map((att) => (
+                            <div key={att.url} className="message-attachment">
+                              {att.type === "image" ? (
+                                <a
+                                  href={getAttachmentUrl(att.url)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <img src={getAttachmentUrl(att.url)} alt={att.originalName} />
+                                </a>
+                              ) : (
+                                <a
+                                  href={getAttachmentUrl(att.url)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  📎 {att.originalName}
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -274,16 +364,48 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
           </div>
           
           <form className="chat-input-panel" onSubmit={sendMessage}>
-            <input
-              type="text"
+            <div className="chat-input-toolbar">
+              <button
+                type="button"
+                className="chat-attach-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isAdmin && !selectedConversation}
+              >
+                📎 Gửi file
+              </button>
+              <span className="chat-input-hint">Ctrl+V để dán ảnh/file</span>
+            </div>
+            {pendingFiles.length > 0 && (
+              <div className="chat-attachments">
+                {pendingFiles.map((file, idx) => (
+                  <div className="chat-attachment" key={`${file.name}-${idx}`}>
+                    <span>{file.name}</span>
+                    <button type="button" onClick={() => handleRemoveAttachment(idx)}>
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <textarea
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
+              onPaste={handlePaste}
               placeholder={isAdmin && selectedConversation ? "Nhắn tin cho khách hàng..." : "Nhắn tin cho chủ shop..."}
               disabled={isAdmin && !selectedConversation}
+              rows={3}
+            />
+            <input
+              type="file"
+              multiple
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"
             />
             <button 
               type="submit" 
-              disabled={!newMessage.trim() || (isAdmin && !selectedConversation)}
+              disabled={!canSend}
               className="send-btn"
             >
               Gửi

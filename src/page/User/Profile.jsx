@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getMyProfile, updateMyProfile, changePassword } from "../../services/user";
 import orderService from "../../services/order";
+import { BASE_URL } from "../../services/apiService";
 import walletService from "../../services/wallet";
 import "./profile.scss";
 
@@ -229,6 +230,17 @@ const Profile = () => {
                 );
               })}
             </ul>
+            {order.invoicePath && ["paid","completed","delivered"].includes(order.status) && (
+              <p className="meta">
+                <a
+                  href={order.invoicePath.startsWith("http") ? order.invoicePath : `${BASE_URL}${order.invoicePath}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Tải hóa đơn (PDF)
+                </a>
+              </p>
+            )}
           </div>
         ))}
       </div>

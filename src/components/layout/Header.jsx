@@ -49,7 +49,6 @@ const Header = () => {
           <Link to="/dich-vu" onClick={() => setMobileMenuOpen(false)}>Dịch vụ</Link>
           <Link to="/ho-tro" onClick={() => setMobileMenuOpen(false)}>Hỗ trợ</Link>
           <Link to="/chia-se" onClick={() => setMobileMenuOpen(false)}>Chia sẻ</Link>
-          <Link to="/cong-cu" onClick={() => setMobileMenuOpen(false)}>Công cụ</Link>
           <Link to="/faqs" onClick={() => setMobileMenuOpen(false)}>FAQs</Link>
           <Link to="/cart" onClick={() => setMobileMenuOpen(false)}>Cart</Link>
           

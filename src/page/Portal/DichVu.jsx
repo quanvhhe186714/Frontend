@@ -9,7 +9,7 @@ const DichVu = () => {
   const [products, setProducts] = useState([]);
   const [facebookServices, setFacebookServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     loadProducts();
@@ -130,33 +130,71 @@ const DichVu = () => {
     return serviceList;
   }, [products]);
 
-  // Lọc dịch vụ theo filter
-  const filteredServices = useMemo(() => {
-    if (activeFilter === "ALL") return services;
-    
-    const filterMap = {
-      "Telegram": "TELEGRAM",
-      "Facebook": "VIA",
-      "TikTok": "DICH_VU_MXH",
-      "Youtube": "DICH_VU_MXH",
-      "Khác": ["PROXY", "COMING_SOON"]
-    };
+  // Tất cả các dịch vụ hardcoded để tìm kiếm
+  const allHardcodedServices = useMemo(() => {
+    return [
+      // TikTok
+      { name: "Tăng lượt tim video", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng follow tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng view tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng comment tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng lượt share tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Thêm vào yêu thích", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng mắt livestream", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng comment livestream", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng tim livestream", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng share livestream", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Điểm chiến đấu (PK) Tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng like comment tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
+      // YouTube
+      { name: "Tăng like video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng like short video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng view video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng view video short", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng sub Youtube", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng comment video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng like comment video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng mắt livestream", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      { name: "View youtube 4000h", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
+      // Twitter
+      { name: "Tăng Like", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng Follow", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng lượt xem", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng Retweet", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng Comment", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng mắt livestream", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
+      // Telegram
+      { name: "Member & Sub Telegram", icon: "✈️", category: "Telegram", onClick: () => navigate("/products") },
+      { name: "View Bài Viết Telegram", icon: "✈️", category: "Telegram", onClick: () => navigate("/products") },
+      { name: "Cảm Xúc Bài Viết Telegram", icon: "✈️", category: "Telegram", onClick: () => navigate("/products") },
+      { name: "Referrals for Game Bots", icon: "✈️", category: "Telegram", onClick: () => navigate("/products") },
+      // Instagram
+      { name: "Tăng lượt like", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng lượt comment", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng lượt theo dõi", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng lượt xem", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") },
+      { name: "Tăng mắt livestream", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") }
+    ];
+  }, [navigate]);
 
-    const targetCategories = filterMap[activeFilter];
-    if (Array.isArray(targetCategories)) {
-      return services.filter(s => targetCategories.includes(s.category));
-    }
-    return services.filter(s => s.filterKey === activeFilter || s.category === targetCategories);
-  }, [services, activeFilter]);
+  // Tìm kiếm dịch vụ
+  const filteredFacebookServices = useMemo(() => {
+    if (!searchQuery.trim()) return facebookServices;
+    const query = searchQuery.toLowerCase().trim();
+    return facebookServices.filter(service => 
+      service.name.toLowerCase().includes(query) ||
+      service.description?.toLowerCase().includes(query)
+    );
+  }, [facebookServices, searchQuery]);
 
-  const filters = [
-    { key: "ALL", label: "Tất cả" },
-    { key: "Telegram", label: "Telegram" },
-    { key: "Facebook", label: "Facebook" },
-    { key: "TikTok", label: "TikTok" },
-    { key: "Youtube", label: "Youtube" },
-    { key: "Khác", label: "Khác" }
-  ];
+  const filteredHardcodedServices = useMemo(() => {
+    if (!searchQuery.trim()) return allHardcodedServices;
+    const query = searchQuery.toLowerCase().trim();
+    return allHardcodedServices.filter(service => 
+      service.name.toLowerCase().includes(query) ||
+      service.category.toLowerCase().includes(query)
+    );
+  }, [allHardcodedServices, searchQuery]);
 
   const handleServiceClick = (service) => {
     if (service.category === "COMING_SOON") {
@@ -194,134 +232,157 @@ const DichVu = () => {
         <div>Chọn dịch vụ bạn quan tâm để xem chi tiết và đặt mua</div>
       </div>
 
-      <div className="market-grid">
-        <aside className="market-filter">
-          <h4>Bộ lọc</h4>
-          <ul>
-            {filters.map(filter => (
-              <li
-                key={filter.key}
-                className={activeFilter === filter.key ? "active" : ""}
-                onClick={() => setActiveFilter(filter.key)}
-              >
-                {filter.label}
-              </li>
-            ))}
-          </ul>
-        </aside>
+      {/* Search Bar */}
+      <div className="service-search-container">
+        <div className="service-search-bar">
+          <input
+            type="text"
+            placeholder="Tìm kiếm dịch vụ..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+          <span className="search-icon">🔍</span>
+        </div>
+      </div>
 
-        <div className="market-list">
+      <div className="market-list">
           {/* Quick Actions layout like reference images */}
-          <div className="svc-section">
-            <div className="svc-title">Dịch vụ buff Facebook</div>
-            <div className="svc-grid">
-              {facebookServices.length > 0 ? (
-                facebookServices.map((service) => (
-                  <div 
-                    key={service._id} 
-                    className="svc-item" 
-                    onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
-                  >
-                    <span className="svc-icon">{service.icon || "👍"}</span>
-                    <strong>{service.name}</strong>
-                  </div>
-                ))
-              ) : (
-                ["Tăng like bài viết","Tăng sub/follow","Tăng like fanpage","Tăng comment","Tăng like comment","Tăng share bài viết","Tăng share vào group","Tăng share livestream","Đánh giá 5* sao FANPAGE","Tăng mắt livestream","Tăng member group","Tăng view video","Tăng view story","Tăng like reels","Tăng view reels","Tăng comment reels","Tăng share reels"].map((label, idx) => (
-                  <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
-                    <span className="svc-icon">👍</span><strong>{label}</strong>
-                  </div>
-                ))
-              )}
+          {(searchQuery.trim() === "" || filteredFacebookServices.length > 0) && (
+            <div className="svc-section">
+              <div className="svc-title">Dịch vụ buff Facebook</div>
+              <div className="svc-grid">
+                {searchQuery.trim() === "" ? (
+                  // Hiển thị tất cả Facebook services khi không có search
+                  <>
+                    {facebookServices.length > 0 ? (
+                      facebookServices.map((service) => (
+                        <div 
+                          key={service._id} 
+                          className="svc-item" 
+                          onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                        >
+                          <span className="svc-icon">{service.icon || "👍"}</span>
+                          <strong>{service.name}</strong>
+                        </div>
+                      ))
+                    ) : (
+                      ["Tăng like bài viết","Tăng sub/follow","Tăng like fanpage","Tăng comment","Tăng like comment","Tăng share bài viết","Tăng share vào group","Tăng share livestream","Đánh giá 5* sao FANPAGE","Tăng mắt livestream","Tăng member group","Tăng view video","Tăng view story","Tăng like reels","Tăng view reels","Tăng comment reels","Tăng share reels"].map((label, idx) => (
+                        <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
+                          <span className="svc-icon">👍</span><strong>{label}</strong>
+                        </div>
+                      ))
+                    )}
+                  </>
+                ) : (
+                  // Hiển thị kết quả tìm kiếm
+                  filteredFacebookServices.map((service) => (
+                    <div 
+                      key={service._id} 
+                      className="svc-item" 
+                      onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                    >
+                      <span className="svc-icon">{service.icon || "👍"}</span>
+                      <strong>{service.name}</strong>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="svc-section">
-            <div className="svc-title">Dịch vụ buff Tiktok</div>
-            <div className="svc-grid">
-              {["Tăng lượt tim video","Tăng follow tiktok","Tăng view tiktok","Tăng comment tiktok","Tăng lượt share tiktok","Thêm vào yêu thích","Tăng mắt livestream","Tăng comment livestream","Tăng tim livestream","Tăng share livestream","Điểm chiến đấu (PK) Tiktok","Tăng like comment tiktok"].map((label, idx) => (
-                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
-                  <span className="svc-icon">🎵</span><strong>{label}</strong>
-                </div>
-              ))}
+          {/* TikTok Services */}
+          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "TikTok")) && (
+            <div className="svc-section">
+              <div className="svc-title">Dịch vụ buff Tiktok</div>
+              <div className="svc-grid">
+                {filteredHardcodedServices
+                  .filter(s => s.category === "TikTok")
+                  .map((service, idx) => (
+                    <div key={idx} className="svc-item" onClick={service.onClick}>
+                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
+                    </div>
+                  ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="svc-section">
-            <div className="svc-title">Dịch vụ buff Youtube</div>
-            <div className="svc-grid">
-              {["Tăng like video","Tăng like short video","Tăng view video","Tăng view video short","Tăng sub Youtube","Tăng comment video","Tăng like comment video","Tăng mắt livestream","View youtube 4000h"].map((label, idx) => (
-                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
-                  <span className="svc-icon">▶️</span><strong>{label}</strong>
-                </div>
-              ))}
+          {/* YouTube Services */}
+          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "Youtube")) && (
+            <div className="svc-section">
+              <div className="svc-title">Dịch vụ buff Youtube</div>
+              <div className="svc-grid">
+                {filteredHardcodedServices
+                  .filter(s => s.category === "Youtube")
+                  .map((service, idx) => (
+                    <div key={idx} className="svc-item" onClick={service.onClick}>
+                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
+                    </div>
+                  ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="svc-section">
-            <div className="svc-title">Dịch vụ buff Twitter (X)</div>
-            <div className="svc-grid">
-              {["Tăng Like","Tăng Follow","Tăng lượt xem","Tăng Retweet","Tăng Comment","Tăng mắt livestream"].map((label, idx) => (
-                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
-                  <span className="svc-icon">𝕏</span><strong>{label}</strong>
-                </div>
-              ))}
+          {/* Twitter Services */}
+          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "Twitter")) && (
+            <div className="svc-section">
+              <div className="svc-title">Dịch vụ buff Twitter (X)</div>
+              <div className="svc-grid">
+                {filteredHardcodedServices
+                  .filter(s => s.category === "Twitter")
+                  .map((service, idx) => (
+                    <div key={idx} className="svc-item" onClick={service.onClick}>
+                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
+                    </div>
+                  ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="svc-section">
-            <div className="svc-title">Dịch vụ buff Telegram</div>
-            <div className="svc-grid">
-              {["Member & Sub Telegram","View Bài Viết Telegram","Cảm Xúc Bài Viết Telegram","Referrals for Game Bots"].map((label, idx) => (
-                <div key={idx} className="svc-item" onClick={() => navigate("/products")}>
-                  <span className="svc-icon">✈️</span><strong>{label}</strong>
-                </div>
-              ))}
+          {/* Telegram Services */}
+          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "Telegram")) && (
+            <div className="svc-section">
+              <div className="svc-title">Dịch vụ buff Telegram</div>
+              <div className="svc-grid">
+                {filteredHardcodedServices
+                  .filter(s => s.category === "Telegram")
+                  .map((service, idx) => (
+                    <div key={idx} className="svc-item" onClick={service.onClick}>
+                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
+                    </div>
+                  ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="svc-section">
-            <div className="svc-title">Dịch vụ buff Instagram</div>
-            <div className="svc-grid">
-              {["Tăng lượt like","Tăng lượt comment","Tăng lượt theo dõi","Tăng lượt xem","Tăng mắt livestream"].map((label, idx) => (
-                <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
-                  <span className="svc-icon">📸</span><strong>{label}</strong>
-                </div>
-              ))}
+          {/* Instagram Services */}
+          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "Instagram")) && (
+            <div className="svc-section">
+              <div className="svc-title">Dịch vụ buff Instagram</div>
+              <div className="svc-grid">
+                {filteredHardcodedServices
+                  .filter(s => s.category === "Instagram")
+                  .map((service, idx) => (
+                    <div key={idx} className="svc-item" onClick={service.onClick}>
+                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
+                    </div>
+                  ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {filteredServices.length === 0 ? (
+          {/* No results message */}
+          {searchQuery.trim() !== "" && 
+           filteredFacebookServices.length === 0 && 
+           filteredHardcodedServices.length === 0 && (
             <div className="service-card">
               <div className="meta">
                 <h3>Không tìm thấy dịch vụ</h3>
-                <p>Vui lòng thử bộ lọc khác</p>
+                <p>Vui lòng thử từ khóa khác</p>
               </div>
             </div>
-          ) : (
-            filteredServices.map((service, index) => (
-              <div key={index} className="service-card">
-                <div className="thumb">
-                  <div className="service-icon">{service.icon}</div>
-                </div>
-                <div className="meta">
-                  <h3>{service.name}</h3>
-                  <p>{service.description}</p>
-                </div>
-                <div className="actions">
-                  <div className="price">{service.priceRange}</div>
-                  <button 
-                    className="link-btn" 
-                    onClick={() => handleServiceClick(service)}
-                  >
-                    {service.category === "COMING_SOON" ? "Chi tiết" : "Xem các gói"}
-                  </button>
-                </div>
-              </div>
-            ))
           )}
         </div>
-      </div>
     </div>
   );
 };

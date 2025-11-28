@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getMyProfile, updateMyProfile, changePassword } from "../../services/user";
 import orderService from "../../services/order";
+import messageService from "../../services/message";
 import { BASE_URL } from "../../services/apiService";
 import walletService from "../../services/wallet";
 import "./profile.scss";
@@ -36,6 +37,7 @@ const Profile = () => {
   });
   const [passwordStatus, setPasswordStatus] = useState({ type: "", text: "" });
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [orderFiles, setOrderFiles] = useState({}); // { orderId: [files] }
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -174,6 +176,47 @@ const Profile = () => {
     }
   };
 
+  // Load files from messages for each order
+  useEffect(() => {
+    const loadOrderFiles = async () => {
+      const completedOrders = orders.filter((order) =>
+        ["paid", "completed", "delivered"].includes(order.status)
+      );
+      
+      const filesMap = {};
+      await Promise.all(
+        completedOrders.map(async (order) => {
+          try {
+            const messages = await messageService.getMessagesByOrderId(order._id);
+            // Collect all files from messages sent by admin
+            const files = [];
+            messages.forEach((msg) => {
+              if (msg.isFromAdmin && msg.attachments && msg.attachments.length > 0) {
+                msg.attachments.forEach((file) => {
+                  files.push({
+                    ...file,
+                    messageId: msg._id,
+                    sentAt: msg.createdAt
+                  });
+                });
+              }
+            });
+            if (files.length > 0) {
+              filesMap[order._id] = files;
+            }
+          } catch (error) {
+            console.error(`Failed to load files for order ${order._id}:`, error);
+          }
+        })
+      );
+      setOrderFiles(filesMap);
+    };
+
+    if (orders.length > 0) {
+      loadOrderFiles();
+    }
+  }, [orders]);
+
   if (loading) return <div className="loading">Đang tải...</div>;
   if (!user) return <div className="error">{message}</div>;
 
@@ -192,57 +235,102 @@ const Profile = () => {
       return <p className="empty-state">{emptyLabel}</p>;
     }
 
+    const getFileUrl = (fileUrl) => {
+      if (fileUrl.startsWith("http")) return fileUrl;
+      return `${BASE_URL}${fileUrl}`;
+    };
+
     return (
       <div className="orders-list">
-        {orderList.map((order) => (
-          <div key={order._id} className="order-card">
-            <div className="order-header">
-              <div className="order-id">#{order._id.substring(0, 8)}</div>
-              <span className={`status ${order.status}`}>{order.status}</span>
+        {orderList.map((order) => {
+          const orderFilesList = orderFiles[order._id] || [];
+          const hasInvoice = order.invoicePath;
+          const hasFiles = orderFilesList.length > 0;
+          
+          return (
+            <div key={order._id} className="order-card">
+              <div className="order-header">
+                <div className="order-id">#{order._id.substring(0, 8)}</div>
+                <span className={`status ${order.status}`}>{order.status}</span>
+              </div>
+              <p className="date">
+                {new Date(order.createdAt).toLocaleString("vi-VN")}
+              </p>
+              <p className="total">
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(order.totalAmount)}
+              </p>
+              {order.paymentDetails?.telegramUsername && (
+                <p className="meta">
+                  Telegram: <strong>{order.paymentDetails.telegramUsername}</strong>
+                </p>
+              )}
+              <ul className="order-items">
+                {order.items.map((item, i) => {
+                  let expiry = null;
+                  if (item.durationMonths && order.createdAt) {
+                    const d = new Date(order.createdAt);
+                    d.setMonth(d.getMonth() + item.durationMonths);
+                    expiry = d.toLocaleDateString("vi-VN");
+                  }
+                  return (
+                    <li key={`${order._id}-${i}`}>
+                      {item.quantity} × {item.name}
+                      {expiry && <span>(HSD: {expiry})</span>}
+                    </li>
+                  );
+                })}
+              </ul>
+              {["paid","completed","delivered"].includes(order.status) && (
+                <div className="order-files-section">
+                  {hasInvoice && (
+                    <p className="meta">
+                      <a
+                        href={getFileUrl(order.invoicePath)}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ display: "inline-block", marginRight: "10px" }}
+                      >
+                        📄 Tải hóa đơn (PDF)
+                      </a>
+                    </p>
+                  )}
+                  {hasFiles && (
+                    <div className="order-files">
+                      <p className="meta" style={{ marginTop: hasInvoice ? "8px" : "0" }}>
+                        <strong>Files từ người bán:</strong>
+                      </p>
+                      {orderFilesList.map((file, idx) => (
+                        <p key={`${order._id}-file-${idx}`} className="meta">
+                          <a
+                            href={getFileUrl(file.url)}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ display: "inline-block", marginLeft: "10px" }}
+                          >
+                            📎 {file.originalName}
+                          </a>
+                          <span style={{ fontSize: "0.85em", color: "#999", marginLeft: "8px" }}>
+                            ({new Date(file.sentAt).toLocaleString("vi-VN")})
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  {!hasInvoice && !hasFiles && (
+                    <p className="meta">
+                      <span style={{ color: "#666", fontStyle: "italic" }}>
+                        Chờ người bán gửi file
+                      </span>
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
-            <p className="date">
-              {new Date(order.createdAt).toLocaleString("vi-VN")}
-            </p>
-            <p className="total">
-              {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(order.totalAmount)}
-            </p>
-            {order.paymentDetails?.telegramUsername && (
-              <p className="meta">
-                Telegram: <strong>{order.paymentDetails.telegramUsername}</strong>
-              </p>
-            )}
-            <ul className="order-items">
-              {order.items.map((item, i) => {
-                let expiry = null;
-                if (item.durationMonths && order.createdAt) {
-                  const d = new Date(order.createdAt);
-                  d.setMonth(d.getMonth() + item.durationMonths);
-                  expiry = d.toLocaleDateString("vi-VN");
-                }
-                return (
-                  <li key={`${order._id}-${i}`}>
-                    {item.quantity} × {item.name}
-                    {expiry && <span>(HSD: {expiry})</span>}
-                  </li>
-                );
-              })}
-            </ul>
-            {order.invoicePath && ["paid","completed","delivered"].includes(order.status) && (
-              <p className="meta">
-                <a
-                  href={order.invoicePath.startsWith("http") ? order.invoicePath : `${BASE_URL}${order.invoicePath}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Tải hóa đơn (PDF)
-                </a>
-              </p>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };

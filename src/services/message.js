@@ -1,10 +1,10 @@
 import api from "./apiService";
 
 const sendMessage = async (payload) => {
-  const { content, receiverId = null, attachments = [] } =
+  const { content, receiverId = null, orderId = null, attachments = [] } =
     typeof payload === "object" && payload !== null
       ? payload
-      : { content: payload, receiverId: null, attachments: [] };
+      : { content: payload, receiverId: null, orderId: null, attachments: [] };
 
   const formData = new FormData();
   if (content) {
@@ -12,6 +12,9 @@ const sendMessage = async (payload) => {
   }
   if (receiverId) {
     formData.append("receiverId", receiverId);
+  }
+  if (orderId) {
+    formData.append("orderId", orderId);
   }
   attachments.forEach((file) => {
     formData.append("attachments", file);
@@ -46,12 +49,18 @@ const deleteMessage = async (messageId) => {
   return response.data;
 };
 
+const getMessagesByOrderId = async (orderId) => {
+  const response = await api.get(`/messages/order/${orderId}`);
+  return response.data;
+};
+
 const messageService = {
   sendMessage,
   getMyMessages,
   getAllConversations,
   getConversationMessages,
   getUnreadCount,
+  getMessagesByOrderId,
   deleteMessage
 };
 

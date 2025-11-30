@@ -2,12 +2,18 @@
 import axios from 'axios';
 
 // URL của backend API
+// Ưu tiên: REACT_APP_API_URL > window.location.origin (nếu deploy cùng domain) > default
 export const BASE_URL =
   process.env.REACT_APP_API_URL ||
   (process.env.NODE_ENV === "development"
     ? "http://localhost:9999"
     : "https://shopnambs-4bru.onrender.com");
 const API_URL = BASE_URL;
+
+// Log để debug (chỉ trong development)
+if (process.env.NODE_ENV === "development") {
+  console.log("🔧 API Base URL:", API_URL);
+}
 
 /**
  * Tạo một instance axios với cấu hình cơ bản,
@@ -27,10 +33,17 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Lấy thông tin user (bao gồm token) từ localStorage
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    try {
+      const userInfoStr = localStorage.getItem('userInfo');
+      if (userInfoStr) {
+        const userInfo = JSON.parse(userInfoStr);
 
-    if (userInfo && userInfo.token) {
-      config.headers['Authorization'] = userInfo.token; // Token đã có 'Bearer ' từ backend
+        if (userInfo && userInfo.token) {
+          config.headers['Authorization'] = userInfo.token; // Token đã có 'Bearer ' từ backend
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to parse userInfo from localStorage:', error);
     }
     
     // Nếu là FormData, không set Content-Type để axios tự động set với boundary

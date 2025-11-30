@@ -19,29 +19,7 @@ const ChatWidget = ({ isAdmin = false }) => {
   const MAX_FILES = 5;
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-  useEffect(() => {
-    if (isOpen) {
-      loadMessages();
-      loadUnreadCount();
-    }
-    
-    // Polling để cập nhật tin nhắn mới
-    const interval = setInterval(() => {
-      if (isOpen) {
-        loadMessages();
-        loadUnreadCount();
-      } else {
-        loadUnreadCount();
-      }
-    }, 3000); // Cập nhật mỗi 3 giây
-
-    return () => clearInterval(interval);
-  }, [isOpen, selectedConversation, isAdmin, loadMessages, loadUnreadCount]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
+  // Định nghĩa functions TRƯỚC khi sử dụng trong useEffect
   const loadUnreadCount = useCallback(async () => {
     try {
       const count = await messageService.getUnreadCount();
@@ -82,6 +60,30 @@ const ChatWidget = ({ isAdmin = false }) => {
       setLoading(false);
     }
   }, [isAdmin, selectedConversation]);
+
+  // useEffect phải được đặt SAU khi các functions đã được định nghĩa
+  useEffect(() => {
+    if (isOpen) {
+      loadMessages();
+      loadUnreadCount();
+    }
+    
+    // Polling để cập nhật tin nhắn mới
+    const interval = setInterval(() => {
+      if (isOpen) {
+        loadMessages();
+        loadUnreadCount();
+      } else {
+        loadUnreadCount();
+      }
+    }, 3000); // Cập nhật mỗi 3 giây
+
+    return () => clearInterval(interval);
+  }, [isOpen, selectedConversation, isAdmin, loadMessages, loadUnreadCount]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const sendMessage = async (e) => {
     e.preventDefault();

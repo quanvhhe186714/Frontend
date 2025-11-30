@@ -39,6 +39,26 @@ const Cart = () => {
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
+  const handleQuantityChange = (productId, newQuantity) => {
+    const quantity = parseInt(newQuantity);
+    if (isNaN(quantity) || quantity < 1) {
+      return; // Không cập nhật nếu giá trị không hợp lệ
+    }
+    const newCart = cart.map(item => {
+        if (item.productId === productId) {
+            // Nếu là dịch vụ, không cho phép thay đổi quantity
+            if (item.type === "service") {
+              return item; // Giữ nguyên
+            }
+            return { ...item, quantity: Math.max(1, quantity) };
+        }
+        return item;
+    });
+    setCart(newCart);
+    localStorage.setItem("cart", JSON.stringify(newCart));
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+
   const removeItem = (productId) => {
     const newCart = cart.filter(item => item.productId !== productId);
     setCart(newCart);
@@ -123,11 +143,23 @@ const Cart = () => {
                     {item.type === "service" ? (
                       <span>1</span>
                     ) : (
-                      <>
+                      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                         <button onClick={() => updateQuantity(item.productId, -1)}>-</button>
-                        {item.quantity}
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => handleQuantityChange(item.productId, e.target.value)}
+                          style={{
+                            width: "60px",
+                            textAlign: "center",
+                            padding: "5px",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px"
+                          }}
+                        />
                         <button onClick={() => updateQuantity(item.productId, 1)}>+</button>
-                      </>
+                      </div>
                     )}
                   </td>
                   <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price * item.quantity)}</td>

@@ -103,9 +103,16 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
     setMessages([]);
   };
 
-  const getAttachmentUrl = (url = "") => {
-    if (url.startsWith("http")) return url;
-    return `${BASE_URL}${url}`;
+  const getAttachmentUrl = (url = "", isImage = false, originalName = "") => {
+    // Với image, dùng URL trực tiếp để hiển thị
+    if (isImage) {
+      if (url.startsWith("http")) return url;
+      return `${BASE_URL}${url}`;
+    }
+    
+    // Với file, dùng endpoint download để đảm bảo extension được thêm vào
+    const downloadUrl = `${BASE_URL}/files/download?fileUrl=${encodeURIComponent(url.startsWith("http") ? url : `${BASE_URL}${url}`)}${originalName ? `&filename=${encodeURIComponent(originalName)}` : ''}`;
+    return downloadUrl;
   };
 
   const addFiles = (files) => {
@@ -336,17 +343,16 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
                             <div key={att.url} className="message-attachment">
                               {att.type === "image" ? (
                                 <a
-                                  href={getAttachmentUrl(att.url)}
+                                  href={getAttachmentUrl(att.url, true)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
-                                  <img src={getAttachmentUrl(att.url)} alt={att.originalName} />
+                                  <img src={getAttachmentUrl(att.url, true)} alt={att.originalName} />
                                 </a>
                               ) : (
                                 <a
-                                  href={getAttachmentUrl(att.url)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
+                                  href={getAttachmentUrl(att.url, false, att.originalName)}
+                                  download={att.originalName}
                                 >
                                   📎 {att.originalName}
                                 </a>

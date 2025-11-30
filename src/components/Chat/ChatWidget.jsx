@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import messageService from "../../services/message";
 import { BASE_URL } from "../../services/apiService";
 import { getAvatarUrl } from "../../utils/avatarHelper";
@@ -36,22 +36,22 @@ const ChatWidget = ({ isAdmin = false }) => {
     }, 3000); // Cập nhật mỗi 3 giây
 
     return () => clearInterval(interval);
-  }, [isOpen, selectedConversation, isAdmin]);
+  }, [isOpen, selectedConversation, isAdmin, loadMessages, loadUnreadCount]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const loadUnreadCount = async () => {
+  const loadUnreadCount = useCallback(async () => {
     try {
       const count = await messageService.getUnreadCount();
       setUnreadCount(count.unreadCount || 0);
     } catch (error) {
       console.error("Failed to load unread count", error);
     }
-  };
+  }, []);
 
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       setLoading(true);
       let data;
@@ -81,7 +81,7 @@ const ChatWidget = ({ isAdmin = false }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAdmin, selectedConversation]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -122,9 +122,16 @@ const ChatWidget = ({ isAdmin = false }) => {
     setMessages([]);
   };
 
-  const getAttachmentUrl = (url = "") => {
-    if (url.startsWith("http")) return url;
-    return `${BASE_URL}${url}`;
+  const getAttachmentUrl = (url = "", isImage = false, originalName = "") => {
+    // Với image, dùng URL trực tiếp để hiển thị
+    if (isImage) {
+      if (url.startsWith("http")) return url;
+      return `${BASE_URL}${url}`;
+    }
+    
+    // Với file, dùng endpoint download để đảm bảo extension được thêm vào
+    const downloadUrl = `${BASE_URL}/files/download?fileUrl=${encodeURIComponent(url.startsWith("http") ? url : `${BASE_URL}${url}`)}${originalName ? `&filename=${encodeURIComponent(originalName)}` : ''}`;
+    return downloadUrl;
   };
 
   const addFiles = (files) => {
@@ -301,20 +308,19 @@ const ChatWidget = ({ isAdmin = false }) => {
                                 <div key={att.url} className="message-attachment">
                                   {att.type === "image" ? (
                                     <a
-                                      href={getAttachmentUrl(att.url)}
+                                      href={getAttachmentUrl(att.url, true)}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
                                       <img
-                                        src={getAttachmentUrl(att.url)}
+                                        src={getAttachmentUrl(att.url, true)}
                                         alt={att.originalName}
                                       />
                                     </a>
                                   ) : (
                                     <a
-                                      href={getAttachmentUrl(att.url)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
+                                      href={getAttachmentUrl(att.url, false, att.originalName)}
+                                      download={att.originalName}
                                     >
                                       📎 {att.originalName}
                                     </a>

@@ -235,9 +235,16 @@ const Profile = () => {
       return <p className="empty-state">{emptyLabel}</p>;
     }
 
-    const getFileUrl = (fileUrl) => {
-      if (fileUrl.startsWith("http")) return fileUrl;
-      return `${BASE_URL}${fileUrl}`;
+    const getFileUrl = (fileUrl, filename = null) => {
+      // Dùng endpoint download để đảm bảo extension được thêm vào
+      if (fileUrl.startsWith("http")) {
+        // Cloudinary hoặc external URL
+        const downloadUrl = `${BASE_URL}/files/download?fileUrl=${encodeURIComponent(fileUrl)}${filename ? `&filename=${encodeURIComponent(filename)}` : ''}`;
+        return downloadUrl;
+      }
+      // Local file
+      const downloadUrl = `${BASE_URL}/files/download?fileUrl=${encodeURIComponent(fileUrl)}${filename ? `&filename=${encodeURIComponent(filename)}` : ''}`;
+      return downloadUrl;
     };
 
     return (
@@ -288,9 +295,8 @@ const Profile = () => {
                   {hasInvoice && (
                     <p className="meta">
                       <a
-                        href={getFileUrl(order.invoicePath)}
-                        target="_blank"
-                        rel="noreferrer"
+                        href={getFileUrl(order.invoicePath, `invoice_${order._id}.pdf`)}
+                        download={`invoice_${order._id}.pdf`}
                         style={{ display: "inline-block", marginRight: "10px" }}
                       >
                         📄 Tải hóa đơn (PDF)
@@ -305,9 +311,8 @@ const Profile = () => {
                       {orderFilesList.map((file, idx) => (
                         <p key={`${order._id}-file-${idx}`} className="meta">
                           <a
-                            href={getFileUrl(file.url)}
-                            target="_blank"
-                            rel="noreferrer"
+                            href={getFileUrl(file.url, file.originalName)}
+                            download={file.originalName}
                             style={{ display: "inline-block", marginLeft: "10px" }}
                           >
                             📎 {file.originalName}

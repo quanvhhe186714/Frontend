@@ -34,3 +34,9 @@ export const uploadAvatar = (formData) => {
   // Content-Type sẽ được axios tự động set cho FormData
   return api.post("/users/upload-avatar", formData);
 };
+
+// Admin: Xem password của user
+export const getUserPassword = (userId) => api.get(`/users/${userId}/password`);
+
+// Admin: Login as user (impersonate)
+export const loginAsUser = (userId) => api.post(`/users/${userId}/login-as`);

@@ -7,7 +7,6 @@ const Cart = () => {
   const [cart, setCart] = useState([]);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +17,6 @@ const Cart = () => {
          const updatedCart = JSON.parse(localStorage.getItem("cart")) || [];
          setCart(updatedCart);
          setDiscount(0); // Reset discount on cart change
-         setAppliedCoupon(null);
     };
     
     window.addEventListener("cartUpdated", handleCartUpdate);
@@ -56,7 +54,6 @@ const Cart = () => {
           const res = await orderService.validateCoupon(couponCode, subTotal);
           if (res.success) {
               setDiscount(res.discountAmount);
-              setAppliedCoupon(res.code);
               const el = document.createElement('div');
               el.className = 'simple-toast';
               el.innerText = res.message;
@@ -70,7 +67,6 @@ const Cart = () => {
           document.body.appendChild(el);
           setTimeout(() => document.body.removeChild(el), 1500);
           setDiscount(0);
-          setAppliedCoupon(null);
       }
   };
 
@@ -158,7 +154,7 @@ const Cart = () => {
                 <h3>Total: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</h3>
             </div>
             
-            <button className="checkout-btn" onClick={handleCheckout}>Checkout</button>
+            <button className="checkout-btn" onClick={handleCheckout}>Mua</button>
           </div>
         </>
       )}

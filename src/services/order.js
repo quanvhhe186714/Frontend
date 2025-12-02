@@ -30,13 +30,27 @@ const getDashboardStats = async () => {
     return response.data;
 };
 
+// Admin: Soft delete order
+const softDeleteOrder = async (orderId) => {
+  const response = await api.delete(`/orders/${orderId}/soft-delete`);
+  return response.data;
+};
+
+// Admin: Restore order
+const restoreOrder = async (orderId) => {
+  const response = await api.post(`/orders/${orderId}/restore`);
+  return response.data;
+};
+
 const orderService = {
   createOrder,
   getMyOrders,
   getAllOrders,
   updateOrderStatus,
   validateCoupon,
-  getDashboardStats
+  getDashboardStats,
+  softDeleteOrder,
+  restoreOrder
 };
 
 export default orderService;

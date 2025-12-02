@@ -12,12 +12,22 @@ export const getAllTransactions = () => api.get("/wallet/admin/transactions");
 export const updateTransactionStatus = (id, status) =>
   api.patch(`/wallet/admin/transactions/${id}`, { status });
 
+// Admin: Soft delete transaction
+export const softDeleteTransaction = (transactionId) =>
+  api.delete(`/wallet/admin/transactions/${transactionId}/soft-delete`);
+
+// Admin: Restore transaction
+export const restoreTransaction = (transactionId) =>
+  api.post(`/wallet/admin/transactions/${transactionId}/restore`);
+
 const walletService = {
   getWallet,
   createTopupRequest,
   getMyTransactions,
   getAllTransactions,
   updateTransactionStatus,
+  softDeleteTransaction,
+  restoreTransaction,
 };
 
 export default walletService;

@@ -29,9 +29,10 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConversation, isAdmin, selectedUserId]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // Đã xóa auto-scroll - user sẽ tự scroll thủ công
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]);
 
   const loadMessages = async () => {
     try {
@@ -84,6 +85,10 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
       // Reload messages after a short delay to ensure the message is saved
       setTimeout(() => {
         loadMessages();
+        // Chỉ scroll xuống khi user tự gửi tin nhắn
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
       }, 500);
     } catch (error) {
       console.error("Failed to send message", error);
@@ -399,7 +404,7 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
               onPaste={handlePaste}
               placeholder={isAdmin && selectedConversation ? "Nhắn tin cho khách hàng..." : "Nhắn tin cho chủ shop..."}
               disabled={isAdmin && !selectedConversation}
-              rows={3}
+              rows={2}
             />
             <input
               type="file"

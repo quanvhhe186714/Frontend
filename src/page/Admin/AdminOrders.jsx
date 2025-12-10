@@ -1,23 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import orderService from "../../services/order";
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [editedDates, setEditedDates] = useState({});
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
-    setLoading(true);
+  const fetchOrders = useCallback(async () => {
     try {
       const data = await orderService.getAllOrders();
       setOrders(data);
+      const initialDates = {};
+      data.forEach((o) => {
+        initialDates[o._id] = toDateTimeLocal(o.createdAt);
+      });
+      setEditedDates(initialDates);
     } catch (error) {
       console.error(error);
     }
-    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  const updateTimestamp = async (id) => {
+    try {
+      const value = editedDates[id];
+      await orderService.updateOrderTimestamp(id, value);
+      fetchOrders();
+    } catch (error) {
+      const msg = error?.response?.data?.message || "Failed to update time";
+      alert(msg);
+    }
+  };
+
+  const toDateTimeLocal = (dateString) => {
+    const date = new Date(dateString);
+    // Align to local timezone for input value
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
   };
 
   const updateStatus = async (id, status) => {
@@ -41,6 +62,7 @@ const AdminOrders = () => {
                 <th>Total</th>
                 <th>Status</th>
                 <th>Date</th>
+                <th>Edit Time</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -58,7 +80,15 @@ const AdminOrders = () => {
                     <td>
                         <span className={`status ${o.status}`}>{o.status}</span>
                     </td>
-                    <td>{new Date(o.createdAt).toLocaleDateString()}</td>
+                    <td>{new Date(o.createdAt).toLocaleString()}</td>
+                    <td>
+                      <input
+                        type="datetime-local"
+                        value={editedDates[o._id] || ""}
+                        onChange={(e) => setEditedDates((prev) => ({ ...prev, [o._id]: e.target.value }))}
+                      />
+                      <button className="edit-btn" onClick={() => updateTimestamp(o._id)}>Save</button>
+                    </td>
                     <td>
                         {o.status === "pending" && (
                             <button className="edit-btn" onClick={() => updateStatus(o._id, "paid")}>Mark Paid</button>

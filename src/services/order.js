@@ -20,6 +20,12 @@ const updateOrderStatus = async (id, status) => {
   return response.data;
 };
 
+// Admin: Update order purchased date/time
+const updateOrderTimestamp = async (id, purchasedAt) => {
+  const response = await api.put(`/orders/${id}/timestamp`, { purchasedAt });
+  return response.data;
+};
+
 const validateCoupon = async (code, orderTotal) => {
     const response = await api.post("/coupons/validate", { code, orderTotal });
     return response.data;
@@ -47,6 +53,7 @@ const orderService = {
   getMyOrders,
   getAllOrders,
   updateOrderStatus,
+  updateOrderTimestamp,
   validateCoupon,
   getDashboardStats,
   softDeleteOrder,

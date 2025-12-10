@@ -13,6 +13,17 @@ const ChatWidget = ({ isAdmin = false }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [editedTimes, setEditedTimes] = useState({});
+
+  const formatDateTimeLocal = (dateString) => {
+    const d = new Date(dateString);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
@@ -38,7 +49,13 @@ const ChatWidget = ({ isAdmin = false }) => {
         if (selectedConversation) {
           // Admin xem tin nhắn của một conversation cụ thể
           data = await messageService.getConversationMessages(selectedConversation.conversationId);
-          setMessages(data || []);
+          const msgs = data || [];
+          setMessages(msgs);
+          const initialTimes = {};
+          msgs.forEach((m) => {
+            initialTimes[m._id] = formatDateTimeLocal(m.createdAt);
+          });
+          setEditedTimes(initialTimes);
         } else {
           // Admin xem danh sách conversations
           data = await messageService.getAllConversations();
@@ -48,7 +65,13 @@ const ChatWidget = ({ isAdmin = false }) => {
       } else {
         // User xem tin nhắn của mình với admin
         data = await messageService.getMyMessages();
-        setMessages(data || []);
+        const msgs = data || [];
+        setMessages(msgs);
+        const initialTimes = {};
+        msgs.forEach((m) => {
+          initialTimes[m._id] = formatDateTimeLocal(m.createdAt);
+        });
+        setEditedTimes(initialTimes);
       }
     } catch (error) {
       console.error("Failed to load messages", error);
@@ -84,6 +107,17 @@ const ChatWidget = ({ isAdmin = false }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleUpdateTimestamp = async (messageId) => {
+    try {
+      const value = editedTimes[messageId];
+      await messageService.updateMessageTimestamp(messageId, value);
+      await loadMessages();
+    } catch (error) {
+      const msg = error?.response?.data?.message || "Failed to update time";
+      alert(msg);
+    }
+  };
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -329,6 +363,23 @@ const ChatWidget = ({ isAdmin = false }) => {
                                   )}
                                 </div>
                               ))}
+                              {isAdmin && msg.isFromAdmin && (
+                                <div className="attachment-time-edit">
+                                  <input
+                                    type="datetime-local"
+                                    value={editedTimes[msg._id] || ""}
+                                    onChange={(e) =>
+                                      setEditedTimes((prev) => ({
+                                        ...prev,
+                                        [msg._id]: e.target.value,
+                                      }))
+                                    }
+                                  />
+                                  <button type="button" onClick={() => handleUpdateTimestamp(msg._id)}>
+                                    Lưu giờ gửi
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           )}
                           <div className="message-time">

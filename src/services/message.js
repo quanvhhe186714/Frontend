@@ -49,6 +49,12 @@ const deleteMessage = async (messageId) => {
   return response.data;
 };
 
+// Admin: update message/file send time
+const updateMessageTimestamp = async (messageId, sentAt) => {
+  const response = await api.put(`/messages/${messageId}/timestamp`, { sentAt });
+  return response.data;
+};
+
 const getMessagesByOrderId = async (orderId) => {
   const response = await api.get(`/messages/order/${orderId}`);
   return response.data;
@@ -61,7 +67,8 @@ const messageService = {
   getConversationMessages,
   getUnreadCount,
   getMessagesByOrderId,
-  deleteMessage
+  deleteMessage,
+  updateMessageTimestamp
 };
 
 export default messageService;

@@ -5,13 +5,23 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [editedDates, setEditedDates] = useState({});
 
+  const formatDateTimeLocal = (dateString) => {
+    const d = new Date(dateString);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const fetchOrders = useCallback(async () => {
     try {
       const data = await orderService.getAllOrders();
       setOrders(data);
       const initialDates = {};
       data.forEach((o) => {
-        initialDates[o._id] = toDateTimeLocal(o.createdAt);
+        initialDates[o._id] = formatDateTimeLocal(o.createdAt);
       });
       setEditedDates(initialDates);
     } catch (error) {
@@ -32,13 +42,6 @@ const AdminOrders = () => {
       const msg = error?.response?.data?.message || "Failed to update time";
       alert(msg);
     }
-  };
-
-  const toDateTimeLocal = (dateString) => {
-    const date = new Date(dateString);
-    // Align to local timezone for input value
-    const tzOffset = date.getTimezoneOffset() * 60000;
-    return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
   };
 
   const updateStatus = async (id, status) => {

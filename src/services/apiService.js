@@ -7,7 +7,7 @@ export const BASE_URL =
   process.env.REACT_APP_API_URL ||
   (process.env.NODE_ENV === "development"
     ? "http://localhost:9999"
-    : "https://shopnambs-4bru.onrender.com");
+    : "https://backend-cy6b.onrender.com");
 const API_URL = BASE_URL;
 
 // Log để debug (chỉ trong development)

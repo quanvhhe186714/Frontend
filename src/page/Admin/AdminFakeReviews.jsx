@@ -1,37 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { getAllFakeReviews, createFakeReview, updateFakeReview, deleteFakeReview } from '../../services/review';
+import { getAllReviews, getAllFakeReviews, createFakeReview, updateReview, deleteReview } from '../../services/review';
 import api from '../../services/apiService';
 
 const AdminFakeReviews = () => {
-  const [fakeReviews, setFakeReviews] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [products, setProducts] = useState([]);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
+  const [filterType, setFilterType] = useState('all'); // 'all', 'fake', 'real'
   const [formData, setFormData] = useState({
     productId: '',
+    serviceId: '',
     userName: '',
     userAvatar: '',
     rating: 5,
     comment: '',
-    createdAt: new Date().toISOString().slice(0, 16)
+    createdAt: new Date().toISOString().slice(0, 16),
+    totalReviewers: ''
   });
   const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
-    fetchFakeReviews();
+    fetchReviews();
     fetchProducts();
-  }, []);
+    fetchServices();
+  }, [filterType]);
 
-  const fetchFakeReviews = async () => {
+  const fetchReviews = async () => {
     try {
       setLoading(true);
-      const data = await getAllFakeReviews();
-      setFakeReviews(data);
+      const params = {};
+      if (filterType === 'fake') params.isFake = true;
+      if (filterType === 'real') params.isFake = false;
+      const data = await getAllReviews(params);
+      console.log('AdminFakeReviews - Received data:', data);
+      console.log('AdminFakeReviews - Reviews array:', data.reviews || data);
+      console.log('AdminFakeReviews - Reviews count:', (data.reviews || data)?.length);
+      setReviews(data.reviews || data);
       setLoading(false);
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Lỗi khi tải danh sách đánh giá ảo');
+      console.error('AdminFakeReviews - Error:', error);
+      setMessage(error.response?.data?.message || 'Lỗi khi tải danh sách đánh giá');
       setLoading(false);
     }
   };
@@ -45,28 +57,56 @@ const AdminFakeReviews = () => {
     }
   };
 
+  const fetchServices = async () => {
+    try {
+      const response = await api.get('/facebook-services');
+      setServices(response.data);
+    } catch (error) {
+      console.error('Failed to load services:', error);
+    }
+  };
+
   const handleCreate = () => {
     setEditingReview(null);
     setFormData({
       productId: '',
+      serviceId: '',
       userName: '',
       userAvatar: '',
       rating: 5,
       comment: '',
-      createdAt: new Date().toISOString().slice(0, 16)
+      createdAt: new Date().toISOString().slice(0, 16),
+      totalReviewers: ''
     });
     setShowForm(true);
   };
 
-  const handleEdit = (review) => {
+  const handleEdit = async (review) => {
     setEditingReview(review);
+    
+    // Fetch current product/service to get totalReviewers
+    let currentTotalReviewers = '';
+    try {
+      if (review.product?._id) {
+        const productResponse = await api.get(`/products/${review.product._id}`);
+        currentTotalReviewers = productResponse.data.totalReviewers || '';
+      } else if (review.facebookService?._id) {
+        const serviceResponse = await api.get(`/facebook-services/${review.facebookService._id}`);
+        currentTotalReviewers = serviceResponse.data.totalReviewers || '';
+      }
+    } catch (error) {
+      console.error('Error fetching product/service:', error);
+    }
+    
     setFormData({
-      productId: review.product._id,
+      productId: review.product?._id || '',
+      serviceId: review.facebookService?._id || '',
       userName: review.user?.name || '',
       userAvatar: review.user?.avatar || '',
       rating: review.rating,
       comment: review.comment || '',
-      createdAt: new Date(review.createdAt).toISOString().slice(0, 16)
+      createdAt: new Date(review.createdAt).toISOString().slice(0, 16),
+      totalReviewers: currentTotalReviewers
     });
     setShowForm(true);
   };
@@ -76,17 +116,19 @@ const AdminFakeReviews = () => {
     setEditingReview(null);
     setFormData({
       productId: '',
+      serviceId: '',
       userName: '',
       userAvatar: '',
       rating: 5,
       comment: '',
-      createdAt: new Date().toISOString().slice(0, 16)
+      createdAt: new Date().toISOString().slice(0, 16),
+      totalReviewers: ''
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.productId || !formData.userName || !formData.rating) {
+    if ((!formData.productId && !formData.serviceId) || !formData.userName || !formData.rating) {
       setMessage('Vui lòng điền đầy đủ thông tin bắt buộc');
       setTimeout(() => setMessage(''), 3000);
       return;
@@ -101,23 +143,42 @@ const AdminFakeReviews = () => {
       };
 
       if (editingReview) {
-        await updateFakeReview(editingReview._id, submitData);
-        setMessage('Cập nhật đánh giá ảo thành công');
+        // For editing, use updateReview which works for both fake and real reviews
+        await updateReview(editingReview._id, {
+          rating: submitData.rating,
+          comment: submitData.comment,
+          createdAt: submitData.createdAt
+        });
+        setMessage('Cập nhật đánh giá thành công');
       } else {
+        // Only allow creating fake reviews from admin panel
         await createFakeReview(submitData);
         setMessage('Tạo đánh giá ảo thành công');
       }
+
+      // Update totalReviewers for product or service
+      if (formData.totalReviewers !== '' && formData.totalReviewers !== null) {
+        const totalReviewersValue = formData.totalReviewers ? parseInt(formData.totalReviewers) : null;
+        if (formData.productId) {
+          await api.put(`/products/${formData.productId}`, { totalReviewers: totalReviewersValue });
+        } else if (formData.serviceId) {
+          await api.put(`/facebook-services/${formData.serviceId}`, { totalReviewers: totalReviewersValue });
+        }
+      }
+
       setShowForm(false);
       setEditingReview(null);
       setFormData({
         productId: '',
+        serviceId: '',
         userName: '',
         userAvatar: '',
         rating: 5,
         comment: '',
-        createdAt: new Date().toISOString().slice(0, 16)
+        createdAt: new Date().toISOString().slice(0, 16),
+        totalReviewers: ''
       });
-      fetchFakeReviews();
+      fetchReviews();
     } catch (error) {
       setMessage(error.response?.data?.message || 'Lỗi khi lưu đánh giá ảo');
     } finally {
@@ -126,16 +187,16 @@ const AdminFakeReviews = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa đánh giá ảo này?')) {
+    if (!window.confirm('Bạn có chắc muốn xóa đánh giá này?')) {
       return;
     }
 
     try {
-      await deleteFakeReview(id);
-      setMessage('Xóa đánh giá ảo thành công');
-      fetchFakeReviews();
+      await deleteReview(id);
+      setMessage('Xóa đánh giá thành công');
+      fetchReviews();
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Lỗi khi xóa đánh giá ảo');
+      setMessage(error.response?.data?.message || 'Lỗi khi xóa đánh giá');
     }
   };
 
@@ -145,25 +206,42 @@ const AdminFakeReviews = () => {
 
   if (loading) return <div>Đang tải...</div>;
 
+  const filteredReviews = reviews.filter(review => {
+    if (filterType === 'fake') return review.isFake === true;
+    if (filterType === 'real') return review.isFake === false;
+    return true;
+  });
+
   return (
     <div style={{ padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3>Quản lý đánh giá ảo</h3>
-        {!showForm && (
-          <button
-            onClick={handleCreate}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
+        <h3>Quản lý đánh giá</h3>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
           >
-            + Tạo đánh giá ảo mới
-          </button>
-        )}
+            <option value="all">Tất cả đánh giá</option>
+            <option value="fake">Đánh giá ảo</option>
+            <option value="real">Đánh giá thật</option>
+          </select>
+          {!showForm && (
+            <button
+              onClick={handleCreate}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              + Tạo đánh giá ảo mới
+            </button>
+          )}
+        </div>
       </div>
 
       {message && (
@@ -186,18 +264,35 @@ const AdminFakeReviews = () => {
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                Sản phẩm (bắt buộc):
+                Sản phẩm:
               </label>
               <select
                 value={formData.productId}
-                onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
-                required
+                onChange={(e) => setFormData({ ...formData, productId: e.target.value, serviceId: '' })}
                 style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
               >
                 <option value="">-- Chọn sản phẩm --</option>
                 {products.map((product) => (
                   <option key={product._id} value={product._id}>
                     {product.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                Dịch vụ:
+              </label>
+              <select
+                value={formData.serviceId}
+                onChange={(e) => setFormData({ ...formData, serviceId: e.target.value, productId: '' })}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              >
+                <option value="">-- Chọn dịch vụ --</option>
+                {services.map((service) => (
+                  <option key={service._id} value={service._id}>
+                    {service.name}
                   </option>
                 ))}
               </select>
@@ -273,6 +368,23 @@ const AdminFakeReviews = () => {
               />
             </div>
 
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                Số người đánh giá (tùy chọn):
+              </label>
+              <input
+                type="number"
+                value={formData.totalReviewers}
+                onChange={(e) => setFormData({ ...formData, totalReviewers: e.target.value })}
+                min="0"
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                placeholder="Để trống để tự động tính từ số lượng reviews"
+              />
+              <small style={{ color: '#666', fontSize: '12px' }}>
+                Nhập số người đánh giá để hiển thị (ví dụ: 50). Để trống sẽ tự động tính từ số lượng reviews thực tế.
+              </small>
+            </div>
+
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 type="submit"
@@ -308,14 +420,15 @@ const AdminFakeReviews = () => {
       )}
 
       <div>
-        <h4>Danh sách đánh giá ảo ({fakeReviews.length})</h4>
-        {fakeReviews.length === 0 ? (
-          <p>Chưa có đánh giá ảo nào</p>
+        <h4>Danh sách đánh giá ({filteredReviews.length})</h4>
+        {filteredReviews.length === 0 ? (
+          <p>Chưa có đánh giá nào</p>
         ) : (
           <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
             <thead>
               <tr>
-                <th style={{ padding: '10px', border: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>Sản phẩm</th>
+                <th style={{ padding: '10px', border: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>Loại</th>
+                <th style={{ padding: '10px', border: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>Sản phẩm/Dịch vụ</th>
                 <th style={{ padding: '10px', border: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>Người đánh giá</th>
                 <th style={{ padding: '10px', border: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>Đánh giá</th>
                 <th style={{ padding: '10px', border: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>Bình luận</th>
@@ -324,10 +437,17 @@ const AdminFakeReviews = () => {
               </tr>
             </thead>
             <tbody>
-              {fakeReviews.map((review) => (
+              {filteredReviews.map((review) => (
                 <tr key={review._id}>
                   <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    {review.product?.name || 'Unknown'}
+                    {review.isFake ? (
+                      <span style={{ padding: '2px 6px', backgroundColor: '#ffc107', color: '#000', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>ẢO</span>
+                    ) : (
+                      <span style={{ padding: '2px 6px', backgroundColor: '#28a745', color: '#fff', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>THẬT</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                    {review.product?.name || review.facebookService?.name || 'Unknown'}
                   </td>
                   <td style={{ padding: '10px', border: '1px solid #ddd' }}>
                     {review.user?.name || 'Unknown'}

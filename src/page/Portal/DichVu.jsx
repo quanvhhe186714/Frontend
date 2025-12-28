@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import productService from "../../services/product";
 import facebookService from "../../services/facebook/facebookService";
+import { getServiceRatingSummary } from "../../services/review";
 import ServiceStatusBadge from "../../components/ServiceStatusBadge/ServiceStatusBadge";
 import "./portal.scss";
 
@@ -12,6 +13,7 @@ const DichVu = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [serviceStatuses, setServiceStatuses] = useState({});
+  const [serviceRatingSummaries, setServiceRatingSummaries] = useState({});
 
   useEffect(() => {
     loadProducts();
@@ -32,7 +34,7 @@ const DichVu = () => {
       const data = await facebookService.getServices();
       setFacebookServices(data);
       
-      // Load statuses for all services
+      // Load statuses and rating summaries for all services
       const statusPromises = data.map(async (service) => {
         try {
           const status = await facebookService.getServiceStatus(service._id);
@@ -43,7 +45,21 @@ const DichVu = () => {
         }
       });
       
-      const statuses = await Promise.all(statusPromises);
+      const ratingPromises = data.map(async (service) => {
+        try {
+          const summary = await getServiceRatingSummary(service._id);
+          return { id: service._id, summary };
+        } catch (error) {
+          console.error(`Failed to load rating for service ${service._id}`, error);
+          return { id: service._id, summary: { averageRating: 0, totalReviews: 0 } };
+        }
+      });
+      
+      const [statuses, ratings] = await Promise.all([
+        Promise.all(statusPromises),
+        Promise.all(ratingPromises)
+      ]);
+      
       const statusMap = {};
       statuses.forEach(({ id, status }) => {
         if (status) {
@@ -51,6 +67,12 @@ const DichVu = () => {
         }
       });
       setServiceStatuses(statusMap);
+      
+      const ratingMap = {};
+      ratings.forEach(({ id, summary }) => {
+        ratingMap[id] = summary;
+      });
+      setServiceRatingSummaries(ratingMap);
     } catch (error) {
       console.error("Failed to load Facebook services", error);
     } finally {
@@ -280,19 +302,20 @@ const DichVu = () => {
                     {facebookServices.length > 0 ? (
                       facebookServices.map((service) => {
                         const status = serviceStatuses[service._id];
+                        const ratingSummary = serviceRatingSummaries[service._id] || { averageRating: 0, totalReviews: 0 };
                         const unitPrice = service.basePrice || 0;
                         const unit = parseInt(service.unit) || 1000;
                         const pricePerUnit = Math.ceil(unitPrice / (unit / 1000)); // Price per 1000
                         
                         return (
-                          <div 
-                            key={service._id} 
-                            className="svc-item" 
-                            onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
-                          >
+                        <div 
+                          key={service._id} 
+                          className="svc-item" 
+                          onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                        >
                             <div className="svc-item-header">
-                              <span className="svc-icon">{service.icon || "👍"}</span>
-                              <strong>{service.name}</strong>
+                          <span className="svc-icon">{service.icon || "👍"}</span>
+                          <strong>{service.name}</strong>
                               {status && (
                                 <ServiceStatusBadge 
                                   status={status.status} 
@@ -301,6 +324,16 @@ const DichVu = () => {
                                 />
                               )}
                             </div>
+                            {ratingSummary.totalReviews > 0 ? (
+                              <div style={{ marginBottom: '4px', fontSize: '12px', color: '#666' }}>
+                                <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                                <span style={{ marginLeft: '6px' }}>({ratingSummary.totalUsers || ratingSummary.totalReviews} người)</span>
+                              </div>
+                            ) : (
+                              <div style={{ marginBottom: '4px', fontSize: '12px', color: '#999', fontStyle: 'italic' }}>
+                                Chưa có đánh giá
+                              </div>
+                            )}
                             <div className="svc-item-price">
                               {pricePerUnit > 0 ? (
                                 <span className="price-text">{new Intl.NumberFormat('vi-VN').format(pricePerUnit)}₫</span>
@@ -308,7 +341,7 @@ const DichVu = () => {
                                 <span className="price-text">Liên hệ</span>
                               )}
                             </div>
-                          </div>
+                        </div>
                         );
                       })
                     ) : (
@@ -323,19 +356,20 @@ const DichVu = () => {
                   // Hiển thị kết quả tìm kiếm
                   filteredFacebookServices.map((service) => {
                     const status = serviceStatuses[service._id];
+                    const ratingSummary = serviceRatingSummaries[service._id] || { averageRating: 0, totalReviews: 0 };
                     const unitPrice = service.basePrice || 0;
                     const unit = parseInt(service.unit) || 1000;
                     const pricePerUnit = Math.ceil(unitPrice / (unit / 1000));
                     
                     return (
-                      <div 
-                        key={service._id} 
-                        className="svc-item" 
-                        onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
-                      >
+                    <div 
+                      key={service._id} 
+                      className="svc-item" 
+                      onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                    >
                         <div className="svc-item-header">
-                          <span className="svc-icon">{service.icon || "👍"}</span>
-                          <strong>{service.name}</strong>
+                      <span className="svc-icon">{service.icon || "👍"}</span>
+                      <strong>{service.name}</strong>
                           {status && (
                             <ServiceStatusBadge 
                               status={status.status} 
@@ -344,6 +378,16 @@ const DichVu = () => {
                             />
                           )}
                         </div>
+                        {ratingSummary.totalReviews > 0 ? (
+                          <div style={{ marginBottom: '4px', fontSize: '12px', color: '#666' }}>
+                            <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                            <span style={{ marginLeft: '6px' }}>({ratingSummary.totalReviews})</span>
+                          </div>
+                        ) : (
+                          <div style={{ marginBottom: '4px', fontSize: '12px', color: '#999', fontStyle: 'italic' }}>
+                            Chưa có đánh giá
+                          </div>
+                        )}
                         <div className="svc-item-price">
                           {pricePerUnit > 0 ? (
                             <span className="price-text">{new Intl.NumberFormat('vi-VN').format(pricePerUnit)}₫</span>
@@ -351,7 +395,7 @@ const DichVu = () => {
                             <span className="price-text">Liên hệ</span>
                           )}
                         </div>
-                      </div>
+                    </div>
                     );
                   })
                 )}

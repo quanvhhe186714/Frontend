@@ -1,12 +1,54 @@
 // Variables
-$primary-color: #229ED9; // Telegram Blue
-$secondary-color: #0088cc;
+$primary-color: #229ED9; // Telegram Blue - giữ nguyên
+$secondary-color: #0088cc; // Blue dark - giữ nguyên
+
+// Background colors
+$light-bg: #f8fafc; // Nền chính (thay $darker-bg) - xám rất nhạt
+$lighter-bg: #ffffff; // Nền cards - trắng
+$hero-bg: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); // Gradient hero
+
+// Text colors
+$text-dark: #1a202c; // Text chính - đen nhẹ
+$text-secondary: #4a5568; // Text phụ - xám
+$text-muted: #718096; // Text mờ
+
+// Border & Shadow
+$border-color: #e2e8f0; // Border nhẹ
+$border-light: #f1f5f9; // Border rất nhạt
+$shadow-sm: 0 2px 8px rgba(0,0,0,0.08); // Shadow nhẹ
+$shadow-md: 0 4px 14px rgba(0,0,0,0.12); // Shadow trung bình
+$shadow-lg: 0 8px 24px rgba(0,0,0,0.15); // Shadow lớn
+
+// Accent colors cho feature cards
+$accent-blue: #3b82f6; // Xanh dương
+$accent-blue-dark: #2563eb;
+$accent-orange: #f59e0b; // Cam
+$accent-orange-dark: #f97316;
+$accent-green: #10b981; // Xanh lá
+$accent-green-dark: #059669;
+$accent-purple: #8b5cf6; // Tím
+$accent-purple-dark: #7c3aed;
+$accent-pink: #ec4899; // Hồng
+$accent-pink-dark: #db2777;
+$accent-cyan: #06b6d4; // Xanh ngọc
+$accent-cyan-dark: #0891b2;
+
+// Legacy variables (giữ lại cho các pages khác)
 $dark-bg: #17212b; // Telegram Dark Theme BG
 $darker-bg: #0e1621; // Telegram Darker BG
 $text-color: #ffffff;
 $card-bg: #242f3d; // Telegram Message BG
 
-.shop-home, .product-list-page, .cart-page {
+// Homepage - Light theme
+.shop-home {
+    padding: 0; // Bỏ padding để hero full width
+    color: $text-dark;
+    background: $light-bg;
+    min-height: 80vh;
+}
+
+// Product list và cart pages - giữ dark theme
+.product-list-page, .cart-page {
     padding: 2rem;
     color: $text-color;
     background: $darker-bg;
@@ -16,12 +58,13 @@ $card-bg: #242f3d; // Telegram Message BG
 // Hero
 .hero {
     text-align: center;
-    padding: 5rem 0;
-    background: radial-gradient(circle at center, $dark-bg 0%, $darker-bg 100%);
+    padding: 6rem 2rem 4rem;
+    background: $hero-bg;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     .hero-content {
         display: flex;
@@ -31,17 +74,21 @@ $card-bg: #242f3d; // Telegram Message BG
     }
     
     h1 {
-        font-size: 4rem;
-        color: white;
+        font-size: 3.5rem;
+        font-weight: 700;
         margin-bottom: 1rem;
-        text-shadow: 0 0 20px rgba(34, 158, 217, 0.5);
         line-height: 1.2;
+        background: linear-gradient(135deg, #229ED9 0%, #0088cc 50%, #10b981 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     p {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
+        color: $text-secondary;
         margin-bottom: 2rem;
-        opacity: 0.8;
+        line-height: 1.7;
         max-width: 600px;
         padding: 0 1rem;
     }
@@ -49,18 +96,23 @@ $card-bg: #242f3d; // Telegram Message BG
     .cta-btn {
         padding: 1rem 3rem;
         font-size: 1.2rem;
-        background: $primary-color;
+        background: linear-gradient(135deg, #229ED9 0%, #0088cc 100%);
         border: none;
-        border-radius: 50px;
+        border-radius: 12px;
         color: white;
         font-weight: bold;
         cursor: pointer;
-        transition: all 0.2s;
-        box-shadow: 0 5px 15px rgba(34, 158, 217, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 14px rgba(34, 158, 217, 0.4);
         
         &:hover {
             transform: translateY(-2px);
-            background: lighten($primary-color, 5%);
+            box-shadow: 0 6px 20px rgba(34, 158, 217, 0.5);
+            filter: brightness(1.05);
+        }
+        
+        &:active {
+            transform: scale(0.98);
         }
     }
     
@@ -72,13 +124,16 @@ $card-bg: #242f3d; // Telegram Message BG
 
 // Features
 .features {
-    padding: 2rem 0;
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
     
     h2 {
         text-align: center;
         font-size: 2.5rem;
-        color: white;
-        margin-bottom: 2rem;
+        color: $text-dark;
+        font-weight: 700;
+        margin-bottom: 3rem;
     }
 }
 
@@ -89,23 +144,75 @@ $card-bg: #242f3d; // Telegram Message BG
     margin-top: 3rem;
     
     .feature-card {
-        background: $card-bg;
+        background: $lighter-bg;
         padding: 2rem;
-        border-radius: 15px;
+        border-radius: 16px;
         text-align: center;
-        border: 1px solid rgba(0,0,0,0.1);
-        transition: transform 0.3s;
+        border: 1px solid $border-color;
+        box-shadow: $shadow-sm;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         
-        &:hover { transform: translateY(-5px); }
+        // Card 1 - Đa nền tảng
+        &:nth-child(1) {
+            border-top: 4px solid $accent-blue;
+            h3 { 
+                color: $accent-blue; 
+            }
+        }
+        
+        // Card 2 - Tốc độ & ổn định
+        &:nth-child(2) {
+            border-top: 4px solid $accent-orange;
+            h3 { 
+                color: $accent-orange; 
+            }
+        }
+        
+        // Card 3 - Bảo hành
+        &:nth-child(3) {
+            border-top: 4px solid $accent-green;
+            h3 { 
+                color: $accent-green; 
+            }
+        }
+        
+        // Card 4 - Tuỳ chỉnh
+        &:nth-child(4) {
+            border-top: 4px solid $accent-purple;
+            h3 { 
+                color: $accent-purple; 
+            }
+        }
+        
+        // Card 5 - Hỗ trợ 24/7
+        &:nth-child(5) {
+            border-top: 4px solid $accent-pink;
+            h3 { 
+                color: $accent-pink; 
+            }
+        }
+        
+        // Card 6 - Giá cạnh tranh
+        &:nth-child(6) {
+            border-top: 4px solid $accent-cyan;
+            h3 { 
+                color: $accent-cyan; 
+            }
+        }
+        
+        &:hover { 
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: $shadow-lg;
+        }
         
         h3 { 
-            color: $primary-color; 
             margin: 1rem 0; 
             font-size: 1.3rem;
+            font-weight: 600;
         }
         
         p {
-            color: rgba(255, 255, 255, 0.8);
+            color: $text-secondary;
             line-height: 1.6;
         }
     }
@@ -1029,12 +1136,16 @@ $card-bg: #242f3d; // Telegram Message BG
 
 // Mobile Responsive
 @media (max-width: 768px) {
-    .shop-home, .product-list-page, .cart-page {
+    .shop-home {
+        padding: 0;
+    }
+    
+    .product-list-page, .cart-page {
         padding: 1rem;
     }
 
     .hero {
-        padding: 3rem 1rem;
+        padding: 4rem 1rem 3rem;
         
         h1 {
             font-size: 2.5rem;
@@ -1056,7 +1167,7 @@ $card-bg: #242f3d; // Telegram Message BG
     }
 
     .features {
-        padding: 1.5rem 0;
+        padding: 3rem 1rem;
         
         h2 {
             font-size: 2rem;
@@ -1164,6 +1275,43 @@ $card-bg: #242f3d; // Telegram Message BG
         .qr-code-image {
             max-width: 250px;
         }
+    }
+}
+
+// Tablet Responsive
+@media (min-width: 769px) and (max-width: 1024px) {
+    .hero {
+        h1 {
+            font-size: 3rem;
+        }
+    }
+
+    .features {
+        padding: 4rem 2rem;
+    }
+
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+// Desktop Responsive
+@media (min-width: 1025px) {
+    .hero {
+        h1 {
+            font-size: 3.5rem;
+        }
+    }
+
+    .features {
+        padding: 4rem 2rem;
+    }
+
+    .feature-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 

@@ -1,26 +1,58 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import productService from "../../services/product";
+import categoryService from "../../services/category";
+import { getProductRatingSummary } from "../../services/review";
 import "./shop.scss";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [ratingSummaries, setRatingSummaries] = useState({});
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("ALL"); // ALL | VIA | PROXY | DICH_VU_MXH
+  const [activeTab, setActiveTab] = useState("ALL");
 
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, []);
 
   const loadProducts = async () => {
     try {
       const data = await productService.getProducts();
       setProducts(data);
+      
+      // Load rating summaries for all products
+      const summaryPromises = data.map(async (product) => {
+        try {
+          const summary = await getProductRatingSummary(product._id);
+          return { productId: product._id, summary };
+        } catch (error) {
+          console.error(`Failed to load rating for product ${product._id}`, error);
+          return { productId: product._id, summary: { averageRating: 0, totalReviews: 0 } };
+        }
+      });
+      
+      const summaries = await Promise.all(summaryPromises);
+      const summaryMap = {};
+      summaries.forEach(({ productId, summary }) => {
+        summaryMap[productId] = summary;
+      });
+      setRatingSummaries(summaryMap);
     } catch (error) {
       console.error("Failed to load products", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const data = await categoryService.getCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error("Failed to load categories", error);
     }
   };
 
@@ -52,14 +84,19 @@ const ProductList = () => {
   };
 
   const groups = useMemo(() => {
-    const toGroup = (cat) => products.filter(p => p.category === cat);
-    return {
-      VIA: toGroup("VIA"),
-      PROXY: toGroup("PROXY"),
-      DICH_VU_MXH: toGroup("DICH_VU_MXH"),
-      OTHER: products.filter(p => !["VIA","PROXY","DICH_VU_MXH"].includes(p.category))
-    };
-  }, [products]);
+    const categoryCodes = categories.map(c => c.code);
+    const grouped = {};
+    
+    // Group products by category
+    categories.forEach(cat => {
+      grouped[cat.code] = products.filter(p => p.category === cat.code);
+    });
+    
+    // Group products without category or with unknown category as OTHER
+    grouped.OTHER = products.filter(p => !p.category || !categoryCodes.includes(p.category));
+    
+    return grouped;
+  }, [products, categories]);
 
   if (loading) {
     return (
@@ -88,139 +125,133 @@ const ProductList = () => {
       <h2>Sản phẩm</h2>
 
       <div className="tabs" style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        {["ALL","VIA","PROXY","DICH_VU_MXH"].map(tab => (
+        <button
+          onClick={() => setActiveTab("ALL")}
+          className={activeTab === "ALL" ? "tab active" : "tab"}
+        >
+          Tất cả
+        </button>
+        {categories.map(cat => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={activeTab === tab ? "tab active" : "tab"}
+            key={cat.code}
+            onClick={() => setActiveTab(cat.code)}
+            className={activeTab === cat.code ? "tab active" : "tab"}
           >
-            {tab === "ALL" ? "Tất cả" : tab === "DICH_VU_MXH" ? "Dịch vụ MXH hoàn chỉnh" : tab}
+            {cat.name}
           </button>
         ))}
       </div>
 
       {activeTab === "ALL" ? (
         <>
-          {/* VIA */}
-          {groups.VIA.length > 0 && (
-            <section style={{ marginBottom: 24 }}>
-              <h3>VIA</h3>
-              <div className="product-grid">
-                {groups.VIA.map((p) => (
-                  <div key={p._id} className="product-card">
-                    <div className="card-header">
-                        <h3>{p.name}</h3>
-                        <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
-                    </div>
-                    <p className="desc">{p.description}</p>
-                    <ul className="features">
-                        {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
-                    </ul>
-                    <div style={{ display: 'grid', gap: 10 }}>
-                      <button onClick={() => addToCart(p)}>Mua ngay</button>
-                      <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* PROXY */}
-          {groups.PROXY.length > 0 && (
-            <section style={{ marginBottom: 24 }}>
-              <h3>PROXY</h3>
-              <div className="product-grid">
-                {groups.PROXY.map((p) => (
-                  <div key={p._id} className="product-card">
-                    <div className="card-header">
-                        <h3>{p.name}</h3>
-                        <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
-                    </div>
-                    <p className="desc">{p.description}</p>
-                    <ul className="features">
-                        {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
-                    </ul>
-                    <div style={{ display: 'grid', gap: 10 }}>
-                      <button onClick={() => addToCart(p)}>Mua ngay</button>
-                      <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Dịch vụ MXH */}
-          {groups.DICH_VU_MXH.length > 0 && (
-            <section style={{ marginBottom: 24 }}>
-              <h3>Dịch vụ MXH hoàn chỉnh</h3>
-              <div className="product-grid">
-                {groups.DICH_VU_MXH.map((p) => (
-                  <div key={p._id} className="product-card">
-                    <div className="card-header">
-                        <h3>{p.name}</h3>
-                        <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
-                    </div>
-                    <p className="desc">{p.description}</p>
-                    <ul className="features">
-                        {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
-                    </ul>
-                    <div style={{ display: 'grid', gap: 10 }}>
-                      <button onClick={() => addToCart(p)}>Mua ngay</button>
-                      <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+          {categories.map(cat => (
+            groups[cat.code] && groups[cat.code].length > 0 && (
+              <section key={cat.code} style={{ marginBottom: 24 }}>
+                <h3>{cat.name}</h3>
+                <div className="product-grid">
+                  {groups[cat.code].map((p) => {
+                    const ratingSummary = ratingSummaries[p._id] || { averageRating: 0, totalReviews: 0 };
+                    return (
+                      <div key={p._id} className="product-card">
+                        <div className="card-header">
+                            <h3>{p.name}</h3>
+                            <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
+                        </div>
+                        {ratingSummary.totalReviews > 0 ? (
+                          <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+                            <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                            <span style={{ marginLeft: '8px' }}>({ratingSummary.totalUsers || ratingSummary.totalReviews} người đánh giá)</span>
+                          </div>
+                        ) : (
+                          <div style={{ marginBottom: '8px', fontSize: '14px', color: '#999', fontStyle: 'italic' }}>
+                            Chưa có đánh giá
+                          </div>
+                        )}
+                        <p className="desc">{p.description}</p>
+                        <ul className="features">
+                            {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
+                        </ul>
+                        <div style={{ display: 'grid', gap: 10 }}>
+                          <button onClick={() => addToCart(p)}>Mua ngay</button>
+                          <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )
+          ))}
 
           {/* Khác */}
-          {groups.OTHER.length > 0 && (
+          {groups.OTHER && groups.OTHER.length > 0 && (
             <section>
               <h3>Gói khác</h3>
               <div className="product-grid">
-                {groups.OTHER.map((p) => (
-                  <div key={p._id} className="product-card">
-                    <div className="card-header">
-                        <h3>{p.name}</h3>
-                        <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
+                {groups.OTHER.map((p) => {
+                  const ratingSummary = ratingSummaries[p._id] || { averageRating: 0, totalReviews: 0 };
+                  return (
+                    <div key={p._id} className="product-card">
+                      <div className="card-header">
+                          <h3>{p.name}</h3>
+                          <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
+                      </div>
+                      {ratingSummary.totalReviews > 0 ? (
+                        <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+                          <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                          <span style={{ marginLeft: '8px' }}>({ratingSummary.totalReviews} đánh giá)</span>
+                        </div>
+                      ) : (
+                        <div style={{ marginBottom: '8px', fontSize: '14px', color: '#999', fontStyle: 'italic' }}>
+                          Chưa có đánh giá
+                        </div>
+                      )}
+                      <p className="desc">{p.description}</p>
+                      <ul className="features">
+                          {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
+                      </ul>
+                      <div style={{ display: 'grid', gap: 10 }}>
+                        <button onClick={() => addToCart(p)}>Mua ngay</button>
+                        <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
+                      </div>
                     </div>
-                    <p className="desc">{p.description}</p>
-                    <ul className="features">
-                        {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
-                    </ul>
-                    <div style={{ display: 'grid', gap: 10 }}>
-                      <button onClick={() => addToCart(p)}>Mua ngay</button>
-                      <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}
         </>
       ) : (
         <div className="product-grid">
-          {(activeTab === "VIA" ? groups.VIA
-            : activeTab === "PROXY" ? groups.PROXY
-            : groups.DICH_VU_MXH).map((p) => (
-            <div key={p._id} className="product-card">
-              <div className="card-header">
-                  <h3>{p.name}</h3>
-                  <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
+          {(groups[activeTab] || []).map((p) => {
+            const ratingSummary = ratingSummaries[p._id] || { averageRating: 0, totalReviews: 0 };
+            return (
+              <div key={p._id} className="product-card">
+                <div className="card-header">
+                    <h3>{p.name}</h3>
+                    <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
+                </div>
+                {ratingSummary.totalReviews > 0 ? (
+                  <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+                    <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                    <span style={{ marginLeft: '8px' }}>({ratingSummary.totalReviews} đánh giá)</span>
+                  </div>
+                ) : (
+                  <div style={{ marginBottom: '8px', fontSize: '14px', color: '#999', fontStyle: 'italic' }}>
+                    Chưa có đánh giá
+                  </div>
+                )}
+                <p className="desc">{p.description}</p>
+                <ul className="features">
+                    {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
+                </ul>
+                <div style={{ display: 'grid', gap: 10 }}>
+                  <button onClick={() => addToCart(p)}>Mua ngay</button>
+                  <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
+                </div>
               </div>
-              <p className="desc">{p.description}</p>
-              <ul className="features">
-                  {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
-              </ul>
-              <div style={{ display: 'grid', gap: 10 }}>
-                <button onClick={() => addToCart(p)}>Mua ngay</button>
-                <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

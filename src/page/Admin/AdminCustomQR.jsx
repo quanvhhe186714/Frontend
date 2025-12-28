@@ -44,6 +44,7 @@ const AdminCustomQR = () => {
   const handleSubmit = async (formData) => {
     try {
       setFormLoading(true);
+      setMessage(''); // Clear previous messages
       if (editingQR) {
         await updateCustomQR(editingQR._id, formData);
         setMessage('Cập nhật QR code thành công');
@@ -55,7 +56,12 @@ const AdminCustomQR = () => {
       setEditingQR(null);
       fetchCustomQRs();
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Lỗi khi lưu QR code');
+      console.error('Error saving QR code:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          'Lỗi khi lưu QR code';
+      setMessage(errorMessage);
     } finally {
       setFormLoading(false);
     }

@@ -2,11 +2,8 @@ import api from "./apiService";
 
 // Tạo QR code tùy chỉnh mới (Admin only)
 export const createCustomQR = (formData) => {
-  return api.post("/custom-qr", formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  });
+  // Don't set Content-Type header - axios will set it automatically with boundary for FormData
+  return api.post("/custom-qr", formData);
 };
 
 // Lấy tất cả QR codes (Admin only)
@@ -25,11 +22,8 @@ export const getCustomQRById = (id) => {
 
 // Cập nhật QR code (Admin only)
 export const updateCustomQR = (id, formData) => {
-  return api.put(`/custom-qr/${id}`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  });
+  // Don't set Content-Type header - axios will set it automatically with boundary for FormData
+  return api.put(`/custom-qr/${id}`, formData);
 };
 
 // Xóa QR code (Admin only)

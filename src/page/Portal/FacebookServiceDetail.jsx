@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import facebookService from "../../services/facebook/facebookService";
+import { getServiceReviews, getServiceRatingSummary } from "../../services/review";
+import ReviewForm from "../../components/ReviewForm/ReviewForm";
 import PriceTable from "../../components/PriceTable/PriceTable";
 import ServiceStatusBadge from "../../components/ServiceStatusBadge/ServiceStatusBadge";
 import "./portal.scss";
@@ -18,6 +20,19 @@ const FacebookServiceDetail = () => {
   const [urls, setUrls] = useState({});
   const [priceTable, setPriceTable] = useState(null);
   const [serviceStatus, setServiceStatus] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [ratingSummary, setRatingSummary] = useState(null);
+
+  const loadReviews = async () => {
+    try {
+      const reviewsData = await getServiceReviews(id);
+      setReviews(reviewsData);
+      const summary = await getServiceRatingSummary(id);
+      setRatingSummary(summary);
+    } catch (error) {
+      console.error("Failed to load reviews", error);
+    }
+  };
 
   // Danh sách cảm xúc Facebook
   const emotions = [
@@ -72,6 +87,22 @@ const FacebookServiceDetail = () => {
         setServiceStatus(statusData);
       } catch (error) {
         console.error("Failed to load service status", error);
+      }
+
+      // Load rating summary
+      try {
+        const summary = await getServiceRatingSummary(id);
+        setRatingSummary(summary);
+      } catch (error) {
+        console.error("Failed to load rating summary", error);
+      }
+
+      // Load reviews
+      try {
+        const reviewsData = await getServiceReviews(id);
+        setReviews(reviewsData);
+      } catch (error) {
+        console.error("Failed to load reviews", error);
       }
     } catch (error) {
       console.error("Failed to load service", error);
@@ -259,6 +290,24 @@ const FacebookServiceDetail = () => {
               />
             )}
           </div>
+          
+          {/* Rating Summary */}
+          {ratingSummary && ratingSummary.totalReviews > 0 ? (
+            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '24px' }}>⭐</span>
+                  <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{ratingSummary.averageRating.toFixed(1)}</span>
+                </div>
+                <span style={{ color: '#666' }}>({ratingSummary.totalUsers || ratingSummary.totalReviews} người đánh giá)</span>
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+              <span style={{ color: '#999', fontStyle: 'italic' }}>Chưa có đánh giá</span>
+            </div>
+          )}
+          
           {service.description && (
             <p className="service-description">{service.description}</p>
           )}
@@ -456,6 +505,103 @@ const FacebookServiceDetail = () => {
           >
             {calculating ? "Đang tính..." : "Đặt ngay"}
           </button>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="reviews-section" style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+          <h3>Đánh giá dịch vụ</h3>
+          
+          {/* Review Form */}
+          <ReviewForm 
+            serviceId={id}
+            onReviewSubmitted={loadReviews}
+            onReviewUpdated={loadReviews}
+            onReviewDeleted={loadReviews}
+          />
+          
+          <div style={{ marginTop: '30px', marginBottom: '20px', borderTop: '1px solid #ddd', paddingTop: '20px' }}>
+            {reviews.length === 0 ? (
+              <p style={{ color: '#666', fontStyle: 'italic' }}>Chưa có đánh giá nào cho dịch vụ này</p>
+            ) : (
+              <>
+                <div style={{ marginBottom: '20px' }}>
+                <p>
+                  <strong>Tổng đánh giá:</strong> {reviews.length} đánh giá
+                  {reviews.length > 0 && (
+                    <>
+                      <span style={{ marginLeft: '15px' }}>
+                        <strong>Số người đánh giá:</strong> {new Set(reviews.map(r => {
+                          if (typeof r.user === 'object' && r.user?._id) return r.user._id.toString();
+                          if (typeof r.user === 'string') return r.user;
+                          return null;
+                        }).filter(Boolean)).size} người
+                      </span>
+                      <span style={{ marginLeft: '15px' }}>
+                        <strong>Đánh giá trung bình:</strong> {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}/5
+                        {'⭐'.repeat(Math.round(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length))}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </div>
+              <div className="reviews-list">
+                {reviews.map((review) => (
+                  <div
+                    key={review._id}
+                    style={{
+                      padding: '15px',
+                      marginBottom: '15px',
+                      backgroundColor: 'white',
+                      borderRadius: '8px',
+                      border: '1px solid #ddd'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {review.user?.avatar ? (
+                          <img
+                            src={review.user.avatar}
+                            alt={review.user.name}
+                            style={{ width: '40px', height: '40px', borderRadius: '50%' }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '50%',
+                              backgroundColor: '#007bff',
+                              color: 'white',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {review.user?.name?.charAt(0).toUpperCase() || 'U'}
+                          </div>
+                        )}
+                        <div>
+                          <strong>{review.user?.name || 'Unknown'}</strong>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '14px', color: '#666' }}>
+                        {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                      </div>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      {'⭐'.repeat(review.rating)}
+                      {'☆'.repeat(5 - review.rating)} ({review.rating}/5)
+                    </div>
+                    {review.comment && (
+                      <p style={{ margin: 0, color: '#333' }}>{review.comment}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

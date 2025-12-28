@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import productService from "../../services/product";
-import { getProductReviews } from "../../services/review";
+import { getProductReviews, getProductRatingSummary } from "../../services/review";
+import ReviewForm from "../../components/ReviewForm/ReviewForm";
 import "./shop.scss";
 
 const ProductDetail = () => {
@@ -9,13 +10,33 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [ratingSummary, setRatingSummary] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const loadReviews = async () => {
+    try {
+      const reviewsData = await getProductReviews(id);
+      setReviews(reviewsData);
+      const summary = await getProductRatingSummary(id);
+      setRatingSummary(summary);
+    } catch (error) {
+      console.error("Failed to load reviews:", error);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
       try {
         const data = await productService.getProductById(id);
         setProduct(data);
+        
+        // Load rating summary
+        try {
+          const summary = await getProductRatingSummary(id);
+          setRatingSummary(summary);
+        } catch (summaryError) {
+          console.error("Failed to load rating summary:", summaryError);
+        }
         
         // Load reviews
         try {
@@ -63,6 +84,24 @@ const ProductDetail = () => {
         <div className="detail-right">
           <h2>{product.name}</h2>
           <p className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}</p>
+          
+          {/* Rating Summary */}
+          {ratingSummary && ratingSummary.totalReviews > 0 ? (
+            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '24px' }}>⭐</span>
+                  <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{ratingSummary.averageRating.toFixed(1)}</span>
+                </div>
+                <span style={{ color: '#666' }}>({ratingSummary.totalUsers || ratingSummary.totalReviews} người đánh giá)</span>
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+              <span style={{ color: '#999', fontStyle: 'italic' }}>Chưa có đánh giá</span>
+            </div>
+          )}
+          
           <p className="desc">{product.description}</p>
           {Array.isArray(product.features) && product.features.length > 0 && (
             <>
@@ -91,7 +130,17 @@ const ProductDetail = () => {
       {/* Reviews Section */}
       <div className="reviews-section" style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
         <h3>Đánh giá sản phẩm</h3>
-        {reviews.length === 0 ? (
+        
+        {/* Review Form */}
+        <ReviewForm 
+          productId={id}
+          onReviewSubmitted={loadReviews}
+          onReviewUpdated={loadReviews}
+          onReviewDeleted={loadReviews}
+        />
+        
+        <div style={{ marginTop: '30px', marginBottom: '20px', borderTop: '1px solid #ddd', paddingTop: '20px' }}>
+          {reviews.length === 0 ? (
           <p style={{ color: '#666', fontStyle: 'italic' }}>Chưa có đánh giá nào cho sản phẩm này</p>
         ) : (
           <>
@@ -99,10 +148,19 @@ const ProductDetail = () => {
               <p>
                 <strong>Tổng đánh giá:</strong> {reviews.length} đánh giá
                 {reviews.length > 0 && (
-                  <span style={{ marginLeft: '15px' }}>
-                    <strong>Đánh giá trung bình:</strong> {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}/5
-                    {'⭐'.repeat(Math.round(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length))}
-                  </span>
+                  <>
+                    <span style={{ marginLeft: '15px' }}>
+                      <strong>Số người đánh giá:</strong> {new Set(reviews.map(r => {
+                        if (typeof r.user === 'object' && r.user?._id) return r.user._id.toString();
+                        if (typeof r.user === 'string') return r.user;
+                        return null;
+                      }).filter(Boolean)).size} người
+                    </span>
+                    <span style={{ marginLeft: '15px' }}>
+                      <strong>Đánh giá trung bình:</strong> {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}/5
+                      {'⭐'.repeat(Math.round(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length))}
+                    </span>
+                  </>
                 )}
               </p>
             </div>
@@ -145,22 +203,6 @@ const ProductDetail = () => {
                       )}
                       <div>
                         <strong>{review.user?.name || 'Unknown'}</strong>
-                        {review.isFake && (
-                          <span
-                            style={{
-                              marginLeft: '8px',
-                              padding: '2px 6px',
-                              backgroundColor: '#ffc107',
-                              color: '#000',
-                              borderRadius: '4px',
-                              fontSize: '10px',
-                              fontWeight: 'bold'
-                            }}
-                            title="Đánh giá ảo"
-                          >
-                            ẢO
-                          </span>
-                        )}
                       </div>
                     </div>
                     <div style={{ fontSize: '14px', color: '#666' }}>
@@ -178,7 +220,8 @@ const ProductDetail = () => {
               ))}
             </div>
           </>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

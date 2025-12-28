@@ -48,6 +48,50 @@ const restoreOrder = async (orderId) => {
   return response.data;
 };
 
+// Download invoice (PDF)
+const downloadInvoice = async (orderId) => {
+  try {
+    const response = await api.get(`/orders/${orderId}/download-invoice`, {
+      responseType: 'blob' // Quan trọng: để nhận file binary
+    });
+    
+    // Nếu response là JSON (Cloudinary URL), trả về URL
+    if (response.headers['content-type']?.includes('application/json')) {
+      const jsonData = JSON.parse(await response.data.text());
+      return jsonData;
+    }
+    
+    // Nếu là file PDF, tạo download link
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `invoice_${orderId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    
+    return { success: true };
+  } catch (error) {
+    // Nếu lỗi, có thể là Cloudinary URL - thử parse JSON
+    if (error.response?.data) {
+      try {
+        const text = await error.response.data.text();
+        const jsonData = JSON.parse(text);
+        if (jsonData.invoiceUrl) {
+          // Mở URL trong tab mới
+          window.open(jsonData.invoiceUrl, '_blank');
+          return { success: true, url: jsonData.invoiceUrl };
+        }
+      } catch (e) {
+        // Không phải JSON, throw error gốc
+      }
+    }
+    throw error;
+  }
+};
+
 const orderService = {
   createOrder,
   getMyOrders,
@@ -57,7 +101,8 @@ const orderService = {
   validateCoupon,
   getDashboardStats,
   softDeleteOrder,
-  restoreOrder
+  restoreOrder,
+  downloadInvoice
 };
 
 export default orderService;

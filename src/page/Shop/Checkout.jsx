@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import orderService from "../../services/order";
 import "./shop.scss";
 import { useNavigate } from "react-router-dom";
+import { PopoverHeader } from "react-bootstrap";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -151,11 +152,30 @@ const Checkout = () => {
           {cart.length === 0 ? (
             <p>Chưa có sản phẩm</p>
           ) : (
-            <ul>
+            <ul className="order-items-list">
               {cart.map((i) => (
-                <li key={i.productId}>
-                  <span>{i.name} × {i.quantity}</span>
-                  <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(i.price * i.quantity)}</span>
+                <li key={i.productId} className="order-item">
+                  <div className="order-item-main">
+                    <span className="item-name">{i.name}</span>
+                    {i.type === "service" && i.serviceQuantity && (
+                      <div className="service-details">
+                        <span className="service-quantity">
+                          Số lượng: {new Intl.NumberFormat('vi-VN').format(i.serviceQuantity)} {i.serviceUnitLabel || 'lượt'}
+                        </span>
+                        {i.serviceUnit && (
+                          <span className="service-unit-price">
+                            Đơn giá: {new Intl.NumberFormat('vi-VN').format(Math.ceil(i.price / (i.serviceQuantity / parseInt(i.serviceUnit || 1000))))}₫ / {i.serviceUnit} {i.serviceUnitLabel || 'lượt'}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {i.type !== "service" && (
+                      <span className="item-quantity">× {i.quantity}</span>
+                    )}
+                  </div>
+                  <span className="item-price">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(i.price * (i.quantity || 1))}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -183,5 +203,4 @@ const Checkout = () => {
 };
 
 export default Checkout;
-
 

@@ -74,7 +74,7 @@ const Faqs = () => {
         <details>
           <summary>8. Phương thức thanh toán?</summary>
           <p>
-            <strong>• Chuyển khoản ngân hàng:</strong> Chúng tôi hỗ trợ thanh toán qua VietinBank và MoMo. Bạn có thể thanh toán trực tiếp trên website sau khi đặt hàng.<br/><br/>
+            <strong>• Chuyển khoản ngân hàng:</strong> Chúng tôi hỗ trợ thanh toán qua MB Bank. Bạn có thể thanh toán trực tiếp trên website sau khi đặt hàng.<br/><br/>
             <strong>• Ví điện tử trong hệ thống:</strong> Bạn có thể nạp tiền vào ví trong hệ thống và sử dụng để thanh toán các dịch vụ. Số dư ví sẽ được hiển thị trong phần Profile của bạn.
           </p>
         </details>

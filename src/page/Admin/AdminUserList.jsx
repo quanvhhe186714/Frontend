@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllUsers, deleteUser, updateUser, loginAsUser, updateUserWalletBalance, deleteUserOrderHistory, getUserOrders, getUserTransactions } from '../../services/user.js';
+import { getAllUsers, deleteUser, updateUser, loginAsUser, updateUserWalletBalance, deleteUserOrderHistory, getUserOrders, getUserTransactions, promoteUser, demoteUser } from '../../services/user.js';
 import orderService from '../../services/order.js';
 import walletService from '../../services/wallet.js';
 
@@ -11,6 +11,7 @@ const AdminUserList = () => {
   const [message, setMessage] = useState('');
   const [editingBalance, setEditingBalance] = useState({}); // { userId: { amount: '', operation: 'add' } }
   const [loadingBalance, setLoadingBalance] = useState({});
+  const [currentUser, setCurrentUser] = useState(null); // User hiện tại đang đăng nhập
   
   // Modal state
   const [selectedUser, setSelectedUser] = useState(null);
@@ -34,6 +35,9 @@ const AdminUserList = () => {
 
   useEffect(() => {
     fetchUsers();
+    // Lấy thông tin user hiện tại
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    setCurrentUser(userInfo.user || null);
   }, []);
 
   const handleDelete = async (id) => {
@@ -56,6 +60,36 @@ const AdminUserList = () => {
       } catch (error) {
           setMessage('Error updating role');
       }
+  };
+
+  // Promote user lên admin
+  const handlePromote = async (userId, userEmail) => {
+    if (!window.confirm(`Bạn có chắc muốn promote ${userEmail} lên admin?`)) {
+      return;
+    }
+
+    try {
+      const { data } = await promoteUser(userId);
+      setMessage(data.message || `Đã promote ${userEmail} lên admin thành công`);
+      fetchUsers();
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Lỗi khi promote user');
+    }
+  };
+
+  // Demote admin về customer
+  const handleDemote = async (userId, userEmail) => {
+    if (!window.confirm(`Bạn có chắc muốn demote ${userEmail} về customer?`)) {
+      return;
+    }
+
+    try {
+      const { data } = await demoteUser(userId);
+      setMessage(data.message || `Đã demote ${userEmail} về customer thành công`);
+      fetchUsers();
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Lỗi khi demote user');
+    }
   };
 
   // Cập nhật số dư ví của user
@@ -273,13 +307,62 @@ const AdminUserList = () => {
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>
-                <select 
-                    value={user.role} 
-                    onChange={(e) => handleRoleChange(user._id, user.name, e.target.value)}
-                >
-                  <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ 
+                    padding: '4px 8px', 
+                    borderRadius: '4px',
+                    backgroundColor: user.role === 'admin' ? '#28a745' : '#6c757d',
+                    color: 'white',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    minWidth: '80px',
+                    textAlign: 'center'
+                  }}>
+                    {user.role === 'admin' ? 'Admin' : 'Customer'}
+                  </span>
+                  {currentUser && currentUser._id !== user._id && (
+                    <div style={{ display: 'flex', gap: '5px' }}>
+                      {user.role === 'customer' ? (
+                        <button
+                          onClick={() => handlePromote(user._id, user.email)}
+                          style={{ 
+                            fontSize: '11px', 
+                            padding: '4px 8px', 
+                            backgroundColor: '#28a745', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '3px', 
+                            cursor: 'pointer' 
+                          }}
+                          title="Promote lên Admin"
+                        >
+                          Promote
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleDemote(user._id, user.email)}
+                          style={{ 
+                            fontSize: '11px', 
+                            padding: '4px 8px', 
+                            backgroundColor: '#dc3545', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '3px', 
+                            cursor: 'pointer' 
+                          }}
+                          title="Demote về Customer"
+                        >
+                          Demote
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {currentUser && currentUser._id === user._id && (
+                    <span style={{ fontSize: '11px', color: '#6c757d', fontStyle: 'italic' }}>
+                      (Bạn)
+                    </span>
+                  )}
+                </div>
               </td>
               <td>
                 {editingBalance[user._id] ? (

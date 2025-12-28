@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import productService from "../../services/product";
 import facebookService from "../../services/facebook/facebookService";
+import ServiceStatusBadge from "../../components/ServiceStatusBadge/ServiceStatusBadge";
 import "./portal.scss";
 
 const DichVu = () => {
@@ -10,6 +11,7 @@ const DichVu = () => {
   const [facebookServices, setFacebookServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [serviceStatuses, setServiceStatuses] = useState({});
 
   useEffect(() => {
     loadProducts();
@@ -29,6 +31,26 @@ const DichVu = () => {
     try {
       const data = await facebookService.getServices();
       setFacebookServices(data);
+      
+      // Load statuses for all services
+      const statusPromises = data.map(async (service) => {
+        try {
+          const status = await facebookService.getServiceStatus(service._id);
+          return { id: service._id, status };
+        } catch (error) {
+          console.error(`Failed to load status for service ${service._id}`, error);
+          return { id: service._id, status: null };
+        }
+      });
+      
+      const statuses = await Promise.all(statusPromises);
+      const statusMap = {};
+      statuses.forEach(({ id, status }) => {
+        if (status) {
+          statusMap[id] = status;
+        }
+      });
+      setServiceStatuses(statusMap);
     } catch (error) {
       console.error("Failed to load Facebook services", error);
     } finally {
@@ -256,16 +278,39 @@ const DichVu = () => {
                   // Hiển thị tất cả Facebook services khi không có search
                   <>
                     {facebookServices.length > 0 ? (
-                      facebookServices.map((service) => (
-                        <div 
-                          key={service._id} 
-                          className="svc-item" 
-                          onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
-                        >
-                          <span className="svc-icon">{service.icon || "👍"}</span>
-                          <strong>{service.name}</strong>
-                        </div>
-                      ))
+                      facebookServices.map((service) => {
+                        const status = serviceStatuses[service._id];
+                        const unitPrice = service.basePrice || 0;
+                        const unit = parseInt(service.unit) || 1000;
+                        const pricePerUnit = Math.ceil(unitPrice / (unit / 1000)); // Price per 1000
+                        
+                        return (
+                          <div 
+                            key={service._id} 
+                            className="svc-item" 
+                            onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                          >
+                            <div className="svc-item-header">
+                              <span className="svc-icon">{service.icon || "👍"}</span>
+                              <strong>{service.name}</strong>
+                              {status && (
+                                <ServiceStatusBadge 
+                                  status={status.status} 
+                                  dropRate={status.dropRate}
+                                  showDropRate={false}
+                                />
+                              )}
+                            </div>
+                            <div className="svc-item-price">
+                              {pricePerUnit > 0 ? (
+                                <span className="price-text">{new Intl.NumberFormat('vi-VN').format(pricePerUnit)}₫</span>
+                              ) : (
+                                <span className="price-text">Liên hệ</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
                     ) : (
                       ["Tăng like bài viết","Tăng sub/follow","Tăng like fanpage","Tăng comment","Tăng like comment","Tăng share bài viết","Tăng share vào group","Tăng share livestream","Đánh giá 5* sao FANPAGE","Tăng mắt livestream","Tăng member group","Tăng view video","Tăng view story","Tăng like reels","Tăng view reels","Tăng comment reels","Tăng share reels"].map((label, idx) => (
                         <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
@@ -276,16 +321,39 @@ const DichVu = () => {
                   </>
                 ) : (
                   // Hiển thị kết quả tìm kiếm
-                  filteredFacebookServices.map((service) => (
-                    <div 
-                      key={service._id} 
-                      className="svc-item" 
-                      onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
-                    >
-                      <span className="svc-icon">{service.icon || "👍"}</span>
-                      <strong>{service.name}</strong>
-                    </div>
-                  ))
+                  filteredFacebookServices.map((service) => {
+                    const status = serviceStatuses[service._id];
+                    const unitPrice = service.basePrice || 0;
+                    const unit = parseInt(service.unit) || 1000;
+                    const pricePerUnit = Math.ceil(unitPrice / (unit / 1000));
+                    
+                    return (
+                      <div 
+                        key={service._id} 
+                        className="svc-item" 
+                        onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                      >
+                        <div className="svc-item-header">
+                          <span className="svc-icon">{service.icon || "👍"}</span>
+                          <strong>{service.name}</strong>
+                          {status && (
+                            <ServiceStatusBadge 
+                              status={status.status} 
+                              dropRate={status.dropRate}
+                              showDropRate={false}
+                            />
+                          )}
+                        </div>
+                        <div className="svc-item-price">
+                          {pricePerUnit > 0 ? (
+                            <span className="price-text">{new Intl.NumberFormat('vi-VN').format(pricePerUnit)}₫</span>
+                          ) : (
+                            <span className="price-text">Liên hệ</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>

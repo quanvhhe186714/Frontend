@@ -24,7 +24,7 @@ const Profile = () => {
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [topupAmount, setTopupAmount] = useState("");
-  const [selectedBank, setSelectedBank] = useState("vietinbank");
+  const [selectedBank, setSelectedBank] = useState("mb");
   const [topupInstructions, setTopupInstructions] = useState(null);
   const [topupLoading, setTopupLoading] = useState(false);
   const [activeSection, setActiveSection] = useState("account");
@@ -294,13 +294,29 @@ const Profile = () => {
                 <div className="order-files-section">
                   {hasInvoice && (
                     <p className="meta">
-                      <a
-                        href={getFileUrl(order.invoicePath, `invoice_${order._id}.pdf`)}
-                        download={`invoice_${order._id}.pdf`}
-                        style={{ display: "inline-block", marginRight: "10px" }}
+                      <button
+                        onClick={async () => {
+                          try {
+                            await orderService.downloadInvoice(order._id);
+                          } catch (error) {
+                            setMessage(error.response?.data?.message || 'Lỗi khi tải invoice');
+                            setTimeout(() => setMessage(""), 3000);
+                          }
+                        }}
+                        style={{ 
+                          display: "inline-block", 
+                          marginRight: "10px",
+                          padding: "5px 10px",
+                          backgroundColor: "#007bff",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontSize: "14px"
+                        }}
                       >
                         📄 Tải hóa đơn (PDF)
-                      </a>
+                      </button>
                     </p>
                   )}
                   {hasFiles && (
@@ -418,8 +434,7 @@ const Profile = () => {
                         value={selectedBank}
                         onChange={(e) => setSelectedBank(e.target.value)}
                       >
-                        <option value="vietinbank">VietinBank</option>
-                        <option value="momo">MoMo</option>
+                        <option value="mb">MB Bank</option>
                       </select>
                     </div>
                     <button className="primary-btn" type="submit" disabled={topupLoading}>

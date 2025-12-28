@@ -68,3 +68,9 @@ export const getUserTransactions = (userId, status = null, includeDeleted = fals
   const queryString = params.toString();
   return api.get(`/users/${userId}/transactions${queryString ? '?' + queryString : ''}`);
 };
+
+// Admin: Promote user lên admin
+export const promoteUser = (userId) => api.post(`/users/${userId}/promote`);
+
+// Admin: Demote admin về customer
+export const demoteUser = (userId) => api.post(`/users/${userId}/demote`);

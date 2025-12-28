@@ -20,11 +20,32 @@
     padding-bottom: 1rem;
     border-bottom: 1px solid #e0e0e0;
 
+    .service-header-top {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
     h1 {
       margin: 0;
       font-size: 1.8rem;
       color: #333;
       font-weight: 600;
+    }
+
+    .service-description {
+      margin: 0.5rem 0;
+      color: #666;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .service-warranty {
+      margin: 0.5rem 0 0;
+      color: #28a745;
+      font-size: 0.9rem;
+      font-weight: 500;
     }
   }
 
@@ -250,6 +271,12 @@
       font-size: 1rem;
     }
 
+    .quantity-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
     .quantity-input {
       width: 100%;
       padding: 0.875rem;
@@ -262,6 +289,40 @@
         outline: none;
         border-color: #007bff;
       }
+    }
+
+    .quick-quantity-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .quick-qty-btn {
+      padding: 0.5rem 1rem;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #333;
+
+      &:hover {
+        background: #e9ecef;
+        border-color: #007bff;
+        color: #007bff;
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+
+    .processing-info {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #666;
     }
   }
 
@@ -294,22 +355,43 @@
 
   // Nút đặt hàng
   .order-action-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 1rem;
+
     .order-btn {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-      color: white;
+      flex: 1;
+      padding: 1rem 2rem;
       border: none;
       border-radius: 8px;
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 
-      &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+      &.primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+        }
+      }
+
+      &.secondary {
+        background: #f8f9fa;
+        color: #333;
+        border: 2px solid #ddd;
+
+        &:hover:not(:disabled) {
+          background: #e9ecef;
+          border-color: #007bff;
+          color: #007bff;
+        }
       }
 
       &:disabled {
@@ -317,6 +399,15 @@
         cursor: not-allowed;
         transform: none;
         box-shadow: none;
+        opacity: 0.6;
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+
+      .order-btn {
+        width: 100%;
       }
     }
   }
@@ -553,9 +644,34 @@
   border-radius: 10px;
   padding: .85rem 1rem;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
   cursor: pointer;
+  transition: all 0.2s;
+
+  .svc-item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .svc-item-price {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 4px;
+
+    .price-text {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+  }
   transition: transform .08s ease, box-shadow .12s ease;
 }
 .svc-item:hover {

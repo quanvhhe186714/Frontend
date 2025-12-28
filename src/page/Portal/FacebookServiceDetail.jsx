@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import facebookService from "../../services/facebook/facebookService";
+import PriceTable from "../../components/PriceTable/PriceTable";
+import ServiceStatusBadge from "../../components/ServiceStatusBadge/ServiceStatusBadge";
 import "./portal.scss";
 
 const FacebookServiceDetail = () => {
@@ -14,6 +16,8 @@ const FacebookServiceDetail = () => {
   const [priceInfo, setPriceInfo] = useState(null);
   const [calculating, setCalculating] = useState(false);
   const [urls, setUrls] = useState({});
+  const [priceTable, setPriceTable] = useState(null);
+  const [serviceStatus, setServiceStatus] = useState(null);
 
   // Danh sách cảm xúc Facebook
   const emotions = [
@@ -53,6 +57,22 @@ const FacebookServiceDetail = () => {
         });
       }
       setUrls(initialUrls);
+
+      // Load price table
+      try {
+        const priceTableData = await facebookService.getPriceTable(id);
+        setPriceTable(priceTableData);
+      } catch (error) {
+        console.error("Failed to load price table", error);
+      }
+
+      // Load service status
+      try {
+        const statusData = await facebookService.getServiceStatus(id);
+        setServiceStatus(statusData);
+      } catch (error) {
+        console.error("Failed to load service status", error);
+      }
     } catch (error) {
       console.error("Failed to load service", error);
       navigate("/dich-vu");
@@ -89,6 +109,18 @@ const FacebookServiceDetail = () => {
     } finally {
       setCalculating(false);
     }
+  };
+
+  const handleQuickQuantitySelect = (qty) => {
+    setQuantity(qty);
+  };
+
+  const handleOrderNow = () => {
+    addToCart();
+    // Navigate to checkout after adding to cart
+    setTimeout(() => {
+      navigate("/checkout");
+    }, 500);
   };
 
   const addToCart = () => {
@@ -218,7 +250,23 @@ const FacebookServiceDetail = () => {
     <div className="service-detail-page">
       <div className="service-detail-container">
         <div className="service-detail-header">
-          <h1>{service.name}</h1>
+          <div className="service-header-top">
+            <h1>{service.name}</h1>
+            {serviceStatus && (
+              <ServiceStatusBadge 
+                status={serviceStatus.status} 
+                dropRate={serviceStatus.dropRate}
+              />
+            )}
+          </div>
+          {service.description && (
+            <p className="service-description">{service.description}</p>
+          )}
+          {serviceStatus && serviceStatus.warrantyDays && (
+            <p className="service-warranty">
+              Bảo hành: {serviceStatus.warrantyDays} ngày
+            </p>
+          )}
         </div>
 
         {/* Phần nhập link */}
@@ -310,18 +358,66 @@ const FacebookServiceDetail = () => {
           </div>
         )}
 
+        {/* Bảng giá tham khảo */}
+        {priceTable && (
+          <PriceTable
+            priceTable={priceTable.priceTable}
+            unit={priceTable.unit}
+            unitLabel={priceTable.unitLabel}
+            onQuantitySelect={handleQuickQuantitySelect}
+          />
+        )}
+
         {/* Phần nhập số lượng và tính giá */}
         <div className="quantity-section">
           <label className="section-label">Số lượng ({service.unitLabel}):</label>
-          <input
-            type="number"
-            className="quantity-input"
-            min={parseInt(service.unit)}
-            step={parseInt(service.unit)}
-            value={quantity}
-            onChange={(e) => setQuantity(parseInt(e.target.value) || parseInt(service.unit))}
-            placeholder={`Tối thiểu: ${service.unit}`}
-          />
+          <div className="quantity-input-wrapper">
+            <input
+              type="number"
+              className="quantity-input"
+              min={parseInt(service.unit)}
+              step={parseInt(service.unit)}
+              value={quantity}
+              onChange={(e) => setQuantity(parseInt(e.target.value) || parseInt(service.unit))}
+              placeholder={`Tối thiểu: ${service.unit}`}
+            />
+            <div className="quick-quantity-buttons">
+              <button
+                type="button"
+                className="quick-qty-btn"
+                onClick={() => handleQuickQuantitySelect(1000)}
+              >
+                1K
+              </button>
+              <button
+                type="button"
+                className="quick-qty-btn"
+                onClick={() => handleQuickQuantitySelect(5000)}
+              >
+                5K
+              </button>
+              <button
+                type="button"
+                className="quick-qty-btn"
+                onClick={() => handleQuickQuantitySelect(10000)}
+              >
+                10K
+              </button>
+              <button
+                type="button"
+                className="quick-qty-btn"
+                onClick={() => handleQuickQuantitySelect(50000)}
+              >
+                50K
+              </button>
+            </div>
+          </div>
+          {service.processingTime && (
+            <p className="processing-info">
+              Thời gian xử lý: {service.processingTime} phút | 
+              Hoàn thành: {service.completionTime || 60} phút
+            </p>
+          )}
         </div>
 
         {/* Hiển thị giá */}
@@ -347,11 +443,18 @@ const FacebookServiceDetail = () => {
         {/* Nút thêm vào giỏ hàng */}
         <div className="order-action-section">
           <button 
-            className="order-btn" 
+            className="order-btn secondary" 
             onClick={addToCart}
             disabled={calculating || !priceInfo || (service.servers && service.servers.length > 0 && !selectedServer)}
           >
             {calculating ? "Đang tính..." : "Thêm vào giỏ hàng"}
+          </button>
+          <button 
+            className="order-btn primary" 
+            onClick={handleOrderNow}
+            disabled={calculating || !priceInfo || (service.servers && service.servers.length > 0 && !selectedServer)}
+          >
+            {calculating ? "Đang tính..." : "Đặt ngay"}
           </button>
         </div>
       </div>

@@ -39,6 +39,18 @@ const facebookService = {
   deleteService: async (id) => {
     const response = await api.delete(`/facebook-services/${id}`);
     return response.data;
+  },
+
+  // Lấy bảng giá mẫu
+  getPriceTable: async (id) => {
+    const response = await api.get(`/facebook-services/${id}/price-table`);
+    return response.data;
+  },
+
+  // Lấy trạng thái dịch vụ
+  getServiceStatus: async (id) => {
+    const response = await api.get(`/facebook-services/${id}/status`);
+    return response.data;
   }
 };
 

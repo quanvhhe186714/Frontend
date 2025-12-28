@@ -99,6 +99,21 @@ const AdminOrders = () => {
                         {o.status === "paid" && (
                             <button className="edit-btn" onClick={() => updateStatus(o._id, "delivered")}>Mark Delivered</button>
                         )}
+                        {o.invoicePath && (
+                            <button 
+                                className="edit-btn" 
+                                onClick={async () => {
+                                    try {
+                                        await orderService.downloadInvoice(o._id);
+                                    } catch (error) {
+                                        alert(error.response?.data?.message || 'Lỗi khi tải invoice');
+                                    }
+                                }}
+                                style={{ marginRight: '5px' }}
+                            >
+                                📄 Download Invoice
+                            </button>
+                        )}
                         <button className="delete-btn" onClick={() => updateStatus(o._id, "failed")}>Fail</button>
                     </td>
                 </tr>

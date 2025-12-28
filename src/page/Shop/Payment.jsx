@@ -7,7 +7,7 @@ const Payment = () => {
   const navigate = useNavigate();
   const [amount, setAmount] = useState("");
   const [content, setContent] = useState("");
-  const [bank, setBank] = useState("vietinbank"); // vietinbank or momo
+  const [bank, setBank] = useState("mb"); // mb bank
   const [loading, setLoading] = useState(false);
   const [qrData, setQrData] = useState(null);
 
@@ -104,8 +104,7 @@ const Payment = () => {
                 value={bank}
                 onChange={(e) => setBank(e.target.value)}
               >
-                <option value="vietinbank">VietinBank (Mặc định)</option>
-                <option value="momo">MoMo</option>
+                <option value="mb">MB Bank</option>
               </select>
             </div>
             

@@ -48,6 +48,12 @@ const restoreOrder = async (orderId) => {
   return response.data;
 };
 
+// Assign custom QR code to order (Admin only)
+const assignCustomQRToOrder = async (orderId, customQRId) => {
+  const response = await api.put(`/orders/${orderId}/assign-qr`, { customQRId });
+  return response.data;
+};
+
 // Download invoice (PDF)
 const downloadInvoice = async (orderId) => {
   try {
@@ -102,7 +108,8 @@ const orderService = {
   getDashboardStats,
   softDeleteOrder,
   restoreOrder,
-  downloadInvoice
+  downloadInvoice,
+  assignCustomQRToOrder
 };
 
 export default orderService;

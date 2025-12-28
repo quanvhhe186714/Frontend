@@ -4,6 +4,7 @@ import orderService from "../../services/order";
 import messageService from "../../services/message";
 import { BASE_URL } from "../../services/apiService";
 import walletService from "../../services/wallet";
+import QRCodeModal from "../../components/QRCodeModal/QRCodeModal";
 import "./profile.scss";
 
 const sections = [
@@ -38,6 +39,7 @@ const Profile = () => {
   const [passwordStatus, setPasswordStatus] = useState({ type: "", text: "" });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [orderFiles, setOrderFiles] = useState({}); // { orderId: [files] }
+  const [selectedQRModal, setSelectedQRModal] = useState(null); // { orderId: qrData }
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -290,6 +292,39 @@ const Profile = () => {
                   );
                 })}
               </ul>
+              {order.customQRCode && (
+                <div style={{ marginTop: '15px', marginBottom: '15px' }}>
+                  <p className="meta" style={{ marginBottom: '8px' }}>
+                    <strong>QR Code thanh toán:</strong>
+                  </p>
+                  <div
+                    onClick={() => setSelectedQRModal({ orderId: order._id, qrData: order.customQRCode })}
+                    style={{
+                      cursor: 'pointer',
+                      display: 'inline-block',
+                      border: '2px solid #007bff',
+                      borderRadius: '8px',
+                      padding: '10px',
+                      textAlign: 'center',
+                      backgroundColor: '#f8f9fa'
+                    }}
+                  >
+                    <img
+                      src={order.customQRCode.imageUrl}
+                      alt="QR Code"
+                      style={{
+                        maxWidth: '150px',
+                        maxHeight: '150px',
+                        display: 'block',
+                        margin: '0 auto'
+                      }}
+                    />
+                    <p style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                      Click để xem thông tin giao dịch
+                    </p>
+                  </div>
+                </div>
+              )}
               {["paid","completed","delivered"].includes(order.status) && (
                 <div className="order-files-section">
                   {hasInvoice && (
@@ -642,6 +677,12 @@ const Profile = () => {
         </aside>
         <main className="profile-content">{renderContent()}</main>
       </div>
+      {selectedQRModal && (
+        <QRCodeModal
+          qrData={selectedQRModal.qrData}
+          onClose={() => setSelectedQRModal(null)}
+        />
+      )}
     </div>
   );
 };

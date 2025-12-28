@@ -318,7 +318,25 @@ const ChatBox = ({ isAdmin = false, selectedUserId = null }) => {
                     </div>
                     <div className="message-content">
                       <div className="message-header">
-                        <span className="message-name">{msg.sender?.name}</span>
+                        <span className="message-name">
+                          {msg.sender?.name}
+                          {msg.isFake && (
+                            <span
+                              style={{
+                                marginLeft: '8px',
+                                padding: '2px 6px',
+                                backgroundColor: '#ffc107',
+                                color: '#000',
+                                borderRadius: '4px',
+                                fontSize: '10px',
+                                fontWeight: 'bold'
+                              }}
+                              title="Tin nhắn ảo"
+                            >
+                              ẢO
+                            </span>
+                          )}
+                        </span>
                         <div className="message-header-right">
                           <span className="message-time">
                             {new Date(msg.createdAt).toLocaleString('vi-VN', { 

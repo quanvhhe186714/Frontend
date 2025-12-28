@@ -5,6 +5,9 @@ import AdminOrders from "./AdminOrders";
 import AdminUserList from "./AdminUserList";
 import AdminCoupons from "./AdminCoupons";
 import AdminTransactions from "./AdminTransactions";
+import AdminCustomQR from "./AdminCustomQR";
+import AdminFakeMessages from "./AdminFakeMessages";
+import AdminFakeReviews from "./AdminFakeReviews";
 import orderService from "../../services/order";
 
 const AdminHome = () => {
@@ -40,6 +43,9 @@ const AdminHome = () => {
         <button className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>Orders</button>
         <button className={activeTab === "transactions" ? "active" : ""} onClick={() => setActiveTab("transactions")}>Transactions</button>
         <button className={activeTab === "coupons" ? "active" : ""} onClick={() => setActiveTab("coupons")}>Coupons</button>
+        <button className={activeTab === "custom-qr" ? "active" : ""} onClick={() => setActiveTab("custom-qr")}>Custom QR</button>
+        <button className={activeTab === "fake-messages" ? "active" : ""} onClick={() => setActiveTab("fake-messages")}>Fake Messages</button>
+        <button className={activeTab === "fake-reviews" ? "active" : ""} onClick={() => setActiveTab("fake-reviews")}>Fake Reviews</button>
       </div>
 
       <div className="tab-content">
@@ -48,6 +54,9 @@ const AdminHome = () => {
         {activeTab === "orders" && <AdminOrders />}
         {activeTab === "transactions" && <AdminTransactions />}
         {activeTab === "coupons" && <AdminCoupons />}
+        {activeTab === "custom-qr" && <AdminCustomQR />}
+        {activeTab === "fake-messages" && <AdminFakeMessages />}
+        {activeTab === "fake-reviews" && <AdminFakeReviews />}
       </div>
     </div>
   );

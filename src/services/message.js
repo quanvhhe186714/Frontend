@@ -60,6 +60,28 @@ const getMessagesByOrderId = async (orderId) => {
   return response.data;
 };
 
+// Admin: Create fake message
+const createFakeMessage = async (data) => {
+  const response = await api.post("/messages/fake", data);
+  return response.data;
+};
+
+// Admin: Get all fake messages
+const getAllFakeMessages = async (params = {}) => {
+  const queryParams = new URLSearchParams();
+  if (params.conversationId) queryParams.append('conversationId', params.conversationId);
+  if (params.orderId) queryParams.append('orderId', params.orderId);
+  const queryString = queryParams.toString();
+  const response = await api.get(`/messages/fake${queryString ? '?' + queryString : ''}`);
+  return response.data;
+};
+
+// Admin: Delete fake message
+const deleteFakeMessage = async (messageId) => {
+  const response = await api.delete(`/messages/fake/${messageId}`);
+  return response.data;
+};
+
 const messageService = {
   sendMessage,
   getMyMessages,
@@ -68,7 +90,10 @@ const messageService = {
   getUnreadCount,
   getMessagesByOrderId,
   deleteMessage,
-  updateMessageTimestamp
+  updateMessageTimestamp,
+  createFakeMessage,
+  getAllFakeMessages,
+  deleteFakeMessage
 };
 
 export default messageService;

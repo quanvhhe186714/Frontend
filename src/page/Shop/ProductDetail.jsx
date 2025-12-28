@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import productService from "../../services/product";
+import { getProductReviews } from "../../services/review";
 import "./shop.scss";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,6 +16,14 @@ const ProductDetail = () => {
       try {
         const data = await productService.getProductById(id);
         setProduct(data);
+        
+        // Load reviews
+        try {
+          const reviewsData = await getProductReviews(id);
+          setReviews(reviewsData);
+        } catch (reviewError) {
+          console.error("Failed to load reviews:", reviewError);
+        }
       } catch (e) {
         navigate("/products");
       } finally {
@@ -76,6 +86,99 @@ const ProductDetail = () => {
             <button onClick={() => navigate("/cart")} style={{ background: "#333" }}>Xem giỏ hàng</button>
           </div>
         </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="reviews-section" style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+        <h3>Đánh giá sản phẩm</h3>
+        {reviews.length === 0 ? (
+          <p style={{ color: '#666', fontStyle: 'italic' }}>Chưa có đánh giá nào cho sản phẩm này</p>
+        ) : (
+          <>
+            <div style={{ marginBottom: '20px' }}>
+              <p>
+                <strong>Tổng đánh giá:</strong> {reviews.length} đánh giá
+                {reviews.length > 0 && (
+                  <span style={{ marginLeft: '15px' }}>
+                    <strong>Đánh giá trung bình:</strong> {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}/5
+                    {'⭐'.repeat(Math.round(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length))}
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="reviews-list">
+              {reviews.map((review) => (
+                <div
+                  key={review._id}
+                  style={{
+                    padding: '15px',
+                    marginBottom: '15px',
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      {review.user?.avatar ? (
+                        <img
+                          src={review.user.avatar}
+                          alt={review.user.name}
+                          style={{ width: '40px', height: '40px', borderRadius: '50%' }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {review.user?.name?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                      )}
+                      <div>
+                        <strong>{review.user?.name || 'Unknown'}</strong>
+                        {review.isFake && (
+                          <span
+                            style={{
+                              marginLeft: '8px',
+                              padding: '2px 6px',
+                              backgroundColor: '#ffc107',
+                              color: '#000',
+                              borderRadius: '4px',
+                              fontSize: '10px',
+                              fontWeight: 'bold'
+                            }}
+                            title="Đánh giá ảo"
+                          >
+                            ẢO
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#666' }}>
+                      {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '8px' }}>
+                    {'⭐'.repeat(review.rating)}
+                    {'☆'.repeat(5 - review.rating)} ({review.rating}/5)
+                  </div>
+                  {review.comment && (
+                    <p style={{ margin: 0, color: '#333' }}>{review.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

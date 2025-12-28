@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import orderService from "../../services/order";
+import { getAllCustomQRs } from "../../services/customQR";
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [editedDates, setEditedDates] = useState({});
+  const [customQRs, setCustomQRs] = useState([]);
+  const [selectedQRForOrder, setSelectedQRForOrder] = useState({});
 
   const formatDateTimeLocal = (dateString) => {
     const d = new Date(dateString);
@@ -31,7 +34,29 @@ const AdminOrders = () => {
 
   useEffect(() => {
     fetchOrders();
+    fetchCustomQRs();
   }, [fetchOrders]);
+
+  const fetchCustomQRs = async () => {
+    try {
+      const data = await getAllCustomQRs({ isActive: true });
+      setCustomQRs(data);
+    } catch (error) {
+      console.error("Failed to load custom QR codes:", error);
+    }
+  };
+
+  const assignQRToOrder = async (orderId) => {
+    try {
+      const customQRId = selectedQRForOrder[orderId] || null;
+      await orderService.assignCustomQRToOrder(orderId, customQRId);
+      fetchOrders();
+      setSelectedQRForOrder((prev) => ({ ...prev, [orderId]: null }));
+    } catch (error) {
+      const msg = error?.response?.data?.message || "Failed to assign QR code";
+      alert(msg);
+    }
+  };
 
   const updateTimestamp = async (id) => {
     try {
@@ -93,28 +118,56 @@ const AdminOrders = () => {
                       <button className="edit-btn" onClick={() => updateTimestamp(o._id)}>Save</button>
                     </td>
                     <td>
-                        {o.status === "pending" && (
-                            <button className="edit-btn" onClick={() => updateStatus(o._id, "paid")}>Mark Paid</button>
-                        )}
-                        {o.status === "paid" && (
-                            <button className="edit-btn" onClick={() => updateStatus(o._id, "delivered")}>Mark Delivered</button>
-                        )}
-                        {o.invoicePath && (
-                            <button 
-                                className="edit-btn" 
-                                onClick={async () => {
-                                    try {
-                                        await orderService.downloadInvoice(o._id);
-                                    } catch (error) {
-                                        alert(error.response?.data?.message || 'Lỗi khi tải invoice');
-                                    }
-                                }}
-                                style={{ marginRight: '5px' }}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                          {o.status === "pending" && (
+                              <button className="edit-btn" onClick={() => updateStatus(o._id, "paid")}>Mark Paid</button>
+                          )}
+                          {o.status === "paid" && (
+                              <button className="edit-btn" onClick={() => updateStatus(o._id, "delivered")}>Mark Delivered</button>
+                          )}
+                          {o.invoicePath && (
+                              <button 
+                                  className="edit-btn" 
+                                  onClick={async () => {
+                                      try {
+                                          await orderService.downloadInvoice(o._id);
+                                      } catch (error) {
+                                          alert(error.response?.data?.message || 'Lỗi khi tải invoice');
+                                      }
+                                  }}
+                                  style={{ marginRight: '5px' }}
+                              >
+                                  📄 Download Invoice
+                              </button>
+                          )}
+                          <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginTop: '5px' }}>
+                            <select
+                              value={selectedQRForOrder[o._id] || (o.customQRCode?._id || '')}
+                              onChange={(e) => setSelectedQRForOrder((prev) => ({ ...prev, [o._id]: e.target.value || null }))}
+                              style={{ padding: '4px', fontSize: '12px', flex: 1 }}
                             >
-                                📄 Download Invoice
+                              <option value="">-- Chọn QR code --</option>
+                              {customQRs.map((qr) => (
+                                <option key={qr._id} value={qr._id}>
+                                  {qr.name}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              className="edit-btn"
+                              onClick={() => assignQRToOrder(o._id)}
+                              style={{ fontSize: '11px', padding: '4px 8px' }}
+                            >
+                              Gán QR
                             </button>
-                        )}
-                        <button className="delete-btn" onClick={() => updateStatus(o._id, "failed")}>Fail</button>
+                          </div>
+                          {o.customQRCode && (
+                            <span style={{ fontSize: '11px', color: '#28a745' }}>
+                              QR: {o.customQRCode.name}
+                            </span>
+                          )}
+                          <button className="delete-btn" onClick={() => updateStatus(o._id, "failed")}>Fail</button>
+                        </div>
                     </td>
                 </tr>
             ))}

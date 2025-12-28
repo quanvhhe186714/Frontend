@@ -49,7 +49,13 @@ const Profile = () => {
         setFormData({ name: data.name });
 
         const ordersData = await orderService.getMyOrders();
-        setOrders(ordersData);
+        // #region agent log
+        console.log('[DEBUG] Profile - ordersData received:', { isArray: Array.isArray(ordersData), type: typeof ordersData, ordersData });
+        fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Profile.jsx:51',message:'Profile - ordersData received',data:{isArray:Array.isArray(ordersData),type:typeof ordersData,value:ordersData},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
+        // Ensure ordersData is always an array
+        const ordersArray = Array.isArray(ordersData) ? ordersData : [];
+        setOrders(ordersArray);
 
         await fetchWalletInfo();
       } catch (err) {
@@ -233,7 +239,13 @@ const Profile = () => {
     : null;
 
   const renderOrders = (orderList, emptyLabel) => {
-    if (orderList.length === 0) {
+    // #region agent log
+    console.log('[DEBUG] renderOrders - orderList:', { isArray: Array.isArray(orderList), type: typeof orderList, orderList });
+    fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Profile.jsx:235',message:'renderOrders - orderList check',data:{isArray:Array.isArray(orderList),type:typeof orderList,value:orderList,length:orderList?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    // Ensure orderList is always an array
+    const safeOrderList = Array.isArray(orderList) ? orderList : [];
+    if (safeOrderList.length === 0) {
       return <p className="empty-state">{emptyLabel}</p>;
     }
 
@@ -251,7 +263,11 @@ const Profile = () => {
 
     return (
       <div className="orders-list">
-        {orderList.map((order) => {
+        {safeOrderList.map((order) => {
+          // #region agent log
+          console.log('[DEBUG] renderOrders - order.items:', { orderId: order?._id, itemsIsArray: Array.isArray(order?.items), items: order?.items });
+          fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Profile.jsx:254',message:'renderOrders - order.items check',data:{orderId:order?._id,itemsIsArray:Array.isArray(order?.items),itemsType:typeof order?.items,items:order?.items},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+          // #endregion
           const orderFilesList = orderFiles[order._id] || [];
           const hasInvoice = order.invoicePath;
           const hasFiles = orderFilesList.length > 0;
@@ -277,7 +293,11 @@ const Profile = () => {
                 </p>
               )}
               <ul className="order-items">
-                {order.items.map((item, i) => {
+                {Array.isArray(order.items) ? order.items.map((item, i) => {
+                  // #region agent log
+                  console.log('[DEBUG] order.items.map - item:', { orderId: order?._id, itemIndex: i, item });
+                  fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Profile.jsx:280',message:'order.items.map - item data',data:{orderId:order?._id,itemIndex:i,item:item},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                  // #endregion
                   let expiry = null;
                   if (item.durationMonths && order.createdAt) {
                     const d = new Date(order.createdAt);
@@ -290,7 +310,9 @@ const Profile = () => {
                       {expiry && <span>(HSD: {expiry})</span>}
                     </li>
                   );
-                })}
+                }) : (
+                  <li>No items in this order</li>
+                )}
               </ul>
               {order.customQRCode && (
                 <div style={{ marginTop: '15px', marginBottom: '15px' }}>

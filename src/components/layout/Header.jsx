@@ -51,6 +51,11 @@ const Header = () => {
           <Link to="/chia-se" onClick={() => setMobileMenuOpen(false)}>Chia sẻ</Link>
           <Link to="/faqs" onClick={() => setMobileMenuOpen(false)}>FAQs</Link>
           <Link to="/cart" onClick={() => setMobileMenuOpen(false)}>Cart</Link>
+          {userInfo && (
+            <Link to="/qr-payment" onClick={() => setMobileMenuOpen(false)}>
+              Thanh toán QR
+            </Link>
+          )}
           
           {userInfo ? (
             <div className="user-menu">

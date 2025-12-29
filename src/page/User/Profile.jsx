@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { getMyProfile, updateMyProfile, changePassword } from "../../services/user";
 import orderService from "../../services/order";
 import messageService from "../../services/message";
@@ -16,6 +17,7 @@ const sections = [
 ];
 
 const Profile = () => {
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({ name: "" });
   const [orders, setOrders] = useState([]);
@@ -42,6 +44,15 @@ const Profile = () => {
   const [selectedQRModal, setSelectedQRModal] = useState(null); // { orderId: qrData }
 
   useEffect(() => {
+    // Check for message from navigation state (e.g., from QR payment page)
+    if (location.state?.message) {
+      setMessage(location.state.message);
+      // Clear the state to avoid showing message again on refresh
+      window.history.replaceState({}, document.title);
+      // Auto clear message after 5 seconds
+      setTimeout(() => setMessage(""), 5000);
+    }
+
     const fetchProfile = async () => {
       try {
         const { data } = await getMyProfile();
@@ -65,7 +76,7 @@ const Profile = () => {
       }
     };
     fetchProfile();
-  }, []);
+  }, [location.state]);
 
   const fetchWalletInfo = async () => {
     try {

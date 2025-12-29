@@ -20,6 +20,10 @@ export const softDeleteTransaction = (transactionId) =>
 export const restoreTransaction = (transactionId) =>
   api.post(`/wallet/admin/transactions/${transactionId}/restore`);
 
+// Ghi nhận thanh toán từ QR code tùy chỉnh
+export const recordPaymentFromQR = (customQRId, note = "") =>
+  api.post("/wallet/record-payment", { customQRId, note });
+
 const walletService = {
   getWallet,
   createTopupRequest,
@@ -28,6 +32,7 @@ const walletService = {
   updateTransactionStatus,
   softDeleteTransaction,
   restoreTransaction,
+  recordPaymentFromQR,
 };
 
 export default walletService;

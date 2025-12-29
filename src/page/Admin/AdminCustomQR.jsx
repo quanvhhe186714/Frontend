@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllCustomQRs, createCustomQR, updateCustomQR, deleteCustomQR } from '../../services/customQR';
+import { getAllCustomQRs, createCustomQR, updateCustomQR, deleteCustomQR, publishCustomQR, unpublishCustomQR } from '../../services/customQR';
 import QRCodeForm from '../../components/QRCodeForm/QRCodeForm';
 
 const AdminCustomQR = () => {
@@ -81,6 +81,27 @@ const AdminCustomQR = () => {
     }
   };
 
+  const handleTogglePublish = async (qr) => {
+    try {
+      setMessage('');
+      if (qr.isPublished) {
+        await unpublishCustomQR(qr._id);
+        setMessage('Đã gỡ QR khỏi trang thanh toán');
+      } else {
+        await publishCustomQR(qr._id);
+        setMessage('Đã publish QR lên trang thanh toán');
+      }
+      fetchCustomQRs();
+    } catch (error) {
+      console.error('Error toggling publish QR code:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          'Lỗi khi publish/gỡ publish QR code';
+      setMessage(errorMessage);
+    }
+  };
+
   if (loading) return <div>Đang tải...</div>;
 
   return (
@@ -131,17 +152,19 @@ const AdminCustomQR = () => {
           <thead>
             <tr>
               <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>Tên</th>
+              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>Nhân viên</th>
               <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>QR Code</th>
               <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>Mã giao dịch</th>
               <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>Số tiền</th>
               <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>Trạng thái</th>
+              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>Trang thanh toán QR</th>
               <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {customQRs.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ padding: '20px', textAlign: 'center' }}>
+                <td colSpan="8" style={{ padding: '20px', textAlign: 'center' }}>
                   Chưa có QR code nào. Hãy tạo QR code mới.
                 </td>
               </tr>
@@ -149,6 +172,16 @@ const AdminCustomQR = () => {
               customQRs.map((qr) => (
                 <tr key={qr._id}>
                   <td style={{ padding: '10px', border: '1px solid #ddd' }}>{qr.name}</td>
+                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                    {qr.createdBy ? (
+                      <div>
+                        <div style={{ fontWeight: '500' }}>{qr.createdBy.name || 'N/A'}</div>
+                        <div style={{ fontSize: '11px', color: '#6c757d' }}>{qr.createdBy.email || ''}</div>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#6c757d' }}>N/A</span>
+                    )}
+                  </td>
                   <td style={{ padding: '10px', border: '1px solid #ddd' }}>
                     {qr.imageUrl && (
                       <img 
@@ -176,6 +209,40 @@ const AdminCustomQR = () => {
                     }}>
                       {qr.isActive ? 'Kích hoạt' : 'Tắt'}
                     </span>
+                  </td>
+                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <span style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: qr.isPublished ? '#17a2b8' : '#e9ecef',
+                        color: qr.isPublished ? 'white' : '#495057',
+                        fontSize: '12px',
+                        display: 'inline-block',
+                        width: 'fit-content'
+                      }}>
+                        {qr.isPublished ? 'Đang hiển thị' : 'Chưa hiển thị'}
+                      </span>
+                      <button
+                        onClick={() => handleTogglePublish(qr)}
+                        style={{
+                          padding: '5px 10px',
+                          backgroundColor: qr.isPublished ? '#6c757d' : '#17a2b8',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px'
+                        }}
+                      >
+                        {qr.isPublished ? 'Gỡ khỏi trang thanh toán' : 'Đẩy lên trang thanh toán'}
+                      </button>
+                      {qr.isPublished && (
+                        <span style={{ fontSize: '11px', color: '#6c757d' }}>
+                          Link: <a href="/qr-payment" target="_blank" rel="noopener noreferrer">/qr-payment</a>
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td style={{ padding: '10px', border: '1px solid #ddd' }}>
                     <div style={{ display: 'flex', gap: '5px' }}>

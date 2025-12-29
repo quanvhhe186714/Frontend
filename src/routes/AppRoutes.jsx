@@ -13,6 +13,8 @@ import Cart from "../page/Shop/Cart";
 import ProductDetail from "../page/Shop/ProductDetail";
 import Checkout from "../page/Shop/Checkout";
 import Payment from "../page/Shop/Payment";
+import PublicQRDisplay from "../page/Shop/PublicQRDisplay";
+import TransactionHistory from "../page/Shop/TransactionHistory";
 
 // Portal pages (market-like)
 import SanPham from "../page/Portal/SanPham";
@@ -21,6 +23,7 @@ import FacebookServiceDetail from "../page/Portal/FacebookServiceDetail";
 import HoTro from "../page/Portal/HoTro";
 import ChiaSe from "../page/Portal/ChiaSe";
 import Faqs from "../page/Portal/Faqs";
+import QRPayment from "../page/Portal/QRPayment";
 
 import AdminRoute from "./adminRouter";
 import ProtectedRoute from "./protectRouter";
@@ -35,6 +38,7 @@ const AppRoutes = () => {
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/payment" element={<Payment />} />
+      <Route path="/payment-qr" element={<PublicQRDisplay />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
@@ -60,6 +64,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <ChangePassword />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/transaction-history"
+        element={
+          <ProtectedRoute>
+            <TransactionHistory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/qr-payment"
+        element={
+          <ProtectedRoute>
+            <QRPayment />
           </ProtectedRoute>
         }
       />

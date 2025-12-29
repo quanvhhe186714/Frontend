@@ -1348,3 +1348,674 @@ $card-bg: #242f3d; // Telegram Message BG
         -webkit-overflow-scrolling: touch;
     }
 }
+
+// Payment Tabs
+.payment-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    
+    .payment-tab {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+        
+        &:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        &.active {
+            color: #ffffff;
+            border-bottom-color: $primary-color;
+        }
+    }
+}
+
+// Custom QR Section
+.custom-qr-section {
+    .loading-spinner {
+        text-align: center;
+        padding: 3rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: rgba(255, 255, 255, 0.7);
+        background: $card-bg;
+        border-radius: 16px;
+    }
+    
+    .custom-qr-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    .custom-qr-card {
+        background: $card-bg;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s;
+        
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .custom-qr-card-header {
+            margin-bottom: 1rem;
+            
+            h3 {
+                color: #ffffff;
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin: 0;
+            }
+        }
+        
+        .custom-qr-card-body {
+            .custom-qr-image-wrapper {
+                background: #ffffff;
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+                display: flex;
+                justify-content: center;
+                
+                .custom-qr-image {
+                    max-width: 200px;
+                    max-height: 200px;
+                    width: 100%;
+                    height: auto;
+                    cursor: pointer;
+                    transition: transform 0.2s;
+                    
+                    &:hover {
+                        transform: scale(1.05);
+                    }
+                }
+            }
+            
+            .custom-qr-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                
+                .custom-qr-info-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    
+                    .custom-qr-info-label {
+                        color: rgba(255, 255, 255, 0.6);
+                        font-size: 0.9rem;
+                    }
+                    
+                    .custom-qr-info-value {
+                        color: #ffffff;
+                        font-weight: 500;
+                        font-size: 0.95rem;
+                        
+                        &.amount {
+                            color: $primary-color;
+                            font-weight: 600;
+                        }
+                    }
+                }
+            }
+        }
+        
+        .custom-qr-card-footer {
+            margin-top: 1rem;
+            
+            .custom-qr-select-btn {
+                width: 100%;
+                padding: 0.75rem;
+                background: linear-gradient(90deg, $primary-color, $secondary-color);
+                border: none;
+                color: #ffffff;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                
+                &:hover {
+                    transform: translateY(-2px);
+                    filter: brightness(1.1);
+                }
+            }
+        }
+    }
+}
+
+// Custom QR Modal Overlay
+.custom-qr-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    
+    .custom-qr-modal-content {
+        background: #ffffff;
+        border-radius: 16px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        
+        .custom-qr-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            &:hover {
+                background: rgba(0, 0, 0, 0.2);
+            }
+        }
+        
+        .custom-qr-modal-actions {
+            padding: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            
+            .custom-qr-payment-btn {
+                width: 100%;
+                padding: 1rem;
+                background: linear-gradient(90deg, $accent-green, $accent-green-dark);
+                border: none;
+                color: #ffffff;
+                border-radius: 8px;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                
+                &:hover:not(:disabled) {
+                    transform: translateY(-2px);
+                    filter: brightness(1.1);
+                }
+                
+                &:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+}
+
+// Public QR Display Page
+.public-qr-page {
+    padding: 2rem;
+    min-height: 80vh;
+    background: $light-bg;
+    
+    .public-qr-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        
+        .public-qr-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            
+            h1 {
+                color: $text-dark;
+                font-size: 2.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .public-qr-subtitle {
+                color: $text-secondary;
+                font-size: 1.1rem;
+            }
+        }
+        
+        .public-qr-error {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            
+            .retry-btn {
+                padding: 0.5rem 1rem;
+                background: #c33;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                
+                &:hover {
+                    background: #a22;
+                }
+            }
+        }
+        
+        .public-qr-empty {
+            text-align: center;
+            padding: 3rem;
+            color: $text-secondary;
+            background: $lighter-bg;
+            border-radius: 16px;
+        }
+        
+        .public-qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            
+            .public-qr-card {
+                background: $lighter-bg;
+                border-radius: 16px;
+                padding: 1.5rem;
+                box-shadow: $shadow-sm;
+                transition: all 0.2s;
+                
+                &:hover {
+                    transform: translateY(-4px);
+                    box-shadow: $shadow-md;
+                }
+                
+                .qr-card-header {
+                    margin-bottom: 1rem;
+                    
+                    h3 {
+                        color: $text-dark;
+                        font-size: 1.2rem;
+                        font-weight: 600;
+                        margin: 0;
+                    }
+                }
+                
+                .qr-card-body {
+                    .qr-image-wrapper {
+                        background: #ffffff;
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                        display: flex;
+                        justify-content: center;
+                        border: 1px solid $border-color;
+                        
+                        .qr-image {
+                            max-width: 220px;
+                            max-height: 220px;
+                            width: 100%;
+                            height: auto;
+                            cursor: pointer;
+                            transition: transform 0.2s;
+                            
+                            &:hover {
+                                transform: scale(1.05);
+                            }
+                        }
+                    }
+                    
+                    .qr-info {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.75rem;
+                        
+                        .qr-info-item {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 0.5rem 0;
+                            border-bottom: 1px solid $border-light;
+                            
+                            &:last-child {
+                                border-bottom: none;
+                            }
+                            
+                            .qr-info-label {
+                                color: $text-secondary;
+                                font-size: 0.9rem;
+                            }
+                            
+                            .qr-info-value {
+                                color: $text-dark;
+                                font-weight: 500;
+                                
+                                &.amount {
+                                    color: $accent-green;
+                                    font-weight: 600;
+                                    font-size: 1.1rem;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                .qr-card-footer {
+                    margin-top: 1rem;
+                    
+                    .qr-view-btn {
+                        width: 100%;
+                        padding: 0.75rem;
+                        background: linear-gradient(90deg, $primary-color, $secondary-color);
+                        border: none;
+                        color: #ffffff;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        
+                        &:hover {
+                            transform: translateY(-2px);
+                            filter: brightness(1.1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Transaction History Page
+.transaction-history-page {
+    padding: 2rem;
+    min-height: 80vh;
+    background: $light-bg;
+    
+    .transaction-history-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        
+        .transaction-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            
+            h1 {
+                color: $text-dark;
+                font-size: 2rem;
+                margin: 0;
+            }
+            
+            .refresh-btn {
+                padding: 0.5rem 1rem;
+                background: $primary-color;
+                color: #ffffff;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 500;
+                
+                &:hover {
+                    background: $secondary-color;
+                }
+            }
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            
+            .retry-btn {
+                padding: 0.5rem 1rem;
+                background: #c33;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                
+                &:hover {
+                    background: #a22;
+                }
+            }
+        }
+        
+        .transaction-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            
+            .summary-card {
+                background: $lighter-bg;
+                border-radius: 16px;
+                padding: 1.5rem;
+                box-shadow: $shadow-sm;
+                
+                &.incoming {
+                    border-left: 4px solid $accent-green;
+                }
+                
+                &.outgoing {
+                    border-left: 4px solid $accent-orange;
+                }
+                
+                &.pending {
+                    border-left: 4px solid $accent-blue;
+                }
+                
+                .summary-label {
+                    color: $text-secondary;
+                    font-size: 0.9rem;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .summary-value {
+                    color: $text-dark;
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    margin-bottom: 0.25rem;
+                }
+                
+                .summary-count {
+                    color: $text-muted;
+                    font-size: 0.85rem;
+                }
+            }
+        }
+        
+        .transaction-list {
+            background: $lighter-bg;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: $shadow-sm;
+            
+            h2 {
+                color: $text-dark;
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .empty-state {
+                text-align: center;
+                padding: 3rem;
+                color: $text-secondary;
+            }
+            
+            .transaction-table {
+                overflow-x: auto;
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    
+                    thead {
+                        background: $light-bg;
+                        
+                        th {
+                            padding: 1rem;
+                            text-align: left;
+                            color: $text-dark;
+                            font-weight: 600;
+                            font-size: 0.9rem;
+                            text-transform: uppercase;
+                            border-bottom: 2px solid $border-color;
+                        }
+                    }
+                    
+                    tbody {
+                        tr {
+                            border-bottom: 1px solid $border-light;
+                            transition: background 0.2s;
+                            
+                            &:hover {
+                                background: $light-bg;
+                            }
+                            
+                            td {
+                                padding: 1rem;
+                                color: $text-dark;
+                                
+                                &.amount {
+                                    font-weight: 600;
+                                    
+                                    &.positive {
+                                        color: $accent-green;
+                                    }
+                                    
+                                    &.negative {
+                                        color: $accent-orange;
+                                    }
+                                }
+                                
+                                .status-badge {
+                                    padding: 0.25rem 0.75rem;
+                                    border-radius: 12px;
+                                    font-size: 0.85rem;
+                                    font-weight: 500;
+                                    
+                                    &.status-pending {
+                                        background: rgba($accent-blue, 0.1);
+                                        color: $accent-blue-dark;
+                                    }
+                                    
+                                    &.status-success {
+                                        background: rgba($accent-green, 0.1);
+                                        color: $accent-green-dark;
+                                    }
+                                    
+                                    &.status-failed {
+                                        background: rgba($accent-orange, 0.1);
+                                        color: $accent-orange-dark;
+                                    }
+                                }
+                                
+                                .qr-linked {
+                                    padding: 0.25rem 0.75rem;
+                                    border-radius: 12px;
+                                    font-size: 0.85rem;
+                                    background: rgba($accent-green, 0.1);
+                                    color: $accent-green-dark;
+                                    
+                                    &.no {
+                                        background: rgba($text-muted, 0.1);
+                                        color: $text-muted;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Loading Spinner
+.loading-spinner {
+    text-align: center;
+    padding: 3rem;
+    color: $text-secondary;
+    font-size: 1.1rem;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .public-qr-page {
+        padding: 1rem;
+        
+        .public-qr-container {
+            .public-qr-header h1 {
+                font-size: 2rem;
+            }
+            
+            .public-qr-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    }
+    
+    .transaction-history-page {
+        padding: 1rem;
+        
+        .transaction-history-container {
+            .transaction-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .transaction-list {
+                padding: 1rem;
+                
+                .transaction-table {
+                    table {
+                        font-size: 0.85rem;
+                        
+                        thead th,
+                        tbody td {
+                            padding: 0.75rem 0.5rem;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    .payment-tabs {
+        flex-direction: column;
+        
+        .payment-tab {
+            width: 100%;
+            text-align: center;
+        }
+    }
+    
+    .custom-qr-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

@@ -25,13 +25,31 @@ const AdminTransactions = () => {
   };
 
   const handleUpdate = async (id, status) => {
-    if (!window.confirm(`Mark transaction as ${status}?`)) return;
+    const transaction = transactions.find(tx => tx._id === id);
+    const userName = transaction?.user?.name || "user";
+    const amount = transaction?.amount 
+      ? new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(transaction.amount)
+      : "";
+    
+    const confirmMessage = status === "success" 
+      ? `Xác nhận thanh toán thành công cho ${userName} với số tiền ${amount}?`
+      : `Đánh dấu giao dịch của ${userName} là thất bại?`;
+    
+    if (!window.confirm(confirmMessage)) return;
+    
     try {
       await walletService.updateTransactionStatus(id, status);
-      setMessage("Updated transaction successfully");
+      if (status === "success") {
+        setMessage(`Đã xác nhận thanh toán thành công cho ${userName}. Số tiền ${amount} đã được cộng vào wallet.`);
+      } else {
+        setMessage(`Đã đánh dấu giao dịch của ${userName} là thất bại.`);
+      }
       fetchTransactions();
+      
+      // Clear message after 5 seconds
+      setTimeout(() => setMessage(""), 5000);
     } catch (error) {
-      setMessage(error?.response?.data?.message || "Failed to update transaction");
+      setMessage(error?.response?.data?.message || "Không thể cập nhật trạng thái giao dịch");
     }
   };
 

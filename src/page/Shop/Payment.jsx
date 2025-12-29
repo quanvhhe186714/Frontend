@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/apiService";
+import { getPublicCustomQRs } from "../../services/customQR";
+import { recordPaymentFromQR } from "../../services/wallet";
+import QRCodeModal from "../../components/QRCodeModal/QRCodeModal";
 import "./shop.scss";
 
 const Payment = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("create"); // "create" or "custom"
   const [amount, setAmount] = useState("");
   const [content, setContent] = useState("");
   const [bank, setBank] = useState("mb"); // mb bank
   const [loading, setLoading] = useState(false);
   const [qrData, setQrData] = useState(null);
+  
+  // Custom QR states
+  const [customQRs, setCustomQRs] = useState([]);
+  const [customQRsLoading, setCustomQRsLoading] = useState(false);
+  const [selectedCustomQR, setSelectedCustomQR] = useState(null);
+  const [recordingPayment, setRecordingPayment] = useState(false);
 
   useEffect(() => {
     // Tự động tạo mã nội dung nếu chưa có
@@ -18,6 +28,62 @@ const Payment = () => {
       setContent(`MMOS-${timestamp}`);
     }
   }, []); // Chỉ chạy 1 lần khi mount
+
+  useEffect(() => {
+    // Fetch custom QR codes when switching to custom tab
+    if (activeTab === "custom") {
+      fetchCustomQRs();
+    }
+  }, [activeTab]);
+
+  const fetchCustomQRs = async () => {
+    try {
+      setCustomQRsLoading(true);
+      const { data } = await getPublicCustomQRs();
+      setCustomQRs(data || []);
+    } catch (error) {
+      console.error("Error fetching custom QR codes:", error);
+      const el = document.createElement('div');
+      el.className = 'simple-toast';
+      el.innerText = 'Không thể tải danh sách QR code tùy chỉnh';
+      document.body.appendChild(el);
+      setTimeout(() => document.body.removeChild(el), 3000);
+    } finally {
+      setCustomQRsLoading(false);
+    }
+  };
+
+  const handleCustomQRClick = (qr) => {
+    setSelectedCustomQR(qr);
+  };
+
+  const handleRecordPayment = async () => {
+    if (!selectedCustomQR) return;
+
+    try {
+      setRecordingPayment(true);
+      await recordPaymentFromQR(selectedCustomQR._id, "Đã thanh toán qua QR code tùy chỉnh");
+      
+      const el = document.createElement('div');
+      el.className = 'simple-toast';
+      el.innerText = 'Ghi nhận thanh toán thành công! Vui lòng chờ admin xác nhận.';
+      document.body.appendChild(el);
+      setTimeout(() => document.body.removeChild(el), 3000);
+
+      setSelectedCustomQR(null);
+      // Optionally refresh custom QR list
+      fetchCustomQRs();
+    } catch (error) {
+      console.error("Error recording payment:", error);
+      const el = document.createElement('div');
+      el.className = 'simple-toast';
+      el.innerText = error.response?.data?.message || 'Không thể ghi nhận thanh toán. Vui lòng thử lại.';
+      document.body.appendChild(el);
+      setTimeout(() => document.body.removeChild(el), 3000);
+    } finally {
+      setRecordingPayment(false);
+    }
+  };
 
   const generateQR = async () => {
     if (!amount || Number(amount) <= 0) {
@@ -78,99 +144,234 @@ const Payment = () => {
     generateQR();
   };
 
+  const formatAmount = (amount) => {
+    if (!amount) return 'Không xác định';
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(amount);
+  };
+
+  const getBankName = (bank) => {
+    const bankMap = {
+      mb: 'MB Bank',
+      vietinbank: 'VietinBank',
+      momo: 'MoMo',
+    };
+    return bankMap[bank] || bank;
+  };
+
   return (
     <div className="payment-page">
       <div className="payment-container">
         <h2>Nạp tiền & Thanh toán</h2>
         
-        {!qrData ? (
-          <form className="payment-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Số tiền (VND)</label>
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Nhập số tiền cần nạp"
-                required
-                min="1000"
-                step="1000"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Ngân hàng</label>
-              <select
-                value={bank}
-                onChange={(e) => setBank(e.target.value)}
-              >
-                <option value="mb">MB Bank</option>
-              </select>
-            </div>
-            
-            <div className="form-group">
-              <label>Nội dung chuyển khoản</label>
-              <input
-                type="text"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="MMOS-XXXXX (để trống = mặc định)"
-              />
-              <small>Để trống để dùng nội dung mặc định</small>
-            </div>
-            
-            <button type="submit" className="payment-generate-btn" disabled={loading}>
-              {loading ? "Đang tạo QR code..." : "Tạo QR code thanh toán"}
-            </button>
-          </form>
-        ) : (
-          <div className="qr-display">
-            <div className="qr-card">
-              {qrData.accountName && (
-                <div className="qr-recipient">
-                  <div className="qr-recipient-icon">⭐</div>
-                  <div className="qr-recipient-info">
-                    <div className="qr-recipient-name">{qrData.accountName}</div>
-                    {qrData.phone && <div className="qr-recipient-phone">{qrData.phone}</div>}
+        {/* Tabs */}
+        <div className="payment-tabs">
+          <button
+            className={`payment-tab ${activeTab === "create" ? "active" : ""}`}
+            onClick={() => {
+              setActiveTab("create");
+              setQrData(null);
+            }}
+          >
+            Tạo QR mới
+          </button>
+          <button
+            className={`payment-tab ${activeTab === "custom" ? "active" : ""}`}
+            onClick={() => setActiveTab("custom")}
+          >
+            QR Tùy chỉnh
+          </button>
+        </div>
+
+        {/* Tab Content: Create QR */}
+        {activeTab === "create" && (
+          <>
+            {!qrData ? (
+              <form className="payment-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Số tiền (VND)</label>
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Nhập số tiền cần nạp"
+                    required
+                    min="1000"
+                    step="1000"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Ngân hàng</label>
+                  <select
+                    value={bank}
+                    onChange={(e) => setBank(e.target.value)}
+                  >
+                    <option value="mb">MB Bank</option>
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label>Nội dung chuyển khoản</label>
+                  <input
+                    type="text"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="MMOS-XXXXX (để trống = mặc định)"
+                  />
+                  <small>Để trống để dùng nội dung mặc định</small>
+                </div>
+                
+                <button type="submit" className="payment-generate-btn" disabled={loading}>
+                  {loading ? "Đang tạo QR code..." : "Tạo QR code thanh toán"}
+                </button>
+              </form>
+            ) : (
+              <div className="qr-display">
+                <div className="qr-card">
+                  {qrData.accountName && (
+                    <div className="qr-recipient">
+                      <div className="qr-recipient-icon">⭐</div>
+                      <div className="qr-recipient-info">
+                        <div className="qr-recipient-name">{qrData.accountName}</div>
+                        {qrData.phone && <div className="qr-recipient-phone">{qrData.phone}</div>}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="qr-code-wrapper">
+                    <img src={qrData.imageUrl} alt="VietQR" className="qr-code-image" />
+                  </div>
+                  
+                  <div className="qr-info">
+                    <p className="qr-amount">
+                      Số tiền: <strong>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(qrData.amount)}</strong>
+                    </p>
+                    <p className="qr-content-text">
+                      Nội dung: <strong>{qrData.content}</strong>
+                    </p>
+                  </div>
+                  
+                  <div className="qr-logos">
+                    <span className="qr-logo-vietqr">VIETQR</span>
+                    <span className="qr-logo-napas">napas 247</span>
                   </div>
                 </div>
-              )}
-              
-              <div className="qr-code-wrapper">
-                <img src={qrData.imageUrl} alt="VietQR" className="qr-code-image" />
+                
+                <div className="qr-actions">
+                  <button 
+                    className="qr-back-btn" 
+                    onClick={() => {
+                      setQrData(null);
+                      setAmount("");
+                    }}
+                  >
+                    Tạo QR mới
+                  </button>
+                  <button 
+                    className="qr-close-btn" 
+                    onClick={() => navigate("/profile")}
+                  >
+                    Hoàn tất
+                  </button>
+                </div>
               </div>
-              
-              <div className="qr-info">
-                <p className="qr-amount">
-                  Số tiền: <strong>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(qrData.amount)}</strong>
-                </p>
-                <p className="qr-content-text">
-                  Nội dung: <strong>{qrData.content}</strong>
-                </p>
+            )}
+          </>
+        )}
+
+        {/* Tab Content: Custom QR */}
+        {activeTab === "custom" && (
+          <div className="custom-qr-section">
+            {customQRsLoading ? (
+              <div className="loading-spinner">Đang tải QR codes...</div>
+            ) : customQRs.length === 0 ? (
+              <div className="empty-state">
+                <p>Hiện tại chưa có QR code tùy chỉnh nào được kích hoạt.</p>
               </div>
-              
-              <div className="qr-logos">
-                <span className="qr-logo-vietqr">VIETQR</span>
-                <span className="qr-logo-napas">napas 247</span>
+            ) : (
+              <div className="custom-qr-grid">
+                {customQRs.map((qr) => (
+                  <div key={qr._id} className="custom-qr-card">
+                    <div className="custom-qr-card-header">
+                      <h3>{qr.name}</h3>
+                    </div>
+                    <div className="custom-qr-card-body">
+                      <div className="custom-qr-image-wrapper">
+                        <img
+                          src={qr.imageUrl}
+                          alt={qr.name}
+                          className="custom-qr-image"
+                          onClick={() => handleCustomQRClick(qr)}
+                        />
+                      </div>
+                      <div className="custom-qr-info">
+                        {qr.amount && (
+                          <div className="custom-qr-info-item">
+                            <span className="custom-qr-info-label">Số tiền:</span>
+                            <span className="custom-qr-info-value">{formatAmount(qr.amount)}</span>
+                          </div>
+                        )}
+                        {qr.content && (
+                          <div className="custom-qr-info-item">
+                            <span className="custom-qr-info-label">Nội dung:</span>
+                            <span className="custom-qr-info-value">{qr.content}</span>
+                          </div>
+                        )}
+                        {qr.accountName && (
+                          <div className="custom-qr-info-item">
+                            <span className="custom-qr-info-label">Người nhận:</span>
+                            <span className="custom-qr-info-value">{qr.accountName}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="custom-qr-card-footer">
+                      <button
+                        className="custom-qr-select-btn"
+                        onClick={() => handleCustomQRClick(qr)}
+                      >
+                        Chọn QR này
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-            
-            <div className="qr-actions">
-              <button 
-                className="qr-back-btn" 
-                onClick={() => {
-                  setQrData(null);
-                  setAmount("");
-                }}
+            )}
+          </div>
+        )}
+
+        {/* Modal for Custom QR with Payment Button */}
+        {selectedCustomQR && (
+          <div
+            className="custom-qr-modal-overlay"
+            onClick={() => setSelectedCustomQR(null)}
+          >
+            <div
+              className="custom-qr-modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="custom-qr-modal-close"
+                onClick={() => setSelectedCustomQR(null)}
               >
-                Tạo QR mới
+                ×
               </button>
-              <button 
-                className="qr-close-btn" 
-                onClick={() => navigate("/profile")}
-              >
-                Hoàn tất
-              </button>
+              <QRCodeModal
+                qrData={selectedCustomQR}
+                onClose={() => setSelectedCustomQR(null)}
+              />
+              <div className="custom-qr-modal-actions">
+                <button
+                  className="custom-qr-payment-btn"
+                  onClick={handleRecordPayment}
+                  disabled={recordingPayment}
+                >
+                  {recordingPayment ? "Đang xử lý..." : "Đã thanh toán"}
+                </button>
+              </div>
             </div>
           </div>
         )}

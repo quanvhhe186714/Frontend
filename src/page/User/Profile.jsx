@@ -492,6 +492,7 @@ const Profile = () => {
                         onChange={(e) => setSelectedBank(e.target.value)}
                       >
                         <option value="mb">MB Bank</option>
+                        <option value="vietin">VietinBank</option>
                       </select>
                     </div>
                     <button className="primary-btn" type="submit" disabled={topupLoading}>

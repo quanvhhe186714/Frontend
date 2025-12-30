@@ -122,7 +122,10 @@ const ProductList = () => {
 
   return (
     <div className="product-list-page">
-      <h2>Sản phẩm</h2>
+      <div className="page-header">
+        <h2>Sản phẩm</h2>
+        <p className="page-subtitle">Khám phá các gói dịch vụ và sản phẩm của chúng tôi</p>
+      </div>
 
       <div className="tabs" style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         <button
@@ -146,34 +149,46 @@ const ProductList = () => {
         <>
           {categories.map(cat => (
             groups[cat.code] && groups[cat.code].length > 0 && (
-              <section key={cat.code} style={{ marginBottom: 24 }}>
-                <h3>{cat.name}</h3>
+              <section key={cat.code} className="category-section">
+                <h3 className="category-title">{cat.name}</h3>
                 <div className="product-grid">
                   {groups[cat.code].map((p) => {
                     const ratingSummary = ratingSummaries[p._id] || { averageRating: 0, totalReviews: 0 };
                     return (
                       <div key={p._id} className="product-card">
-                        <div className="card-header">
-                            <h3>{p.name}</h3>
-                            <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
+                        <div className="product-image-wrapper">
+                          <img 
+                            src={p.image || "/placeholder-fashion.jpg"} 
+                            alt={p.name}
+                            className="product-image"
+                            onError={(e) => {
+                              e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400'%3E%3Crect fill='%23f0f0f0' width='300' height='400'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3E👗%3C/text%3E%3C/svg%3E";
+                            }}
+                          />
+                          <div className="product-overlay">
+                            <button className="quick-view-btn" onClick={() => navigate(`/products/${p._id}`)}>
+                              Xem nhanh
+                            </button>
+                          </div>
                         </div>
-                        {ratingSummary.totalReviews > 0 ? (
-                          <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>
-                            <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
-                            <span style={{ marginLeft: '8px' }}>({ratingSummary.totalUsers || ratingSummary.totalReviews} người đánh giá)</span>
+                        <div className="product-info">
+                          <h3 className="product-name">{p.name}</h3>
+                          {ratingSummary.totalReviews > 0 ? (
+                            <div className="product-rating">
+                              <span className="stars">⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                              <span className="review-count">({ratingSummary.totalUsers || ratingSummary.totalReviews} đánh giá)</span>
+                            </div>
+                          ) : (
+                            <div className="product-rating no-rating">
+                              <span>Chưa có đánh giá</span>
+                            </div>
+                          )}
+                          <p className="product-desc">{p.description}</p>
+                          <div className="product-price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</div>
+                          <div className="product-actions">
+                            <button className="btn-add-cart" onClick={() => addToCart(p)}>Thêm vào giỏ</button>
+                            <button className="btn-view-detail" onClick={() => navigate(`/products/${p._id}`)}>Chi tiết</button>
                           </div>
-                        ) : (
-                          <div style={{ marginBottom: '8px', fontSize: '14px', color: '#999', fontStyle: 'italic' }}>
-                            Chưa có đánh giá
-                          </div>
-                        )}
-                        <p className="desc">{p.description}</p>
-                        <ul className="features">
-                            {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
-                        </ul>
-                        <div style={{ display: 'grid', gap: 10 }}>
-                          <button onClick={() => addToCart(p)}>Mua ngay</button>
-                          <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
                         </div>
                       </div>
                     );
@@ -185,34 +200,46 @@ const ProductList = () => {
 
           {/* Khác */}
           {groups.OTHER && groups.OTHER.length > 0 && (
-            <section>
-              <h3>Gói khác</h3>
+            <section className="category-section">
+              <h3 className="category-title">Sản phẩm khác</h3>
               <div className="product-grid">
                 {groups.OTHER.map((p) => {
                   const ratingSummary = ratingSummaries[p._id] || { averageRating: 0, totalReviews: 0 };
                   return (
                     <div key={p._id} className="product-card">
-                      <div className="card-header">
-                          <h3>{p.name}</h3>
-                          <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
+                      <div className="product-image-wrapper">
+                        <img 
+                          src={p.image || "/placeholder-fashion.jpg"} 
+                          alt={p.name}
+                          className="product-image"
+                          onError={(e) => {
+                            e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400'%3E%3Crect fill='%23f0f0f0' width='300' height='400'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3E👗%3C/text%3E%3C/svg%3E";
+                          }}
+                        />
+                        <div className="product-overlay">
+                          <button className="quick-view-btn" onClick={() => navigate(`/products/${p._id}`)}>
+                            Xem nhanh
+                          </button>
+                        </div>
                       </div>
-                      {ratingSummary.totalReviews > 0 ? (
-                        <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>
-                          <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
-                          <span style={{ marginLeft: '8px' }}>({ratingSummary.totalReviews} đánh giá)</span>
+                      <div className="product-info">
+                        <h3 className="product-name">{p.name}</h3>
+                        {ratingSummary.totalReviews > 0 ? (
+                          <div className="product-rating">
+                            <span className="stars">⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                            <span className="review-count">({ratingSummary.totalReviews} đánh giá)</span>
+                          </div>
+                        ) : (
+                          <div className="product-rating no-rating">
+                            <span>Chưa có đánh giá</span>
+                          </div>
+                        )}
+                        <p className="product-desc">{p.description}</p>
+                        <div className="product-price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</div>
+                        <div className="product-actions">
+                          <button className="btn-add-cart" onClick={() => addToCart(p)}>Thêm vào giỏ</button>
+                          <button className="btn-view-detail" onClick={() => navigate(`/products/${p._id}`)}>Chi tiết</button>
                         </div>
-                      ) : (
-                        <div style={{ marginBottom: '8px', fontSize: '14px', color: '#999', fontStyle: 'italic' }}>
-                          Chưa có đánh giá
-                        </div>
-                      )}
-                      <p className="desc">{p.description}</p>
-                      <ul className="features">
-                          {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
-                      </ul>
-                      <div style={{ display: 'grid', gap: 10 }}>
-                        <button onClick={() => addToCart(p)}>Mua ngay</button>
-                        <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
                       </div>
                     </div>
                   );
@@ -227,27 +254,39 @@ const ProductList = () => {
             const ratingSummary = ratingSummaries[p._id] || { averageRating: 0, totalReviews: 0 };
             return (
               <div key={p._id} className="product-card">
-                <div className="card-header">
-                    <h3>{p.name}</h3>
-                    <span className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</span>
+                <div className="product-image-wrapper">
+                  <img 
+                    src={p.image || "/placeholder-fashion.jpg"} 
+                    alt={p.name}
+                    className="product-image"
+                    onError={(e) => {
+                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400'%3E%3Crect fill='%23f0f0f0' width='300' height='400'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3E👗%3C/text%3E%3C/svg%3E";
+                    }}
+                  />
+                  <div className="product-overlay">
+                    <button className="quick-view-btn" onClick={() => navigate(`/products/${p._id}`)}>
+                      Xem nhanh
+                    </button>
+                  </div>
                 </div>
-                {ratingSummary.totalReviews > 0 ? (
-                  <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>
-                    <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
-                    <span style={{ marginLeft: '8px' }}>({ratingSummary.totalReviews} đánh giá)</span>
+                <div className="product-info">
+                  <h3 className="product-name">{p.name}</h3>
+                  {ratingSummary.totalReviews > 0 ? (
+                    <div className="product-rating">
+                      <span className="stars">⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                      <span className="review-count">({ratingSummary.totalReviews} đánh giá)</span>
+                    </div>
+                  ) : (
+                    <div className="product-rating no-rating">
+                      <span>Chưa có đánh giá</span>
+                    </div>
+                  )}
+                  <p className="product-desc">{p.description}</p>
+                  <div className="product-price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</div>
+                  <div className="product-actions">
+                    <button className="btn-add-cart" onClick={() => addToCart(p)}>Thêm vào giỏ</button>
+                    <button className="btn-view-detail" onClick={() => navigate(`/products/${p._id}`)}>Chi tiết</button>
                   </div>
-                ) : (
-                  <div style={{ marginBottom: '8px', fontSize: '14px', color: '#999', fontStyle: 'italic' }}>
-                    Chưa có đánh giá
-                  </div>
-                )}
-                <p className="desc">{p.description}</p>
-                <ul className="features">
-                    {p.features && p.features.map((f, index) => <li key={index}>{f}</li>)}
-                </ul>
-                <div style={{ display: 'grid', gap: 10 }}>
-                  <button onClick={() => addToCart(p)}>Mua ngay</button>
-                  <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
                 </div>
               </div>
             );

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/apiService";
 import { getPublicCustomQRs } from "../../services/customQR";
-import { recordPaymentFromQR } from "../../services/wallet";
+import { recordPaymentFromQR, checkTransactionStatus } from "../../services/wallet";
 import QRCodeModal from "../../components/QRCodeModal/QRCodeModal";
 import "./shop.scss";
 
@@ -20,6 +20,11 @@ const Payment = () => {
   const [customQRsLoading, setCustomQRsLoading] = useState(false);
   const [selectedCustomQR, setSelectedCustomQR] = useState(null);
   const [recordingPayment, setRecordingPayment] = useState(false);
+  
+  // SePay webhook polling states
+  const [paymentStatus, setPaymentStatus] = useState(null); // 'pending', 'success', 'failed'
+  const [pollingInterval, setPollingInterval] = useState(null);
+  const pollingRef = useRef(null);
 
   useEffect(() => {
     // Tự động tạo mã nội dung nếu chưa có
@@ -35,6 +40,15 @@ const Payment = () => {
       fetchCustomQRs();
     }
   }, [activeTab]);
+
+  // Cleanup polling khi component unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+    };
+  }, []);
 
   const fetchCustomQRs = async () => {
     try {
@@ -85,6 +99,82 @@ const Payment = () => {
     }
   };
 
+  // Polling để check payment status từ SePay webhook
+  const startPollingPaymentStatus = (referenceCode) => {
+    // Clear previous polling nếu có
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+    }
+
+    setPaymentStatus('pending');
+
+    // Poll mỗi 3 giây
+    pollingRef.current = setInterval(async () => {
+      try {
+        const response = await checkTransactionStatus(referenceCode);
+        const transaction = response.data;
+
+        if (transaction) {
+          if (transaction.status === 'completed' || transaction.status === 'success') {
+            setPaymentStatus('success');
+            clearInterval(pollingRef.current);
+            pollingRef.current = null;
+
+            // Show success message
+            const el = document.createElement('div');
+            el.className = 'simple-toast';
+            el.style.background = '#4caf50';
+            el.innerText = '✅ Thanh toán thành công! Số tiền đã được cập nhật vào ví.';
+            document.body.appendChild(el);
+            setTimeout(() => {
+              if (document.body.contains(el)) {
+                document.body.removeChild(el);
+              }
+            }, 5000);
+
+            // Redirect to profile after 2 seconds
+            setTimeout(() => {
+              navigate("/profile", { 
+                state: { 
+                  message: "Thanh toán thành công! Số tiền đã được cập nhật vào ví của bạn." 
+                } 
+              });
+            }, 2000);
+          } else if (transaction.status === 'failed' || transaction.status === 'cancelled') {
+            setPaymentStatus('failed');
+            clearInterval(pollingRef.current);
+            pollingRef.current = null;
+
+            const el = document.createElement('div');
+            el.className = 'simple-toast';
+            el.style.background = '#f44336';
+            el.innerText = '❌ Thanh toán thất bại hoặc đã bị hủy.';
+            document.body.appendChild(el);
+            setTimeout(() => {
+              if (document.body.contains(el)) {
+                document.body.removeChild(el);
+              }
+            }, 3000);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking payment status:", error);
+        // Continue polling on error
+      }
+    }, 3000);
+
+    // Stop polling after 5 minutes (100 checks)
+    setTimeout(() => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+        if (paymentStatus === 'pending') {
+          setPaymentStatus(null);
+        }
+      }
+    }, 300000); // 5 minutes
+  };
+
   const generateQR = async () => {
     if (!amount || Number(amount) <= 0) {
       const el = document.createElement('div');
@@ -96,22 +186,56 @@ const Payment = () => {
     }
 
     setLoading(true);
+    setPaymentStatus(null);
+    
+    // Clear any existing polling
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+
     try {
+      const referenceCode = content || `MMOS-${Date.now()}`;
+      
+      // Tạo transaction request trước (để backend có thể match với webhook từ SePay)
+      // Backend sẽ tạo transaction với status 'pending' và referenceCode này
+      // Khi SePay gửi webhook với referenceCode này, backend sẽ tự động cập nhật
+      try {
+        await api.post("/wallet/topup", {
+          amount: Number(amount),
+          method: "sepay",
+          bank: bank,
+          referenceCode: referenceCode,
+          note: `Nạp tiền qua QR SePay - ${referenceCode}`
+        });
+      } catch (topupError) {
+        // Nếu transaction đã tồn tại hoặc lỗi, vẫn tiếp tục tạo QR
+        console.warn("Topup request creation:", topupError.response?.data || topupError.message);
+        // Continue even if topup request fails (might already exist or backend handles differently)
+      }
+
+      // Tạo QR code với referenceCode
       const res = await api.get("/payments/qr", {
         params: { 
           amount: Number(amount), 
-          content: content || `MMOS-${Date.now()}`,
+          content: referenceCode,
           bank: bank
         },
       });
+      
       setQrData({
         imageUrl: res.data.imageUrl,
         amount: Number(amount),
-        content: content || `MMOS-${Date.now()}`,
+        content: referenceCode,
         accountName: res.data.accountName || "",
         accountNo: res.data.accountNo || "",
-        phone: res.data.phone || ""
+        phone: res.data.phone || "",
+        referenceCode: referenceCode
       });
+
+      // Bắt đầu polling để check payment status từ webhook
+      startPollingPaymentStatus(referenceCode);
+      
     } catch (error) {
       console.error("QR Code Error:", error);
       let errorMessage = "Không tạo được QR code";
@@ -260,19 +384,56 @@ const Payment = () => {
                   </div>
                 </div>
                 
+                {/* Payment Status Indicator */}
+                {paymentStatus && (
+                  <div className={`payment-status-indicator status-${paymentStatus}`}>
+                    {paymentStatus === 'pending' && (
+                      <>
+                        <div className="status-spinner"></div>
+                        <span>Đang chờ thanh toán... (Tự động cập nhật khi có giao dịch)</span>
+                      </>
+                    )}
+                    {paymentStatus === 'success' && (
+                      <>
+                        <span className="status-icon">✅</span>
+                        <span>Thanh toán thành công! Đang chuyển hướng...</span>
+                      </>
+                    )}
+                    {paymentStatus === 'failed' && (
+                      <>
+                        <span className="status-icon">❌</span>
+                        <span>Thanh toán thất bại hoặc đã bị hủy.</span>
+                      </>
+                    )}
+                  </div>
+                )}
+
                 <div className="qr-actions">
                   <button 
                     className="qr-back-btn" 
                     onClick={() => {
+                      // Stop polling
+                      if (pollingRef.current) {
+                        clearInterval(pollingRef.current);
+                        pollingRef.current = null;
+                      }
                       setQrData(null);
                       setAmount("");
+                      setPaymentStatus(null);
                     }}
                   >
                     Tạo QR mới
                   </button>
                   <button 
                     className="qr-close-btn" 
-                    onClick={() => navigate("/profile")}
+                    onClick={() => {
+                      // Stop polling
+                      if (pollingRef.current) {
+                        clearInterval(pollingRef.current);
+                        pollingRef.current = null;
+                      }
+                      navigate("/profile");
+                    }}
                   >
                     Hoàn tất
                   </button>

@@ -79,37 +79,43 @@ const ProductDetail = () => {
     <div className="product-detail-page">
       <div className="detail-card">
         <div className="detail-left">
-          <img src={product.image || "/telepremium.png"} alt={product.name} className="detail-image" />
+          <div className="detail-image-wrapper">
+            <img 
+              src={product.image || "/placeholder-fashion.jpg"} 
+              alt={product.name} 
+              className="detail-image"
+              onError={(e) => {
+                e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='600'%3E%3Crect fill='%23f0f0f0' width='500' height='600'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='40'%3E👗%3C/text%3E%3C/svg%3E";
+              }}
+            />
+          </div>
         </div>
         <div className="detail-right">
-          <h2>{product.name}</h2>
+          <h2 className="product-title">{product.name}</h2>
           <p className="price">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}</p>
           
           {/* Rating Summary */}
           {ratingSummary && ratingSummary.totalReviews > 0 ? (
-            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '24px' }}>⭐</span>
-                  <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{ratingSummary.averageRating.toFixed(1)}</span>
-                </div>
-                <span style={{ color: '#666' }}>({ratingSummary.totalUsers || ratingSummary.totalReviews} người đánh giá)</span>
+            <div className="rating-summary">
+              <div className="rating-display">
+                <span className="rating-stars">⭐ {ratingSummary.averageRating.toFixed(1)}</span>
+                <span className="rating-count">({ratingSummary.totalUsers || ratingSummary.totalReviews} người đánh giá)</span>
               </div>
             </div>
           ) : (
-            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-              <span style={{ color: '#999', fontStyle: 'italic' }}>Chưa có đánh giá</span>
+            <div className="rating-summary no-rating">
+              <span>Chưa có đánh giá</span>
             </div>
           )}
           
           <p className="desc">{product.description}</p>
           {Array.isArray(product.features) && product.features.length > 0 && (
-            <>
-              <h4>Premium includes:</h4>
+            <div className="product-features">
+              <h4>Đặc điểm sản phẩm:</h4>
               <ul className="features">
                 {product.features.map((f, idx) => <li key={idx}>{f}</li>)}
               </ul>
-            </>
+            </div>
           )}
           <div className="guide">
             <h4>Hướng dẫn kích hoạt</h4>
@@ -121,8 +127,8 @@ const ProductDetail = () => {
             </ol>
           </div>
           <div className="actions">
-            <button onClick={addToCart}>Thêm vào giỏ</button>
-            <button onClick={() => navigate("/cart")} style={{ background: "#333" }}>Xem giỏ hàng</button>
+            <button className="btn-add-to-cart" onClick={addToCart}>Thêm vào giỏ hàng</button>
+            <button className="btn-view-cart" onClick={() => navigate("/cart")}>Xem giỏ hàng</button>
           </div>
         </div>
       </div>

@@ -1,15 +1,16 @@
-$primary-color: #00d2ff;
-$bg-color: #0f0c29;
+$primary-color: #229ED9;
+$bg-color: #ffffff;
 
 .app-header {
-  background-color: rgba(15, 12, 41, 0.95);
-  color: white;
+  background-color: rgba(255, 255, 255, 0.98);
+  color: #1a1a1a;
   padding: 1rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(34, 158, 217, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
   backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   .header-container {
     display: flex;
@@ -21,15 +22,15 @@ $bg-color: #0f0c29;
   }
 
   .logo a {
-    color: white;
-    font-weight: bold;
+    color: $primary-color;
+    font-weight: 700;
     text-decoration: none;
     font-size: 1.5rem;
     letter-spacing: 1px;
-    text-transform: uppercase;
-    background: -webkit-linear-gradient(#fff, $primary-color);
+        background: linear-gradient(135deg, $primary-color 0%, #40a9ff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .mobile-menu-toggle {
@@ -57,7 +58,7 @@ $bg-color: #0f0c29;
     gap: 2rem;
 
     a {
-      color: rgba(255,255,255,0.7);
+      color: #666666;
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s;
@@ -69,14 +70,15 @@ $bg-color: #0f0c29;
     }
     
     .btn-register {
-        border: 1px solid $primary-color;
+        border: 2px solid $primary-color;
         padding: 0.5rem 1.5rem;
-        border-radius: 20px;
+        border-radius: 25px;
         color: $primary-color;
+        background: white;
         
         &:hover {
             background: $primary-color;
-            color: #000;
+            color: white;
         }
     }
   }
@@ -84,13 +86,13 @@ $bg-color: #0f0c29;
   .user-menu {
     position: relative;
     
-    .avatar-button {
+        .avatar-button {
         background: transparent;
         border: none;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: white;
+        color: #1a1a1a;
         cursor: pointer;
         position: relative;
         
@@ -98,7 +100,7 @@ $bg-color: #0f0c29;
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            border: 1px solid $primary-color;
+            border: 2px solid $primary-color;
             object-fit: cover;
         }
         
@@ -106,8 +108,8 @@ $bg-color: #0f0c29;
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            border: 1px solid $primary-color;
-            background: linear-gradient(135deg, $primary-color, #667eea);
+            border: 2px solid $primary-color;
+            background: linear-gradient(135deg, $primary-color, #40a9ff);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -121,12 +123,12 @@ $bg-color: #0f0c29;
         position: absolute;
         right: 0;
         top: 120%;
-        background: #1a1a2e;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 10px;
+        background: white;
+        border: 1px solid rgba(34, 158, 217, 0.2);
+        border-radius: 12px;
         width: 180px;
         overflow: hidden;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         
         button {
             display: block;
@@ -135,18 +137,18 @@ $bg-color: #0f0c29;
             padding: 10px 15px;
             background: transparent;
             border: none;
-            color: rgba(255,255,255,0.8);
+            color: #1a1a1a;
             cursor: pointer;
             transition: background 0.2s;
             
             &:hover {
-                background: rgba(255,255,255,0.05);
-                color: white;
+                background: #e6f7ff;
+                color: $primary-color;
             }
             
             &.logout {
-                color: #ff4d4d;
-                border-top: 1px solid rgba(255,255,255,0.05);
+                color: #ef5350;
+                border-top: 1px solid rgba(34, 158, 217, 0.1);
             }
         }
     }
@@ -177,8 +179,9 @@ $bg-color: #0f0c29;
       right: -100%;
       width: 280px;
       height: 100vh;
-      background: rgba(15, 12, 41, 0.98);
+      background: rgba(255, 255, 255, 0.98);
       backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(34, 158, 217, 0.1);
       flex-direction: column;
       align-items: flex-start;
       padding: 4rem 1.5rem 2rem;

@@ -24,6 +24,26 @@ export const restoreTransaction = (transactionId) =>
 export const recordPaymentFromQR = (customQRId, note = "") =>
   api.post("/wallet/record-payment", { customQRId, note });
 
+// SePay: Lấy thông tin tài khoản
+export const getSePayAccountInfo = () =>
+  api.get("/payments/sepay/account-info");
+
+// SePay: Kiểm tra trạng thái transaction theo reference_code
+export const checkTransactionStatus = (referenceCode) =>
+  api.get(`/wallet/transactions/status/${referenceCode}`);
+
+// SePay: Tạo topup request với SePay (tự động tạo transaction chờ webhook)
+// Note: Backend sẽ tạo transaction với status 'pending' và referenceCode
+// Khi SePay gửi webhook với referenceCode này, backend sẽ tự động cập nhật transaction
+export const createSePayTopupRequest = (amount, referenceCode, bank = "mb", note = "") =>
+  api.post("/wallet/topup", { 
+    amount, 
+    method: "sepay", 
+    bank,
+    referenceCode,
+    note 
+  });
+
 const walletService = {
   getWallet,
   createTopupRequest,
@@ -33,6 +53,9 @@ const walletService = {
   softDeleteTransaction,
   restoreTransaction,
   recordPaymentFromQR,
+  getSePayAccountInfo,
+  checkTransactionStatus,
+  createSePayTopupRequest,
 };
 
 export default walletService;

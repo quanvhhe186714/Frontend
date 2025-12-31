@@ -240,16 +240,28 @@ const Profile = () => {
   if (!user) return <div className="error">{message}</div>;
 
   // Nếu server trả về sẵn imageUrl thì dùng luôn, ngược lại tự build
-  const qrUrl = topupInstructions && topupInstructions.imageUrl
-    ? topupInstructions.imageUrl
-    : topupInstructions
-      ? `https://img.vietqr.io/image/${encodeURIComponent(
-          topupInstructions.bin || topupInstructions.BIN || "")}-${encodeURIComponent(
-          topupInstructions.accountNumber
-        )}-compact2.png?amount=${topupInstructions.amount}&addInfo=${
-          topupInstructions.transferContent
-        }&accountName=${encodeURIComponent(topupInstructions.accountName)}`
-      : null;
+  
+  const STATIC_BANK_QR = {
+    bidv: "https://img.vietqr.io/image/BIDV-8835915459-compact2.png",
+
+  };
+
+  // Nếu server trả về sẵn imageUrl thì dùng luôn.
+  // Nếu chưa có (đặc biệt BIDV), vẫn build VietQR theo accountNumber.
+  // Và có fallback ảnh QR tĩnh (không có amount/nội dung) để đảm bảo luôn hiện QR.
+  // Ưu tiên: QR tĩnh theo ngân hàng đã chọn (đúng “giống 2 QR trước đó”)
+  // Nếu chưa có QR tĩnh thì mới dùng QR do server trả về / tự build theo instructions.
+  const qrUrl = STATIC_BANK_QR[selectedBank]
+    ? STATIC_BANK_QR[selectedBank]
+    : topupInstructions && topupInstructions.imageUrl
+      ? topupInstructions.imageUrl
+      : topupInstructions
+        ? `https://img.vietqr.io/image/${encodeURIComponent(
+            topupInstructions.bin || topupInstructions.BIN || topupInstructions.bank || ""
+          )}-${encodeURIComponent(topupInstructions.accountNumber)}-compact2.png?amount=${topupInstructions.amount}&addInfo=${encodeURIComponent(
+            topupInstructions.transferContent || ""
+          )}&accountName=${encodeURIComponent(topupInstructions.accountName || "")}`
+        : null;
 
   const renderOrders = (orderList, emptyLabel) => {
     // #region agent log
@@ -502,10 +514,14 @@ const Profile = () => {
                       <label>Ngân hàng</label>
                       <select
                         value={selectedBank}
-                        onChange={(e) => setSelectedBank(e.target.value)}
+                        onChange={(e) => {
+                        setSelectedBank(e.target.value);
+                        setTopupInstructions(null); // Reset hướng dẫn khi đổi ngân hàng
+                      }}
                       >
                         <option value="mb">MB Bank</option>
                         <option value="hdbank">HDBank</option>
+                        <option value="bidv">BIDV</option>
                       </select>
                     </div>
                     <button className="primary-btn" type="submit" disabled={topupLoading}>

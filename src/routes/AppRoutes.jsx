@@ -15,6 +15,7 @@ import Checkout from "../page/Shop/Checkout";
 import Payment from "../page/Shop/Payment";
 import PublicQRDisplay from "../page/Shop/PublicQRDisplay";
 import TransactionHistory from "../page/Shop/TransactionHistory";
+import PaymentHistory from "../page/Shop/PaymentHistory";
 
 // Portal pages (market-like)
 import SanPham from "../page/Portal/SanPham";
@@ -41,6 +42,7 @@ const AppRoutes = () => {
       <Route path="/payment-qr" element={<PublicQRDisplay />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/payment-history" element={<PaymentHistory />} />
 
       {/* Portal style pages */}
       <Route path="/san-pham" element={<SanPham />} />

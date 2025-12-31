@@ -1,9 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getBankFeeds } from "../../services/public";
+import PaymentTable from "../../components/PaymentTable/PaymentTable";
 import "./shop.scss";
 
 const Home = () => {
   const navigate = useNavigate();
+  const [bankFeeds, setBankFeeds] = useState([]);
+
+  useEffect(() => {
+    fetchBankFeeds();
+  }, []);
+
+  const fetchBankFeeds = async () => {
+    try {
+      const { data } = await getBankFeeds(100);
+      setBankFeeds(data || []);
+    } catch (e) {
+      console.error("Error fetching recent payments:", e);
+    }
+  };
+
   return (
     <div className="shop-home">
       <section className="hero">
@@ -22,6 +39,15 @@ const Home = () => {
         </div>
       </section>
       
+      {/* Recent Payments Section */}
+      <section className="recent-payments">
+        <h2>Lịch sử thanh toán gần đây</h2>
+        <PaymentTable data={bankFeeds} isBankFeed />
+        <div style={{ marginTop: 12 }}>
+          <button className="cta-btn" onClick={() => navigate("/payment-history")}>Xem tất cả</button>
+        </div>
+      </section>
+
       <section className="features">
         <h2>Dịch vụ nổi bật</h2>
         <div className="feature-grid">

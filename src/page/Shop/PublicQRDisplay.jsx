@@ -42,7 +42,7 @@ const PublicQRDisplay = () => {
   const getBankName = (bank) => {
     const bankMap = {
       mb: 'MB Bank',
-      vietinbank: 'VietinBank',
+      hdbank: 'HDBank',
       momo: 'MoMo',
     };
     return bankMap[bank] || bank;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/apiService";
+// import api from "../../services/apiService";
+import { BANKS, BANK_MAP, buildVietQrUrl } from "../../utils/banks";
 import { getPublicCustomQRs } from "../../services/customQR";
 import { recordPaymentFromQR } from "../../services/wallet";
 import QRCodeModal from "../../components/QRCodeModal/QRCodeModal";
@@ -85,7 +86,7 @@ const Payment = () => {
     }
   };
 
-  const generateQR = async () => {
+  const generateQR = () => {
     if (!amount || Number(amount) <= 0) {
       const el = document.createElement('div');
       el.className = 'simple-toast';
@@ -97,20 +98,23 @@ const Payment = () => {
 
     setLoading(true);
     try {
-      const res = await api.get("/payments/qr", {
-        params: { 
-          amount: Number(amount), 
-          content: content || `MMOS-${Date.now()}`,
-          bank: bank
-        },
+      const b = BANK_MAP[bank];
+      if (!b || !b.accountNo) throw new Error('Ngân hàng chưa được cấu hình số TK');
+      const imageUrl = buildVietQrUrl({
+        bin: b.bin,
+        accountNo: b.accountNo,
+        accountName: b.accountName,
+        amount,
+        content: content || `MMOS-${Date.now()}`,
       });
       setQrData({
-        imageUrl: res.data.imageUrl,
+        imageUrl,
         amount: Number(amount),
         content: content || `MMOS-${Date.now()}`,
-        accountName: res.data.accountName || "",
-        accountNo: res.data.accountNo || "",
-        phone: res.data.phone || ""
+        accountName: b.accountName,
+        accountNo: b.accountNo,
+        phone: b.phone || "",
+        bank: b.name,
       });
     } catch (error) {
       console.error("QR Code Error:", error);
@@ -155,7 +159,7 @@ const Payment = () => {
   const getBankName = (bank) => {
     const bankMap = {
       mb: 'MB Bank',
-      vietinbank: 'VietinBank',
+      hdbank: 'HDBank',
       momo: 'MoMo',
     };
     return bankMap[bank] || bank;
@@ -209,7 +213,7 @@ const Payment = () => {
                     value={bank}
                     onChange={(e) => setBank(e.target.value)}
                   >
-                    <option value="mb">MB Bank</option>
+                    <option value="mb">MB Bank</option><option value="hdbank">HDBank</option>
                   </select>
                 </div>
                 
@@ -241,10 +245,18 @@ const Payment = () => {
                     </div>
                   )}
                   
-                  <div className="qr-code-wrapper">
-                    <img src={qrData.imageUrl} alt="VietQR" className="qr-code-image" />
-                  </div>
-                  
+                  {qrData.imageUrl && (
+                    <>
+                      <div className="qr-code-wrapper">
+                        <img src={qrData.imageUrl} alt="VietQR" className="qr-code-image" />
+                      </div>
+                      <div className="qr-logos">
+                        <span className="qr-logo-vietqr">VIETQR</span>
+                        <span className="qr-logo-napas">napas 247</span>
+                      </div>
+                    </>
+                  )}
+
                   <div className="qr-info">
                     <p className="qr-amount">
                       Số tiền: <strong>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(qrData.amount)}</strong>
@@ -252,11 +264,12 @@ const Payment = () => {
                     <p className="qr-content-text">
                       Nội dung: <strong>{qrData.content}</strong>
                     </p>
-                  </div>
-                  
-                  <div className="qr-logos">
-                    <span className="qr-logo-vietqr">VIETQR</span>
-                    <span className="qr-logo-napas">napas 247</span>
+                    <p className="qr-content-text">
+                      Ngân hàng: <strong>{qrData.bank}</strong>
+                    </p>
+                    <p className="qr-content-text">
+                      Số TK: <strong>{qrData.accountNo}</strong>
+                    </p>
                   </div>
                 </div>
                 

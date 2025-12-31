@@ -110,7 +110,7 @@ const QRCodeModal = ({ qrData, onClose }) => {
           <div style={{ marginBottom: '15px' }}>
             <strong>Ngân hàng:</strong>
             <div style={{ marginTop: '5px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-              {qrData.bank === 'mb' ? 'MB Bank' : qrData.bank === 'vietinbank' ? 'VietinBank' : qrData.bank === 'momo' ? 'MoMo' : qrData.bank}
+              {qrData.bank === 'mb' ? 'MB Bank' : qrData.bank === 'hdbank' ? 'HDBank' : qrData.bank === 'momo' ? 'MoMo' : qrData.bank}
             </div>
           </div>
         )}

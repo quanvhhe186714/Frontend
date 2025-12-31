@@ -239,15 +239,17 @@ const Profile = () => {
   if (loading) return <div className="loading">Đang tải...</div>;
   if (!user) return <div className="error">{message}</div>;
 
-  const qrUrl = topupInstructions
-    ? `https://img.vietqr.io/image/${encodeURIComponent(
-        topupInstructions.bin
-      )}-${encodeURIComponent(
-        topupInstructions.accountNumber
-      )}-compact2.png?amount=${topupInstructions.amount}&addInfo=${
-        topupInstructions.transferContent
-      }&accountName=${encodeURIComponent(topupInstructions.accountName)}`
-    : null;
+  // Nếu server trả về sẵn imageUrl thì dùng luôn, ngược lại tự build
+  const qrUrl = topupInstructions && topupInstructions.imageUrl
+    ? topupInstructions.imageUrl
+    : topupInstructions
+      ? `https://img.vietqr.io/image/${encodeURIComponent(
+          topupInstructions.bin || topupInstructions.BIN || "")}-${encodeURIComponent(
+          topupInstructions.accountNumber
+        )}-compact2.png?amount=${topupInstructions.amount}&addInfo=${
+          topupInstructions.transferContent
+        }&accountName=${encodeURIComponent(topupInstructions.accountName)}`
+      : null;
 
   const renderOrders = (orderList, emptyLabel) => {
     // #region agent log
@@ -503,7 +505,7 @@ const Profile = () => {
                         onChange={(e) => setSelectedBank(e.target.value)}
                       >
                         <option value="mb">MB Bank</option>
-                        <option value="vietin">VietinBank</option>
+                        <option value="hdbank">HDBank</option>
                       </select>
                     </div>
                     <button className="primary-btn" type="submit" disabled={topupLoading}>

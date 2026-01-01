@@ -56,7 +56,7 @@ const QRPayment = () => {
       // Chuyển sang trang payment với thông tin ngân hàng đã chọn
       navigate("/payment", {
         state: {
-          selectedBank: qrData.bank || qr.bank || "mb", // Truyền ngân hàng đã chọn
+          selectedBank: qrData.bank || qr.bank || "vietin", // Truyền ngân hàng đã chọn
           fromQRPayment: true // Đánh dấu là từ trang QR payment
         }
       });

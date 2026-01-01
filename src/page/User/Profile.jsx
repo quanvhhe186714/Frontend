@@ -28,7 +28,7 @@ const Profile = () => {
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [topupAmount, setTopupAmount] = useState("");
-  const [selectedBank, setSelectedBank] = useState("mb");
+  const [selectedBank, setSelectedBank] = useState("vietin");
   const [topupInstructions, setTopupInstructions] = useState(null);
   const [topupLoading, setTopupLoading] = useState(false);
   const [activeSection, setActiveSection] = useState("account");

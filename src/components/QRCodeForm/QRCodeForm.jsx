@@ -98,7 +98,7 @@ const QRCodeForm = ({ initialData = null, onSubmit, onCancel, loading = false })
           value={formData.bank}
           onChange={handleChange}
           required
-          placeholder="Nhập tên ngân hàng (VD: MB Bank, MoMo, Vietcombank)"
+          placeholder="Nhập tên ngân hàng (VD: VietinBank, MoMo, Vietcombank)"
           style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
         />
       </div>

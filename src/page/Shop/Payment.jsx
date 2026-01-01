@@ -13,7 +13,7 @@ const Payment = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("create"); // "create" or "custom"
   const [amount, setAmount] = useState("");
-  const [bank, setBank] = useState("mb"); // mb bank
+  const [bank, setBank] = useState("vietin"); // VietinBank
   const [loading, setLoading] = useState(false);
   const [qrData, setQrData] = useState(null);
   
@@ -168,9 +168,9 @@ const Payment = () => {
 
   const getBankName = (bank) => {
     const bankMap = {
-      mb: 'MB Bank',
+      vietin: 'VietinBank',
       hdbank: 'HDBank',
-      momo: 'MoMo',
+     
     };
     return bankMap[bank] || bank;
   };
@@ -223,7 +223,7 @@ const Payment = () => {
                     value={bank}
                     onChange={(e) => setBank(e.target.value)}
                   >
-                    <option value="mb">MB Bank</option><option value="hdbank">HDBank</option>
+                    <option value="vietin">VietinBank</option><option value="hdbank">HDBank</option>
                   </select>
                 </div>
                 

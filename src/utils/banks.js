@@ -2,7 +2,7 @@
 // Thay số tài khoản/tên theo thực tế trước khi build (hoặc inject qua môi trường).
 
 export const BANKS = [
-  { code: 'mb',      name: 'MB Bank',       bin: '970422', accountNo: '39397939686879', accountName: 'NGUYEN THANH NHAN' },
+  { code: 'vietin',   name: 'VietinBank',    bin: '970415', accountNo: '107876717017', accountName: 'VU HONG QUAN' },
   { code: 'hdbank',  name: 'HDBank',        bin: '970437', accountNo: '082704070007936', accountName: 'LE VAN HA' },
   { code: 'vcb',     name: 'Vietcombank',   bin: '970436', accountNo: '', accountName: '' },
   { code: 'vietin',  name: 'VietinBank',    bin: '970415', accountNo: '', accountName: '' },

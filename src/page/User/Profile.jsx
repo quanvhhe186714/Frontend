@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getMyProfile, updateMyProfile, changePassword } from "../../services/user";
 import orderService from "../../services/order";
 import messageService from "../../services/message";
@@ -18,6 +18,7 @@ const sections = [
 
 const Profile = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({ name: "" });
   const [orders, setOrders] = useState([]);
@@ -497,37 +498,13 @@ const Profile = () => {
                     </strong>
                     <p>Ví tự động cập nhật khi giao dịch thành công</p>
                   </div>
-                  <form className="topup-form" onSubmit={handleTopup}>
-                    <div className="form-group">
-                      <label>Số tiền muốn nạp (VND)</label>
-                      <input
-                        type="number"
-                        min="10000"
-                        step="1000"
-                        value={topupAmount}
-                        onChange={(e) => setTopupAmount(e.target.value)}
-                        placeholder="Nhập số tiền"
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Ngân hàng</label>
-                      <select
-                        value={selectedBank}
-                        onChange={(e) => {
-                        setSelectedBank(e.target.value);
-                        setTopupInstructions(null); // Reset hướng dẫn khi đổi ngân hàng
-                      }}
-                      >
-                        <option value="mb">MB Bank</option>
-                        <option value="hdbank">HDBank</option>
-                        <option value="bidv">BIDV</option>
-                      </select>
-                    </div>
-                    <button className="primary-btn" type="submit" disabled={topupLoading}>
-                      {topupLoading ? "Đang tạo QR..." : "Tạo yêu cầu nạp tiền"}
-                    </button>
-                  </form>
+                  <button 
+                    className="primary-btn" 
+                    onClick={() => navigate("/payment")}
+                    style={{ width: "100%", marginTop: "1rem" }}
+                  >
+                    Tạo yêu cầu nạp tiền
+                  </button>
 
                   {topupInstructions && (
                     <div className="topup-instructions">

@@ -43,29 +43,26 @@ const QRPayment = () => {
     fetchPublished();
   }, []);
 
-  // Khi user chọn QR, fetch chi tiết đầy đủ
+  // Khi user chọn QR, chuyển sang trang payment với ngân hàng đã chọn
   const handleSelectQR = async (qr) => {
     try {
       setLoadingDetail(true);
       setError("");
-      setSelectedQR(qr);
-      setQrDetail(null); // Reset detail khi chọn QR mới
       
       // Fetch chi tiết đầy đủ từ API
       const { data } = await getPublishedQRDetail(qr._id);
-      setQrDetail(data);
+      const qrData = data || qr;
       
-      // Scroll to detail section
-      setTimeout(() => {
-        const detailSection = document.querySelector('.qr-detail-section');
-        if (detailSection) {
-          detailSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Chuyển sang trang payment với thông tin ngân hàng đã chọn
+      navigate("/payment", {
+        state: {
+          selectedBank: qrData.bank || qr.bank || "mb", // Truyền ngân hàng đã chọn
+          fromQRPayment: true // Đánh dấu là từ trang QR payment
         }
-      }, 100);
+      });
     } catch (err) {
       console.error("Error fetching QR detail:", err);
       setError(err.response?.data?.message || "Không thể tải chi tiết QR code");
-      setQrDetail(null);
     } finally {
       setLoadingDetail(false);
     }

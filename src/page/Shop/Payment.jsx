@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 // import api from "../../services/apiService";
 import { BANKS, BANK_MAP, buildVietQrUrl } from "../../utils/banks";
 import { getPublicCustomQRs } from "../../services/customQR";
 import { recordPaymentFromQR } from "../../services/wallet";
+import { generatePaymentQR } from "../../services/payment";
 import QRCodeModal from "../../components/QRCodeModal/QRCodeModal";
 import "./shop.scss";
 
 const Payment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("create"); // "create" or "custom"
   const [amount, setAmount] = useState("");
-  const [content, setContent] = useState("");
   const [bank, setBank] = useState("mb"); // mb bank
   const [loading, setLoading] = useState(false);
   const [qrData, setQrData] = useState(null);
@@ -22,13 +23,23 @@ const Payment = () => {
   const [selectedCustomQR, setSelectedCustomQR] = useState(null);
   const [recordingPayment, setRecordingPayment] = useState(false);
 
+  // Kiểm tra nếu có thông tin từ trang QRPayment
   useEffect(() => {
-    // Tự động tạo mã nội dung nếu chưa có
-    if (!content) {
-      const timestamp = Date.now();
-      setContent(`MMOS-${timestamp}`);
+    if (location.state?.fromQRPayment) {
+      // Chuyển sang tab "Tạo QR mới" và set ngân hàng đã chọn
+      setActiveTab("create");
+      
+      // Tự động chọn ngân hàng từ QR code đã chọn
+      if (location.state.selectedBank) {
+        setBank(location.state.selectedBank);
+      }
+      
+      // Số tiền: User sẽ tự điền, không tự động điền
+      
+      // Clear state để tránh hiển thị lại khi refresh
+      window.history.replaceState({}, document.title);
     }
-  }, []); // Chỉ chạy 1 lần khi mount
+  }, [location.state]);
 
   useEffect(() => {
     // Fetch custom QR codes when switching to custom tab
@@ -86,7 +97,7 @@ const Payment = () => {
     }
   };
 
-  const generateQR = () => {
+  const generateQR = async () => {
     if (!amount || Number(amount) <= 0) {
       const el = document.createElement('div');
       el.className = 'simple-toast';
@@ -98,24 +109,21 @@ const Payment = () => {
 
     setLoading(true);
     try {
-      const b = BANK_MAP[bank];
-      if (!b || !b.accountNo) throw new Error('Ngân hàng chưa được cấu hình số TK');
-      const imageUrl = buildVietQrUrl({
-        bin: b.bin,
-        accountNo: b.accountNo,
-        accountName: b.accountName,
-        amount,
-        content: content || `MMOS-${Date.now()}`,
-      });
-      setQrData({
-        imageUrl,
-        amount: Number(amount),
-        content: content || `MMOS-${Date.now()}`,
-        accountName: b.accountName,
-        accountNo: b.accountNo,
-        phone: b.phone || "",
-        bank: b.name,
-      });
+      // Gọi API backend - chỉ cần gửi số tiền, backend tự động xử lý nội dung
+      // Backend sẽ tự động tìm trong file JSON hoặc dùng mặc định
+      const response = await generatePaymentQR(Number(amount), bank);
+      
+      if (response.data) {
+        setQrData({
+          imageUrl: response.data.imageUrl,
+          amount: response.data.amount,
+          content: response.data.content,
+          accountName: response.data.accountName,
+          accountNo: response.data.accountNo,
+          phone: response.data.phone || "",
+          bank: response.data.bank,
+        });
+      }
     } catch (error) {
       console.error("QR Code Error:", error);
       let errorMessage = "Không tạo được QR code";
@@ -127,6 +135,8 @@ const Payment = () => {
           errorMessage = "Vui lòng đăng nhập để sử dụng tính năng này";
         } else if (error.response.status === 400) {
           errorMessage = error.response.data?.message || "Thông tin không hợp lệ. Vui lòng kiểm tra lại.";
+        } else if (error.response.status === 404) {
+          errorMessage = "API endpoint không tồn tại. Vui lòng kiểm tra backend.";
         }
       } else if (error.request) {
         // Request được gửi nhưng không nhận được response
@@ -218,14 +228,18 @@ const Payment = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label>Nội dung chuyển khoản</label>
-                  <input
-                    type="text"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="MMOS-XXXXX (để trống = mặc định)"
-                  />
-                  <small>Để trống để dùng nội dung mặc định</small>
+                  <div style={{ 
+                    padding: '12px', 
+                    backgroundColor: '#e7f3ff', 
+                    borderRadius: '4px',
+                    border: '1px solid #b3d9ff',
+                    marginTop: '8px'
+                  }}>
+                    <p style={{ margin: 0, color: '#0066cc', fontSize: '14px' }}>
+                      ℹ️ <strong>Nội dung tự động:</strong> Hệ thống sẽ tự động tìm nội dung trong file JSON dựa trên số tiền bạn nhập. 
+                      Nếu không tìm thấy, sẽ dùng nội dung mặc định.
+                    </p>
+                  </div>
                 </div>
                 
                 <button type="submit" className="payment-generate-btn" disabled={loading}>

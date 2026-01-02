@@ -170,7 +170,7 @@ const Payment = () => {
     const bankMap = {
       vietin: 'VietinBank',
       hdbank: 'HDBank',
-     
+      bidv: 'BIDV',
     };
     return bankMap[bank] || bank;
   };
@@ -223,7 +223,9 @@ const Payment = () => {
                     value={bank}
                     onChange={(e) => setBank(e.target.value)}
                   >
-                    <option value="vietin">VietinBank</option><option value="hdbank">HDBank</option>
+                    <option value="vietin">VietinBank</option>
+                    <option value="hdbank">HDBank</option>
+                    <option value="bidv">BIDV</option>
                   </select>
                 </div>
                 

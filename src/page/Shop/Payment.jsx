@@ -236,8 +236,7 @@ const Payment = () => {
                     marginTop: '8px'
                   }}>
                     <p style={{ margin: 0, color: '#0066cc', fontSize: '14px' }}>
-                      ℹ️ <strong>Nội dung tự động:</strong> Hệ thống sẽ tự động tìm nội dung trong file JSON dựa trên số tiền bạn nhập. 
-                      Nếu không tìm thấy, sẽ dùng nội dung mặc định.
+                      ℹ️ <strong>Nội dung tự động:</strong>
                     </p>
                   </div>
                 </div>

@@ -5,7 +5,7 @@ export const BANKS = [
   { code: 'vietin',   name: 'VietinBank',    bin: '970415', accountNo: '107876717017', accountName: 'VU HONG QUAN' },
   { code: 'hdbank',  name: 'HDBank',        bin: '970437', accountNo: '082704070007936', accountName: 'LE VAN HA' },
   { code: 'vcb',     name: 'Vietcombank',   bin: '970436', accountNo: '', accountName: '' },
-  { code: 'bidv',    name: 'BIDV',          bin: '970418', accountNo: '8835915459', accountName: 'HONG CONG BINH' },
+  { code: 'bidv',    name: 'BIDV',          bin: '970418', accountNo: '8835915459', accountName: 'HONG CON BINH' },
   { code: 'agribank',name: 'Agribank',      bin: '970405', accountNo: '', accountName: '' },
   { code: 'techcom', name: 'Techcombank',   bin: '970407', accountNo: '', accountName: '' },
   { code: 'acb',     name: 'ACB',           bin: '970416', accountNo: '', accountName: '' },

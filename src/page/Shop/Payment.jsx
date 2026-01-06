@@ -115,7 +115,7 @@ const Payment = () => {
       
       if (response.data) {
         setQrData({
-          imageUrl: response.data.imageUrl,
+          imageUrl: BANK_MAP[bank]?.qrImage || response.data.imageUrl,
           amount: response.data.amount,
           content: response.data.content,
           accountName: response.data.accountName,
@@ -171,6 +171,7 @@ const Payment = () => {
       vietin: 'VietinBank',
       hdbank: 'HDBank',
       bidv: 'BIDV',
+      bidv_hieu: 'BIDV',
     };
     return bankMap[bank] || bank;
   };
@@ -225,7 +226,8 @@ const Payment = () => {
                   >
                     <option value="vietin">VietinBank</option>
                     <option value="hdbank">HDBank</option>
-                    <option value="bidv">BIDV</option>
+                    <option value="bidv">BIDV (HONG CON BINH)</option>
+                    <option value="bidv_hieu">BIDV (VO MINH HIEU)</option>
                   </select>
                 </div>
                 

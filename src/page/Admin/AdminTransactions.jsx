@@ -7,11 +7,72 @@ const AdminTransactions = () => {
   const [filter, setFilter] = useState("all");
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    fetchTransactions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // ---------------- HANDLERS ----------------
+  const handleSoftDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa giao dịch này?")) return;
+    try {
+      await walletService.softDeleteTransaction(id);
+      setMessage("Đã xóa giao dịch thành công.");
+      fetchTransactions();
+      setTimeout(() => setMessage(""), 5000);
+    } catch (error) {
+      setMessage(
+        error?.response?.data?.message || "Không thể xóa giao dịch"
+      );
+    }
+  };
 
+  const handleRestore = async (id) => {
+    if (!window.confirm("Khôi phục giao dịch đã xóa?")) return;
+    try {
+      await walletService.restoreTransaction(id);
+      setMessage("Đã khôi phục giao dịch thành công.");
+      fetchTransactions();
+      setTimeout(() => setMessage(""), 5000);
+    } catch (error) {
+      setMessage(
+        error?.response?.data?.message || "Không thể khôi phục giao dịch"
+      );
+    }
+  };
+
+  const handleUpdate = async (id, status) => {
+    const transaction = transactions.find((tx) => tx._id === id);
+    const userName = transaction?.user?.name || "user";
+    const amount = transaction?.amount
+      ? new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(transaction.amount)
+      : "";
+
+    const confirmMessage =
+      status === "success"
+        ? `Xác nhận thanh toán thành công cho ${userName} với số tiền ${amount}?`
+        : `Đánh dấu giao dịch của ${userName} là thất bại?`;
+
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      await walletService.updateTransactionStatus(id, status);
+      if (status === "success") {
+        setMessage(
+          `Đã xác nhận thanh toán thành công cho ${userName}. Số tiền ${amount} đã được cộng vào wallet.`
+        );
+      } else {
+        setMessage(`Đã đánh dấu giao dịch của ${userName} là thất bại.`);
+      }
+      fetchTransactions();
+      setTimeout(() => setMessage(""), 5000);
+    } catch (error) {
+      setMessage(
+        error?.response?.data?.message ||
+          "Không thể cập nhật trạng thái giao dịch"
+      );
+    }
+  };
+
+  // ---------------- FETCH ----------------
   const fetchTransactions = async () => {
     try {
       setLoading(true);
@@ -24,38 +85,17 @@ const AdminTransactions = () => {
     }
   };
 
-  const handleUpdate = async (id, status) => {
-    const transaction = transactions.find(tx => tx._id === id);
-    const userName = transaction?.user?.name || "user";
-    const amount = transaction?.amount 
-      ? new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(transaction.amount)
-      : "";
-    
-    const confirmMessage = status === "success" 
-      ? `Xác nhận thanh toán thành công cho ${userName} với số tiền ${amount}?`
-      : `Đánh dấu giao dịch của ${userName} là thất bại?`;
-    
-    if (!window.confirm(confirmMessage)) return;
-    
-    try {
-      await walletService.updateTransactionStatus(id, status);
-      if (status === "success") {
-        setMessage(`Đã xác nhận thanh toán thành công cho ${userName}. Số tiền ${amount} đã được cộng vào wallet.`);
-      } else {
-        setMessage(`Đã đánh dấu giao dịch của ${userName} là thất bại.`);
-      }
-      fetchTransactions();
-      
-      // Clear message after 5 seconds
-      setTimeout(() => setMessage(""), 5000);
-    } catch (error) {
-      setMessage(error?.response?.data?.message || "Không thể cập nhật trạng thái giao dịch");
-    }
-  };
+  useEffect(() => {
+    fetchTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const filtered = transactions.filter((tx) =>
-    filter === "all" ? true : tx.status === filter
-  );
+  // ---------------- RENDER ----------------
+  const filtered = transactions.filter((tx) => {
+    if (filter === "all") return true;
+    if (filter === "deleted") return tx.isDeleted;
+    return tx.status === filter && !tx.isDeleted; // hide deleted unless filter specifically "deleted"
+  });
 
   return (
     <div>
@@ -66,8 +106,13 @@ const AdminTransactions = () => {
           <option value="pending">Pending</option>
           <option value="success">Success</option>
           <option value="failed">Failed</option>
+          <option value="deleted">Deleted</option>
         </select>
-        <button className="outline-btn" onClick={fetchTransactions} disabled={loading}>
+        <button
+          className="outline-btn"
+          onClick={fetchTransactions}
+          disabled={loading}
+        >
           Refresh
         </button>
       </div>
@@ -90,7 +135,7 @@ const AdminTransactions = () => {
           </thead>
           <tbody>
             {filtered.map((tx) => (
-              <tr key={tx._id}>
+              <tr key={tx._id} className={tx.isDeleted ? "deleted-row" : ""}>
                 <td>{tx.referenceCode}</td>
                 <td>{tx.user?.name || "Unknown"}</td>
                 <td>
@@ -105,26 +150,38 @@ const AdminTransactions = () => {
                 </td>
                 <td>{new Date(tx.createdAt).toLocaleString("vi-VN")}</td>
                 <td>
-                  {tx.status === "pending" ? (
+                  {!tx.isDeleted ? (
                     <>
-                      <button
-                        className="edit-btn"
-                        onClick={() => handleUpdate(tx._id, "success")}
-                      >
-                        Mark Success
-                      </button>
+                      {tx.status === "pending" && (
+                        <>
+                          <button
+                            className="edit-btn"
+                            onClick={() => handleUpdate(tx._id, "success")}
+                          >
+                            Mark Success
+                          </button>
+                          <button
+                            className="delete-btn"
+                            onClick={() => handleUpdate(tx._id, "failed")}
+                          >
+                            Mark Failed
+                          </button>
+                        </>
+                      )}
                       <button
                         className="delete-btn"
-                        onClick={() => handleUpdate(tx._id, "failed")}
+                        onClick={() => handleSoftDelete(tx._id)}
                       >
-                        Mark Failed
+                        Delete
                       </button>
                     </>
                   ) : (
-                    <small>
-                      {tx.status}{" "}
-                      {tx.confirmedBy && `(by ${tx.confirmedBy?.name || "Admin"})`}
-                    </small>
+                    <button
+                      className="edit-btn"
+                      onClick={() => handleRestore(tx._id)}
+                    >
+                      Restore
+                    </button>
                   )}
                 </td>
               </tr>

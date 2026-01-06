@@ -228,6 +228,7 @@ const Payment = () => {
                     <option value="hdbank">HDBank</option>
                     <option value="bidv">BIDV (HONG CON BINH)</option>
                     <option value="bidv_hieu">BIDV (VO MINH HIEU)</option>
+                    <option value="ocb">OCB (NGUYEN DOAN LUAN)</option>
                   </select>
                 </div>
                 

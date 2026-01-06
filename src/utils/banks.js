@@ -17,7 +17,7 @@ export const BANKS = [
   { code: 'scb',     name: 'SCB',           bin: '970429', accountNo: '', accountName: '' },
   { code: 'vib',     name: 'VIB',           bin: '970441', accountNo: '', accountName: '' },
   { code: 'eximbank',name: 'Eximbank',      bin: '970431', accountNo: '', accountName: '' },
-  { code: 'ocb',     name: 'OCB',           bin: '970448', accountNo: '', accountName: '' },
+  { code: 'ocb',     name: 'OCB (NGUYEN DOAN LUAN)', bin: '970448', accountNo: '591635', accountName: 'NGUYEN DOAN LUAN', qrImage: '/qr/OCB.jpg' },
   { code: 'abbank',  name: 'ABBANK',        bin: '970425', accountNo: '', accountName: '' },
   { code: 'seabank', name: 'SeABank',       bin: '970440', accountNo: '', accountName: '' },
   { code: 'msb',     name: 'MSB',           bin: '970426', accountNo: '', accountName: '' },

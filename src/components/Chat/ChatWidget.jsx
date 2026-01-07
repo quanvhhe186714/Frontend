@@ -64,7 +64,6 @@ const ChatWidget = ({ isAdmin = false }) => {
           data = await messageService.getAllConversations();
           setConversations(data || []);
           setMessages([]);
-    if(conv.sender?._id) loadPendingOrders(conv.sender._id);
         }
       } else {
         // User xem tin nhắn của mình với admin
@@ -111,7 +110,7 @@ const ChatWidget = ({ isAdmin = false }) => {
   // Tắt tự động cuộn xuống khi là admin
   useEffect(() => {
     if (!isAdmin) {
-      scrollToBottom();
+    scrollToBottom();
     }
   }, [messages, isAdmin]);
 
@@ -176,6 +175,9 @@ const ChatWidget = ({ isAdmin = false }) => {
   const handleConversationClick = (conv) => {
     setSelectedConversation(conv);
     setMessages([]);
+    if(conv?.sender?._id){
+      loadPendingOrders(conv.sender._id);
+    }
   };
 
   const getAttachmentUrl = (url = "", isImage = false, originalName = "") => {

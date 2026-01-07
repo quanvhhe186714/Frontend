@@ -115,5 +115,6 @@ const orderService = {
     const res = await api.get(`/orders/by-user/${userId}/pending`);
     return res.data;
   }
+};
 
 export default orderService;

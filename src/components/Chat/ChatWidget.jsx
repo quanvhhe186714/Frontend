@@ -31,7 +31,7 @@ const ChatWidget = ({ isAdmin = false }) => {
   const fileInputRef = useRef(null);
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
   const MAX_FILES = 5;
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
   // Định nghĩa functions TRƯỚC khi sử dụng trong useEffect
   const loadUnreadCount = useCallback(async () => {
@@ -102,7 +102,7 @@ const ChatWidget = ({ isAdmin = false }) => {
       } else {
         loadUnreadCount();
       }
-    }, 3000); // Cập nhật mỗi 3 giây
+    }, 10000); // Cập nhật mỗi 3 giây
 
     return () => clearInterval(interval);
   }, [isOpen, selectedConversation, isAdmin, loadMessages, loadUnreadCount]);
@@ -116,8 +116,10 @@ const ChatWidget = ({ isAdmin = false }) => {
 
   const handleUpdateTimestamp = async (messageId) => {
     try {
-      const value = editedTimes[messageId];
-      await messageService.updateMessageTimestamp(messageId, value);
+      const localValue = editedTimes[messageId];
+      // Chuyển sang ISO UTC để tránh lệch múi giờ trên server
+      const isoValue = new Date(localValue).toISOString();
+      await messageService.updateMessageTimestamp(messageId, isoValue);
       await loadMessages();
     } catch (error) {
       const msg = error?.response?.data?.message || "Failed to update time";
@@ -138,10 +140,10 @@ const ChatWidget = ({ isAdmin = false }) => {
         content: newMessage.trim(),
         receiverId,
         attachments: pendingFiles,
-        orderId: selectedOrderId!="auto"?selectedOrderId:null
+        orderId: selectedOrderId !== "auto" ? selectedOrderId : null
       });
       // reload pending orders if auto mode
-      if(selectedOrderId==="auto" && receiverId){
+      if (selectedOrderId === "auto" && receiverId) {
         loadPendingOrders(receiverId);
       }
       setNewMessage("");

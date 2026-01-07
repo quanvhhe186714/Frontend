@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import messageService from "../../services/message";
+import orderService from "../../services/order";
 import { BASE_URL } from "../../services/apiService";
 import { getAvatarUrl } from "../../utils/avatarHelper";
 import "./ChatWidget.scss";
@@ -14,6 +15,8 @@ const ChatWidget = ({ isAdmin = false }) => {
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [editedTimes, setEditedTimes] = useState({});
+  const [pendingOrders, setPendingOrders] = useState([]);
+  const [selectedOrderId, setSelectedOrderId] = useState("auto");
 
   const formatDateTimeLocal = (dateString) => {
     const d = new Date(dateString);
@@ -61,6 +64,7 @@ const ChatWidget = ({ isAdmin = false }) => {
           data = await messageService.getAllConversations();
           setConversations(data || []);
           setMessages([]);
+    if(conv.sender?._id) loadPendingOrders(conv.sender._id);
         }
       } else {
         // User xem tin nhắn của mình với admin
@@ -104,9 +108,12 @@ const ChatWidget = ({ isAdmin = false }) => {
     return () => clearInterval(interval);
   }, [isOpen, selectedConversation, isAdmin, loadMessages, loadUnreadCount]);
 
+  // Tắt tự động cuộn xuống khi là admin
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (!isAdmin) {
+      scrollToBottom();
+    }
+  }, [messages, isAdmin]);
 
   const handleUpdateTimestamp = async (messageId) => {
     try {
@@ -131,8 +138,13 @@ const ChatWidget = ({ isAdmin = false }) => {
       await messageService.sendMessage({
         content: newMessage.trim(),
         receiverId,
-        attachments: pendingFiles
+        attachments: pendingFiles,
+        orderId: selectedOrderId!="auto"?selectedOrderId:null
       });
+      // reload pending orders if auto mode
+      if(selectedOrderId==="auto" && receiverId){
+        loadPendingOrders(receiverId);
+      }
       setNewMessage("");
       setPendingFiles([]);
       // Reload messages after a short delay to ensure the message is saved
@@ -151,6 +163,14 @@ const ChatWidget = ({ isAdmin = false }) => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const loadPendingOrders = async(userId)=>{
+    try{
+      const data = await orderService.getPendingByUser(userId);
+      setPendingOrders(data||[]);
+      setSelectedOrderId("auto");
+    }catch(err){console.error(err);}
   };
 
   const handleConversationClick = (conv) => {
@@ -408,6 +428,20 @@ const ChatWidget = ({ isAdmin = false }) => {
                   </button>
                   <span className="chat-input__hint">Ctrl+V để dán ảnh/file</span>
                 </div>
+                {isAdmin && selectedConversation && (
+                  <select
+                    value={selectedOrderId}
+                    onChange={(e)=>setSelectedOrderId(e.target.value)}
+                    style={{marginBottom:'4px',padding:'4px',fontSize:'12px'}}
+                  >
+                    <option value="auto">Tự động (đơn sớm nhất)</option>
+                    {pendingOrders.map(o=>(
+                      <option key={o._id} value={o._id}>
+                        {o._id.substring(0,6)} • {o.status} • {new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(o.totalAmount)}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {pendingFiles.length > 0 && (
                   <div className="chat-attachments">
                     {pendingFiles.map((file, idx) => (

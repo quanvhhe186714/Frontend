@@ -109,7 +109,11 @@ const orderService = {
   softDeleteOrder,
   restoreOrder,
   downloadInvoice,
-  assignCustomQRToOrder
-};
+  assignCustomQRToOrder,
+  // Admin: get pending orders by user
+  getPendingByUser: async (userId) => {
+    const res = await api.get(`/orders/by-user/${userId}/pending`);
+    return res.data;
+  }
 
 export default orderService;

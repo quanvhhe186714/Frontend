@@ -172,6 +172,8 @@ const Payment = () => {
       hdbank: 'HDBank',
       bidv: 'BIDV',
       bidv_hieu: 'BIDV',
+      ocb: 'OCB',
+      ocb_ca: 'OCB',
     };
     return bankMap[bank] || bank;
   };
@@ -229,6 +231,7 @@ const Payment = () => {
                     <option value="bidv">BIDV (HONG CON BINH)</option>
                     <option value="bidv_hieu">BIDV (VO MINH HIEU)</option>
                     <option value="ocb">OCB (NGUYEN DOAN LUAN)</option>
+                    <option value="ocb_ca">OCB (NGO VAN CA)</option>
                   </select>
                 </div>
                 

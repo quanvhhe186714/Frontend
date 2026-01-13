@@ -9,7 +9,7 @@ export const BANKS = [
   { code: 'bidv_hieu', name: 'BIDV (VO MINH HIEU)', bin: '970418', accountNo: '8871752191', accountName: 'VO MINH HIEU', qrImage: '/qr/BIDVHIEU.jpg' },
   { code: 'agribank',name: 'Agribank',      bin: '970405', accountNo: '', accountName: '' },
   { code: 'techcom', name: 'Techcombank',   bin: '970407', accountNo: '', accountName: '' },
-  { code: 'acb',     name: 'ACB',           bin: '970416', accountNo: '', accountName: '' },
+  { code: 'acb',     name: 'ACB (NGUYEN THANH NHAN)', bin: '970416', accountNo: '570468', accountName: 'NGUYEN THANH NHAN', qrImage: '/qr/ACB1.jpg' },
   { code: 'sacombank',name:'Sacombank',     bin: '970403', accountNo: '', accountName: '' },
   { code: 'vpbank',  name: 'VPBank',        bin: '970432', accountNo: '', accountName: '' },
   { code: 'shb',     name: 'SHB',           bin: '970443', accountNo: '', accountName: '' },

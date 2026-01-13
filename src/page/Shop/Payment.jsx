@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 // import api from "../../services/apiService";
 import { BANKS, BANK_MAP, buildVietQrUrl } from "../../utils/banks";
 import { getPublicCustomQRs } from "../../services/customQR";
+import { getVisibleBankQRs } from "../../services/bankQR";
 import { recordPaymentFromQR } from "../../services/wallet";
 import { generatePaymentQR } from "../../services/payment";
 import QRCodeModal from "../../components/QRCodeModal/QRCodeModal";
@@ -17,11 +18,37 @@ const Payment = () => {
   const [loading, setLoading] = useState(false);
   const [qrData, setQrData] = useState(null);
   
+  // Bank QR states
+  const [visibleBankQRs, setVisibleBankQRs] = useState([]);
+  const [bankQRsLoading, setBankQRsLoading] = useState(true);
+  
   // Custom QR states
   const [customQRs, setCustomQRs] = useState([]);
   const [customQRsLoading, setCustomQRsLoading] = useState(false);
   const [selectedCustomQR, setSelectedCustomQR] = useState(null);
   const [recordingPayment, setRecordingPayment] = useState(false);
+
+  // Fetch visible bank QR codes
+  useEffect(() => {
+    const fetchVisibleBankQRs = async () => {
+      try {
+        setBankQRsLoading(true);
+        const { data } = await getVisibleBankQRs();
+        setVisibleBankQRs(data);
+        // Set default bank nếu bank hiện tại không còn visible
+        if (data.length > 0 && !data.find(b => b.code === bank)) {
+          setBank(data[0].code);
+        }
+      } catch (error) {
+        console.error("Error fetching visible bank QR codes:", error);
+        // Fallback to BANKS nếu API lỗi
+        setVisibleBankQRs(BANKS.filter(b => b.accountNo));
+      } finally {
+        setBankQRsLoading(false);
+      }
+    };
+    fetchVisibleBankQRs();
+  }, []);
 
   // Kiểm tra nếu có thông tin từ trang QRPayment
   useEffect(() => {
@@ -172,6 +199,7 @@ const Payment = () => {
       hdbank: 'HDBank',
       bidv: 'BIDV',
       bidv_hieu: 'BIDV',
+      acb: 'ACB',
       ocb: 'OCB',
       ocb_ca: 'OCB',
     };
@@ -225,13 +253,19 @@ const Payment = () => {
                   <select
                     value={bank}
                     onChange={(e) => setBank(e.target.value)}
+                    disabled={bankQRsLoading}
                   >
-                    <option value="vietin">VietinBank</option>
-                    <option value="hdbank">HDBank</option>
-                    <option value="bidv">BIDV (HONG CON BINH)</option>
-                    <option value="bidv_hieu">BIDV (VO MINH HIEU)</option>
-                    <option value="ocb">OCB (NGUYEN DOAN LUAN)</option>
-                    <option value="ocb_ca">OCB (NGO VAN CA)</option>
+                    {bankQRsLoading ? (
+                      <option>Đang tải...</option>
+                    ) : visibleBankQRs.length === 0 ? (
+                      <option>Không có ngân hàng nào</option>
+                    ) : (
+                      visibleBankQRs.map((bankOption) => (
+                        <option key={bankOption.code} value={bankOption.code}>
+                          {bankOption.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
                 

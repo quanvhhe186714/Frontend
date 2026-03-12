@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
   try {

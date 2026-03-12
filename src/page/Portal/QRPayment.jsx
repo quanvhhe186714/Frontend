@@ -52,6 +52,8 @@ const QRPayment = () => {
       // Fetch chi tiết đầy đủ từ API
       const { data } = await getPublishedQRDetail(qr._id);
       const qrData = data || qr;
+      setSelectedQR(qrData);
+      setQrDetail(qrData);
       
       // Chuyển sang trang payment với thông tin ngân hàng đã chọn
       navigate("/payment", {

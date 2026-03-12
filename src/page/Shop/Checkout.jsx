@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import orderService from "../../services/order";
 import "./shop.scss";
 import { useNavigate } from "react-router-dom";
-import { PopoverHeader } from "react-bootstrap";
 
 const Checkout = () => {
   const navigate = useNavigate();

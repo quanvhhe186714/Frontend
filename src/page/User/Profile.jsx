@@ -27,10 +27,8 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const [topupAmount, setTopupAmount] = useState("");
-  const [selectedBank, setSelectedBank] = useState("vietin");
-  const [topupInstructions, setTopupInstructions] = useState(null);
-  const [topupLoading, setTopupLoading] = useState(false);
+  const [selectedBank] = useState("vietin");
+  const [topupInstructions] = useState(null);
   const [activeSection, setActiveSection] = useState("account");
   
   // Password change state
@@ -114,31 +112,6 @@ const Profile = () => {
     }
   };
 
-  const handleTopup = async (e) => {
-    e.preventDefault();
-    if (!topupAmount || Number(topupAmount) <= 0) {
-      setMessage("Số tiền nạp không hợp lệ");
-      return;
-    }
-    try {
-      setTopupLoading(true);
-      const { data } = await walletService.createTopupRequest(
-        Number(topupAmount),
-        "bank_transfer",
-        selectedBank
-      );
-      setTopupInstructions(data.instructions);
-      setTransactions((prev) => [data.transaction, ...prev].slice(0, 10));
-      setTopupAmount("");
-      setMessage("Tạo yêu cầu nạp tiền thành công. Vui lòng chuyển khoản theo hướng dẫn.");
-    } catch (error) {
-      const msg = error?.response?.data?.message || "Không thể tạo yêu cầu nạp tiền";
-      setMessage(msg);
-    } finally {
-      setTopupLoading(false);
-      setTimeout(() => setMessage(""), 3000);
-    }
-  };
 
   const pendingOrders = useMemo(
     () => orders.filter((order) => order.status === "pending"),

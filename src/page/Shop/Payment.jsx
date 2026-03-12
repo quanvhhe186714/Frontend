@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 // import api from "../../services/apiService";
-import { BANKS, BANK_MAP, buildVietQrUrl } from "../../utils/banks";
+import { BANKS, BANK_MAP } from "../../utils/banks";
 import { getPublicCustomQRs } from "../../services/customQR";
 import { getVisibleBankQRs } from "../../services/bankQR";
 import { recordPaymentFromQR } from "../../services/wallet";
@@ -48,7 +48,7 @@ const Payment = () => {
       }
     };
     fetchVisibleBankQRs();
-  }, []);
+  }, [bank]);
 
   // Kiểm tra nếu có thông tin từ trang QRPayment
   useEffect(() => {
@@ -193,18 +193,6 @@ const Payment = () => {
     }).format(amount);
   };
 
-  const getBankName = (bank) => {
-    const bankMap = {
-      vietin: 'VietinBank',
-      hdbank: 'HDBank',
-      bidv: 'BIDV',
-      bidv_hieu: 'BIDV',
-      acb: 'ACB',
-      ocb: 'OCB',
-      ocb_ca: 'OCB',
-    };
-    return bankMap[bank] || bank;
-  };
 
   return (
     <div className="payment-page">

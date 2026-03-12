@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import facebookService from "../../services/facebook/facebookService";
 import { getServiceReviews, getServiceRatingSummary } from "../../services/review";
@@ -44,17 +44,7 @@ const FacebookServiceDetail = () => {
     { code: "angry", icon: "😠", label: "Angry" }
   ];
 
-  useEffect(() => {
-    loadService();
-  }, [id]);
-
-  useEffect(() => {
-    if (service && quantity) {
-      calculatePrice();
-    }
-  }, [quantity, service, selectedServer, selectedEmotion]);
-
-  const loadService = async () => {
+  const loadService = useCallback(async () => {
     try {
       const data = await facebookService.getServiceById(id);
       setService(data);
@@ -110,9 +100,13 @@ const FacebookServiceDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
 
-  const calculatePrice = async () => {
+  useEffect(() => {
+    loadService();
+  }, [loadService]);
+
+  const calculatePrice = useCallback(async () => {
     if (!service || !quantity || quantity <= 0) return;
     
     setCalculating(true);
@@ -140,7 +134,13 @@ const FacebookServiceDetail = () => {
     } finally {
       setCalculating(false);
     }
-  };
+  }, [quantity, selectedServer, service]);
+
+  useEffect(() => {
+    if (service && quantity) {
+      calculatePrice();
+    }
+  }, [calculatePrice, quantity, service, selectedServer, selectedEmotion]);
 
   const handleQuickQuantitySelect = (qty) => {
     setQuantity(qty);

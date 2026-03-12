@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createReview, updateReview, deleteReview, getUserReview } from "../../services/review";
 import "./ReviewForm.scss";
 
@@ -11,18 +11,7 @@ const ReviewForm = ({ productId, serviceId, onReviewSubmitted, onReviewUpdated, 
   const [loadingReview, setLoadingReview] = useState(true);
   const [userInfo, setUserInfo] = useState(null);
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("userInfo") || "{}");
-    setUserInfo(user);
-    
-    if (user._id) {
-      loadUserReview();
-    } else {
-      setLoadingReview(false);
-    }
-  }, [productId, serviceId]);
-
-  const loadUserReview = async () => {
+  const loadUserReview = useCallback(async () => {
     try {
       setLoadingReview(true);
       const review = await getUserReview(productId, serviceId);
@@ -36,7 +25,18 @@ const ReviewForm = ({ productId, serviceId, onReviewSubmitted, onReviewUpdated, 
     } finally {
       setLoadingReview(false);
     }
-  };
+  }, [productId, serviceId]);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    setUserInfo(user);
+    
+    if (user._id) {
+      loadUserReview();
+    } else {
+      setLoadingReview(false);
+    }
+  }, [loadUserReview]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

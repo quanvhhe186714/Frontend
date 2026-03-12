@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllUsers, deleteUser, updateUser, loginAsUser, updateUserWalletBalance, deleteUserOrderHistory, getUserOrders, getUserTransactions, promoteUser, demoteUser } from '../../services/user.js';
+import { getAllUsers, deleteUser, loginAsUser, updateUserWalletBalance, deleteUserOrderHistory, getUserOrders, getUserTransactions, promoteUser, demoteUser } from '../../services/user.js';
 import orderService from '../../services/order.js';
 import walletService from '../../services/wallet.js';
 
@@ -52,15 +52,6 @@ const AdminUserList = () => {
     }
   };
 
-  const handleRoleChange = async (id, name, newRole) => {
-      try {
-          await updateUser(id, name, newRole); 
-          setMessage('Role updated!');
-          fetchUsers(); 
-      } catch (error) {
-          setMessage('Error updating role');
-      }
-  };
 
   // Promote user lên admin
   const handlePromote = async (userId, userEmail) => {

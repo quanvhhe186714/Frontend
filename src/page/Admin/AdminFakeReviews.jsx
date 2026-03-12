@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllReviews, getAllFakeReviews, createFakeReview, updateReview, deleteReview } from '../../services/review';
+import { getAllReviews, createFakeReview, updateReview, deleteReview } from '../../services/review';
 import api from '../../services/apiService';
 
 const AdminFakeReviews = () => {
@@ -23,13 +23,7 @@ const AdminFakeReviews = () => {
   });
   const [formLoading, setFormLoading] = useState(false);
 
-  useEffect(() => {
-    fetchReviews();
-    fetchProducts();
-    fetchServices();
-  }, [filterType]);
-
-  const fetchReviews = async () => {
+  const fetchReviews = React.useCallback(async () => {
     try {
       setLoading(true);
       const params = {};
@@ -46,7 +40,13 @@ const AdminFakeReviews = () => {
       setMessage(error.response?.data?.message || 'Lỗi khi tải danh sách đánh giá');
       setLoading(false);
     }
-  };
+  }, [filterType]);
+
+  useEffect(() => {
+    fetchReviews();
+    fetchProducts();
+    fetchServices();
+  }, [fetchReviews]);
 
   const fetchProducts = async () => {
     try {

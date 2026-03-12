@@ -5,7 +5,6 @@ import categoryService from "../../services/category";
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({
@@ -30,14 +29,12 @@ const AdminProducts = () => {
   };
 
   const fetchProducts = async () => {
-    setLoading(true);
     try {
       const data = await productService.getProducts();
       setProducts(data);
     } catch (error) {
       console.error(error);
     }
-    setLoading(false);
   };
 
   const handleSubmit = async (e) => {

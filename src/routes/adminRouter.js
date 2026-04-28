@@ -3,7 +3,7 @@ const AdminRoute = ({ children }) => {
   try {
     const userInfoStr = localStorage.getItem("userInfo");
     if (!userInfoStr) {
-      return <Navigate to="/events" />;
+      return <Navigate to="/login" />;
     }
     const userInfo = JSON.parse(userInfoStr);
     if (
@@ -11,7 +11,7 @@ const AdminRoute = ({ children }) => {
       !userInfo?.user?.role ||
       userInfo.user.role !== "admin"
     ) {
-      return <Navigate to="/student" />;
+      return <Navigate to="/" />;
     }
     return children;
   } catch (e) {

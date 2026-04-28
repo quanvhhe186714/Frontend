@@ -1,383 +1,283 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import facebookService from "../../services/facebook/facebookService";
 import { getServiceRatingSummary } from "../../services/review";
+import { getWallet } from "../../services/wallet";
 import ServiceStatusBadge from "../../components/ServiceStatusBadge/ServiceStatusBadge";
-import "./portal.scss";
+import "./dich-vu.scss";
+
+const PLATFORMS = [
+  { key: "facebook", label: "Facebook", icon: "F", color: "#1877f2" },
+  { key: "tiktok", label: "TikTok", icon: "T", color: "#ff0050" },
+  { key: "youtube", label: "YouTube", icon: "Y", color: "#ff0000" },
+  { key: "instagram", label: "Instagram", icon: "I", color: "#e1306c" },
+  { key: "twitter", label: "Twitter (X)", icon: "X", color: "#1da1f2" },
+  { key: "telegram", label: "Telegram", icon: "TG", color: "#229ed9" },
+];
+
+const SERVICE_TYPES = {
+  all: "Tất cả",
+  like: "Like",
+  follow: "Follow",
+  view: "View",
+  comment: "Comment",
+  share: "Share",
+  live: "Livestream",
+};
+
+const isImageIcon = (icon) => /^https?:\/\//i.test(icon || "");
+
+const ServiceIcon = ({ icon, fallback = "S", className = "" }) => {
+  if (isImageIcon(icon)) {
+    return <img className={`${className} image-icon`} src={icon} alt="" loading="lazy" />;
+  }
+  return <span className={className}>{icon || fallback}</span>;
+};
 
 const DichVu = () => {
   const navigate = useNavigate();
-  const [facebookServices, setFacebookServices] = useState([]);
+  const [activePlatform, setActivePlatform] = useState("facebook");
+  const [activeType, setActiveType] = useState("all");
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [serviceStatuses, setServiceStatuses] = useState({});
-  const [serviceRatingSummaries, setServiceRatingSummaries] = useState({});
+  const [ratingSummaries, setRatingSummaries] = useState({});
+  const [wallet, setWallet] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    loadFacebookServices();
+  const userInfo = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("userInfo"));
+    } catch {
+      return null;
+    }
   }, []);
 
-
-  const loadFacebookServices = async () => {
-    try {
-      const data = await facebookService.getServices();
-      setFacebookServices(data);
-      
-      // Load statuses and rating summaries for all services
-      const statusPromises = data.map(async (service) => {
-        try {
-          const status = await facebookService.getServiceStatus(service._id);
-          return { id: service._id, status };
-        } catch (error) {
-          console.error(`Failed to load status for service ${service._id}`, error);
-          return { id: service._id, status: null };
-        }
-      });
-      
-      const ratingPromises = data.map(async (service) => {
-        try {
-          const summary = await getServiceRatingSummary(service._id);
-          return { id: service._id, summary };
-        } catch (error) {
-          console.error(`Failed to load rating for service ${service._id}`, error);
-          return { id: service._id, summary: { averageRating: 0, totalReviews: 0 } };
-        }
-      });
-      
-      const [statuses, ratings] = await Promise.all([
-        Promise.all(statusPromises),
-        Promise.all(ratingPromises)
-      ]);
-      
-      const statusMap = {};
-      statuses.forEach(({ id, status }) => {
-        if (status) {
-          statusMap[id] = status;
-        }
-      });
-      setServiceStatuses(statusMap);
-      
-      const ratingMap = {};
-      ratings.forEach(({ id, summary }) => {
-        ratingMap[id] = summary;
-      });
-      setServiceRatingSummaries(ratingMap);
-    } catch (error) {
-      console.error("Failed to load Facebook services", error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (userInfo) {
+      getWallet()
+        .then((response) => setWallet(response?.data?.wallet || response?.data))
+        .catch(() => {});
     }
-  };
+  }, [userInfo]);
 
+  useEffect(() => {
+    const loadServices = async () => {
+      setLoading(true);
+      try {
+        const data = await facebookService.getServices(activePlatform);
+        setServices(data);
+        const ratings = await Promise.all(
+          data.map(async (service) => {
+            try {
+              const rating = await getServiceRatingSummary(service._id);
+              return { id: service._id, rating };
+            } catch {
+              return { id: service._id, rating: { averageRating: 0, totalReviews: 0 } };
+            }
+          })
+        );
+        const ratingMap = {};
+        ratings.forEach(({ id, rating }) => {
+          ratingMap[id] = rating;
+        });
+        setRatingSummaries(ratingMap);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Tất cả các dịch vụ hardcoded để tìm kiếm
-  const allHardcodedServices = useMemo(() => {
-    return [
-      // TikTok
-      { name: "Tăng lượt tim video", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng follow tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng view tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng comment tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng lượt share tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Thêm vào yêu thích", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng mắt livestream", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng comment livestream", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng tim livestream", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng share livestream", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Điểm chiến đấu (PK) Tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng like comment tiktok", icon: "🎵", category: "TikTok", onClick: () => navigate("/dich-vu") },
-      // YouTube
-      { name: "Tăng like video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng like short video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng view video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng view video short", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng sub Youtube", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng comment video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng like comment video", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng mắt livestream", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      { name: "View youtube 4000h", icon: "▶️", category: "Youtube", onClick: () => navigate("/dich-vu") },
-      // Twitter
-      { name: "Tăng Like", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng Follow", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng lượt xem", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng Retweet", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng Comment", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng mắt livestream", icon: "𝕏", category: "Twitter", onClick: () => navigate("/dich-vu") },
-      // Telegram
-      { name: "Member & Sub Telegram", icon: "✈️", category: "Telegram", onClick: () => navigate("/products") },
-      { name: "View Bài Viết Telegram", icon: "✈️", category: "Telegram", onClick: () => navigate("/products") },
-      { name: "Cảm Xúc Bài Viết Telegram", icon: "✈️", category: "Telegram", onClick: () => navigate("/products") },
-      { name: "Referrals for Game Bots", icon: "✈️", category: "Telegram", onClick: () => navigate("/products") },
-      // Instagram
-      { name: "Tăng lượt like", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng lượt comment", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng lượt theo dõi", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng lượt xem", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") },
-      { name: "Tăng mắt livestream", icon: "📸", category: "Instagram", onClick: () => navigate("/dich-vu") }
-    ];
-  }, [navigate]);
+    loadServices();
+  }, [activePlatform]);
 
-  // Tìm kiếm dịch vụ
-  const filteredFacebookServices = useMemo(() => {
-    if (!searchQuery.trim()) return facebookServices;
-    const query = searchQuery.toLowerCase().trim();
-    return facebookServices.filter(service => 
-      service.name.toLowerCase().includes(query) ||
-      service.description?.toLowerCase().includes(query)
-    );
-  }, [facebookServices, searchQuery]);
+  const filtered = useMemo(() => {
+    let result = services;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (service) =>
+          service.name.toLowerCase().includes(query) ||
+          service.description?.toLowerCase().includes(query)
+      );
+    }
+    if (activeType !== "all") {
+      result = result.filter((service) => {
+        const type = service.serviceType?.toLowerCase() || "";
+        if (activeType === "like") return type.includes("like");
+        if (activeType === "follow") return type.includes("follow") || type.includes("member");
+        if (activeType === "view") return type.includes("view");
+        if (activeType === "comment") return type.includes("comment");
+        if (activeType === "share") return type.includes("share");
+        if (activeType === "live") return type.includes("livestream");
+        return true;
+      });
+    }
+    return result;
+  }, [services, searchQuery, activeType]);
 
-  const filteredHardcodedServices = useMemo(() => {
-    if (!searchQuery.trim()) return allHardcodedServices;
-    const query = searchQuery.toLowerCase().trim();
-    return allHardcodedServices.filter(service => 
-      service.name.toLowerCase().includes(query) ||
-      service.category.toLowerCase().includes(query)
-    );
-  }, [allHardcodedServices, searchQuery]);
-
-
-  if (loading) {
-    return (
-      <div className="portal-page">
-        <div className="portal-hero">
-          <h2>Dịch vụ số</h2>
-          <div>Đang tải...</div>
-        </div>
-      </div>
-    );
-  }
+  const activePlatformInfo = PLATFORMS.find((platform) => platform.key === activePlatform);
+  const formatPrice = (value) => new Intl.NumberFormat("vi-VN").format(value);
+  const formatBalance = (value) =>
+    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
 
   return (
-    <div className="portal-page">
-      <div className="portal-hero">
-        <h2>Dịch vụ số</h2>
-        <div>Chọn dịch vụ bạn quan tâm để xem chi tiết và đặt mua</div>
-      </div>
+    <div className="dv-page">
+      <div className="dv-header">
+        <div className="dv-header-left">
+          <button className="dv-menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Mở menu">
+            ☰
+          </button>
+          <h1 className="dv-title">Dịch vụ số</h1>
+        </div>
 
-      {/* Search Bar */}
-      <div className="service-search-container">
-        <div className="service-search-bar">
+        <div className="dv-search-wrap">
+          <span className="dv-search-icon">⌕</span>
           <input
-            type="text"
+            className="dv-search"
             placeholder="Tìm kiếm dịch vụ..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
+            onChange={(event) => setSearchQuery(event.target.value)}
           />
-          <span className="search-icon">🔍</span>
+        </div>
+
+        <div className="dv-header-right">
+          {userInfo ? (
+            <div className="dv-wallet">
+              <span className="dv-wallet-label">Số dư</span>
+              <span className="dv-wallet-amount">{wallet ? formatBalance(wallet.balance) : "---"}</span>
+              <button className="dv-topup-btn" onClick={() => navigate("/qr-payment")}>
+                + Nạp tiền
+              </button>
+            </div>
+          ) : (
+            <button className="dv-login-btn" onClick={() => navigate("/login")}>
+              Đăng nhập
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="market-list">
-          {/* Quick Actions layout like reference images */}
-          {(searchQuery.trim() === "" || filteredFacebookServices.length > 0) && (
-            <div className="svc-section">
-              <div className="svc-title">Dịch vụ buff Facebook</div>
-              <div className="svc-grid">
-                {searchQuery.trim() === "" ? (
-                  // Hiển thị tất cả Facebook services khi không có search
-                  <>
-                    {facebookServices.length > 0 ? (
-                      facebookServices.map((service) => {
-                        const status = serviceStatuses[service._id];
-                        const ratingSummary = serviceRatingSummaries[service._id] || { averageRating: 0, totalReviews: 0 };
-                        const unitPrice = service.basePrice || 0;
-                        const unit = parseInt(service.unit) || 1000;
-                        const pricePerUnit = Math.ceil(unitPrice / (unit / 1000)); // Price per 1000
-                        
-                        return (
-                        <div 
-                          key={service._id} 
-                          className="svc-item" 
-                          onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
-                        >
-                            <div className="svc-item-header">
-                          <span className="svc-icon">{service.icon || "👍"}</span>
-                          <strong>{service.name}</strong>
-                              {status && (
-                                <ServiceStatusBadge 
-                                  status={status.status} 
-                                  dropRate={status.dropRate}
-                                  showDropRate={false}
-                                />
-                              )}
-                            </div>
-                            {ratingSummary.totalReviews > 0 ? (
-                              <div style={{ marginBottom: '4px', fontSize: '12px', color: '#666' }}>
-                                <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
-                                <span style={{ marginLeft: '6px' }}>({ratingSummary.totalUsers || ratingSummary.totalReviews} người)</span>
-                              </div>
-                            ) : (
-                              <div style={{ marginBottom: '4px', fontSize: '12px', color: '#999', fontStyle: 'italic' }}>
-                                Chưa có đánh giá
-                              </div>
-                            )}
-                            <div className="svc-item-price">
-                              {pricePerUnit > 0 ? (
-                                <span className="price-text">{new Intl.NumberFormat('vi-VN').format(pricePerUnit)}₫</span>
-                              ) : (
-                                <span className="price-text">Liên hệ</span>
-                              )}
-                            </div>
-                        </div>
-                        );
-                      })
-                    ) : (
-                      ["Tăng like bài viết","Tăng sub/follow","Tăng like fanpage","Tăng comment","Tăng like comment","Tăng share bài viết","Tăng share vào group","Tăng share livestream","Đánh giá 5* sao FANPAGE","Tăng mắt livestream","Tăng member group","Tăng view video","Tăng view story","Tăng like reels","Tăng view reels","Tăng comment reels","Tăng share reels"].map((label, idx) => (
-                        <div key={idx} className="svc-item" onClick={() => navigate("/dich-vu")}>
-                          <span className="svc-icon">👍</span><strong>{label}</strong>
-                        </div>
-                      ))
-                    )}
-                  </>
-                ) : (
-                  // Hiển thị kết quả tìm kiếm
-                  filteredFacebookServices.map((service) => {
-                    const status = serviceStatuses[service._id];
-                    const ratingSummary = serviceRatingSummaries[service._id] || { averageRating: 0, totalReviews: 0 };
-                    const unitPrice = service.basePrice || 0;
-                    const unit = parseInt(service.unit) || 1000;
-                    const pricePerUnit = Math.ceil(unitPrice / (unit / 1000));
-                    
-                    return (
-                    <div 
-                      key={service._id} 
-                      className="svc-item" 
-                      onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
-                    >
-                        <div className="svc-item-header">
-                      <span className="svc-icon">{service.icon || "👍"}</span>
-                      <strong>{service.name}</strong>
-                          {status && (
-                            <ServiceStatusBadge 
-                              status={status.status} 
-                              dropRate={status.dropRate}
-                              showDropRate={false}
-                            />
-                          )}
-                        </div>
-                        {ratingSummary.totalReviews > 0 ? (
-                          <div style={{ marginBottom: '4px', fontSize: '12px', color: '#666' }}>
-                            <span>⭐ {ratingSummary.averageRating.toFixed(1)}</span>
-                            <span style={{ marginLeft: '6px' }}>({ratingSummary.totalReviews})</span>
+      <div className="dv-body">
+        <aside className={`dv-sidebar ${sidebarOpen ? "open" : ""}`}>
+          <div className="dv-sidebar-inner">
+            <div className="dv-sidebar-title">Nền tảng</div>
+            {PLATFORMS.map((platform) => (
+              <button
+                key={platform.key}
+                className={`dv-platform-btn ${activePlatform === platform.key ? "active" : ""}`}
+                style={activePlatform === platform.key ? { borderLeftColor: platform.color } : {}}
+                onClick={() => {
+                  setActivePlatform(platform.key);
+                  setActiveType("all");
+                  setSidebarOpen(false);
+                }}
+              >
+                <span className="dv-platform-icon">{platform.icon}</span>
+                <span>{platform.label}</span>
+              </button>
+            ))}
+
+            <div className="dv-sidebar-divider" />
+            <button className="dv-sidebar-link" onClick={() => navigate("/qr-payment")}>
+              Nạp tiền
+            </button>
+            <button className="dv-sidebar-link" onClick={() => navigate("/transaction-history")}>
+              Lịch sử giao dịch
+            </button>
+            <button className="dv-sidebar-link" onClick={() => navigate("/cart")}>
+              Giỏ hàng
+            </button>
+          </div>
+        </aside>
+        {sidebarOpen && <div className="dv-overlay" onClick={() => setSidebarOpen(false)} />}
+
+        <main className="dv-main">
+          <div className="dv-platform-header">
+            <span className="dv-platform-hero-icon">{activePlatformInfo?.icon}</span>
+            <span className="dv-platform-hero-name">Dịch vụ buff {activePlatformInfo?.label}</span>
+          </div>
+
+          <div className="dv-subtabs">
+            {Object.entries(SERVICE_TYPES).map(([key, label]) => (
+              <button
+                key={key}
+                className={`dv-subtab ${activeType === key ? "active" : ""}`}
+                onClick={() => setActiveType(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div className="dv-loading">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="dv-skeleton" />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="dv-empty">
+              <div className="dv-empty-icon">⌕</div>
+              <p>Không tìm thấy dịch vụ nào</p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveType("all");
+                }}
+              >
+                Xem tất cả
+              </button>
+            </div>
+          ) : (
+            <div className="dv-grid">
+              {filtered.map((service) => {
+                const rating = ratingSummaries[service._id] || { averageRating: 0, totalReviews: 0 };
+                const unit = parseInt(service.unit, 10) || 1000;
+                const price = Math.ceil((service.basePrice || 0) / (unit / 1000));
+
+                return (
+                  <div
+                    key={service._id}
+                    className="dv-card"
+                    onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                  >
+                    <div className="dv-card-top">
+                      <ServiceIcon className="dv-card-icon" icon={service.icon} />
+                      <div className="dv-card-info">
+                        <div className="dv-card-name">{service.name}</div>
+                        {rating.totalReviews > 0 ? (
+                          <div className="dv-card-rating">
+                            ★ {rating.averageRating?.toFixed(1)} ({rating.totalReviews})
                           </div>
                         ) : (
-                          <div style={{ marginBottom: '4px', fontSize: '12px', color: '#999', fontStyle: 'italic' }}>
-                            Chưa có đánh giá
-                          </div>
+                          <div className="dv-card-rating muted">Chưa có đánh giá</div>
                         )}
-                        <div className="svc-item-price">
-                          {pricePerUnit > 0 ? (
-                            <span className="price-text">{new Intl.NumberFormat('vi-VN').format(pricePerUnit)}₫</span>
-                          ) : (
-                            <span className="price-text">Liên hệ</span>
-                          )}
-                        </div>
+                      </div>
+                      <ServiceStatusBadge status={service.status} dropRate={service.dropRate} showDropRate={false} />
                     </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          )}
 
-          {/* TikTok Services */}
-          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "TikTok")) && (
-            <div className="svc-section">
-              <div className="svc-title">Dịch vụ buff Tiktok</div>
-              <div className="svc-grid">
-                {filteredHardcodedServices
-                  .filter(s => s.category === "TikTok")
-                  .map((service, idx) => (
-                    <div key={idx} className="svc-item" onClick={service.onClick}>
-                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
+                    <div className="dv-card-meta">
+                      <span>{service.processingTime || 5}-{service.completionTime || 60} phút</span>
+                      <span>BH {service.warrantyDays || 30} ngày</span>
                     </div>
-                  ))}
-              </div>
-            </div>
-          )}
 
-          {/* YouTube Services */}
-          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "Youtube")) && (
-            <div className="svc-section">
-              <div className="svc-title">Dịch vụ buff Youtube</div>
-              <div className="svc-grid">
-                {filteredHardcodedServices
-                  .filter(s => s.category === "Youtube")
-                  .map((service, idx) => (
-                    <div key={idx} className="svc-item" onClick={service.onClick}>
-                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
+                    <div className="dv-card-footer">
+                      <span className="dv-card-price">
+                        Từ {formatPrice(price)}đ/{service.unit || "1000"} {service.unitLabel || "lượt"}
+                      </span>
+                      <button className="dv-card-btn">Đặt ngay →</button>
                     </div>
-                  ))}
-              </div>
+                  </div>
+                );
+              })}
             </div>
           )}
-
-          {/* Twitter Services */}
-          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "Twitter")) && (
-            <div className="svc-section">
-              <div className="svc-title">Dịch vụ buff Twitter (X)</div>
-              <div className="svc-grid">
-                {filteredHardcodedServices
-                  .filter(s => s.category === "Twitter")
-                  .map((service, idx) => (
-                    <div key={idx} className="svc-item" onClick={service.onClick}>
-                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* Telegram Services */}
-          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "Telegram")) && (
-            <div className="svc-section">
-              <div className="svc-title">Dịch vụ buff Telegram</div>
-              <div className="svc-grid">
-                {filteredHardcodedServices
-                  .filter(s => s.category === "Telegram")
-                  .map((service, idx) => (
-                    <div key={idx} className="svc-item" onClick={service.onClick}>
-                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* Instagram Services */}
-          {(searchQuery.trim() === "" || filteredHardcodedServices.some(s => s.category === "Instagram")) && (
-            <div className="svc-section">
-              <div className="svc-title">Dịch vụ buff Instagram</div>
-              <div className="svc-grid">
-                {filteredHardcodedServices
-                  .filter(s => s.category === "Instagram")
-                  .map((service, idx) => (
-                    <div key={idx} className="svc-item" onClick={service.onClick}>
-                      <span className="svc-icon">{service.icon}</span><strong>{service.name}</strong>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* No results message */}
-          {searchQuery.trim() !== "" && 
-           filteredFacebookServices.length === 0 && 
-           filteredHardcodedServices.length === 0 && (
-            <div className="service-card">
-              <div className="meta">
-                <h3>Không tìm thấy dịch vụ</h3>
-                <p>Vui lòng thử từ khóa khác</p>
-              </div>
-            </div>
-          )}
-        </div>
+        </main>
+      </div>
     </div>
   );
 };
 
 export default DichVu;
-
-

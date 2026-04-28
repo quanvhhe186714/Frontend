@@ -1,9 +1,10 @@
 import api from "../../services/apiService";
 
 const facebookService = {
-  // Lấy tất cả dịch vụ
-  getServices: async () => {
-    const response = await api.get("/facebook-services");
+  // Lấy tất cả dịch vụ (có thể filter theo platform)
+  getServices: async (platform = null) => {
+    const url = platform ? `/facebook-services?platform=${platform}` : "/facebook-services";
+    const response = await api.get(url);
     return response.data;
   },
 

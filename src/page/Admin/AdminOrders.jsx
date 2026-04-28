@@ -1,12 +1,17 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import orderService from "../../services/order";
 import { getAllCustomQRs } from "../../services/customQR";
+
+const statusOptions = ["pending", "paid", "delivered", "completed", "failed", "cancelled"];
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [editedDates, setEditedDates] = useState({});
   const [customQRs, setCustomQRs] = useState([]);
   const [selectedQRForOrder, setSelectedQRForOrder] = useState({});
+  const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const formatDateTimeLocal = (dateString) => {
     const d = new Date(dateString);
@@ -19,52 +24,64 @@ const AdminOrders = () => {
   };
 
   const fetchOrders = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await orderService.getAllOrders();
-      // #region agent log
-      console.log('[DEBUG] fetchOrders - data received:', { isArray: Array.isArray(data), type: typeof data, data });
-      fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminOrders.jsx:23',message:'fetchOrders - data received',data:{isArray:Array.isArray(data),type:typeof data,value:data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      // Ensure data is always an array
       const ordersArray = Array.isArray(data) ? data : [];
       setOrders(ordersArray);
       const initialDates = {};
-      ordersArray.forEach((o) => {
-        initialDates[o._id] = formatDateTimeLocal(o.createdAt);
+      ordersArray.forEach((order) => {
+        initialDates[order._id] = formatDateTimeLocal(order.createdAt);
       });
       setEditedDates(initialDates);
     } catch (error) {
-      // #region agent log
-      console.error('[DEBUG] fetchOrders - error:', error);
-      fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminOrders.jsx:32',message:'fetchOrders - error',data:{error:error?.message,stack:error?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      console.error(error);
-      setOrders([]); // Set empty array on error
+      setMessage(error?.response?.data?.message || "Khong the tai danh sach don hang");
+      setOrders([]);
+    } finally {
+      setLoading(false);
     }
   }, []);
+
+  const fetchCustomQRs = async () => {
+    try {
+      const response = await getAllCustomQRs({ isActive: true });
+      const data = response?.data || response;
+      setCustomQRs(Array.isArray(data) ? data : []);
+    } catch {
+      setCustomQRs([]);
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
     fetchCustomQRs();
   }, [fetchOrders]);
 
-  const fetchCustomQRs = async () => {
+  const filteredOrders = useMemo(() => {
+    if (filter === "all") return orders;
+    return orders.filter((order) => order.status === filter);
+  }, [orders, filter]);
+
+  const money = (value) =>
+    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value || 0);
+
+  const updateTimestamp = async (id) => {
     try {
-      const data = await getAllCustomQRs({ isActive: true });
-      // #region agent log
-      console.log('[DEBUG] fetchCustomQRs - data received:', { isArray: Array.isArray(data), type: typeof data, data });
-      fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminOrders.jsx:42',message:'fetchCustomQRs - data received',data:{isArray:Array.isArray(data),type:typeof data,value:data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
-      // Ensure data is always an array
-      const qrsArray = Array.isArray(data) ? data : [];
-      setCustomQRs(qrsArray);
+      await orderService.updateOrderTimestamp(id, editedDates[id]);
+      setMessage("Da cap nhat thoi gian don hang");
+      fetchOrders();
     } catch (error) {
-      // #region agent log
-      console.error('[DEBUG] fetchCustomQRs - error:', error);
-      fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminOrders.jsx:46',message:'fetchCustomQRs - error',data:{error:error?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
-      console.error("Failed to load custom QR codes:", error);
-      setCustomQRs([]); // Set empty array on error
+      setMessage(error?.response?.data?.message || "Khong the cap nhat thoi gian");
+    }
+  };
+
+  const updateStatus = async (id, status) => {
+    try {
+      await orderService.updateOrderStatus(id, status);
+      setMessage(`Da chuyen don hang sang ${status}`);
+      fetchOrders();
+    } catch (error) {
+      setMessage(error?.response?.data?.message || "Khong the cap nhat trang thai");
     }
   };
 
@@ -72,139 +89,136 @@ const AdminOrders = () => {
     try {
       const customQRId = selectedQRForOrder[orderId] || null;
       await orderService.assignCustomQRToOrder(orderId, customQRId);
-      fetchOrders();
+      setMessage(customQRId ? "Da gan QR cho don hang" : "Da bo QR khoi don hang");
       setSelectedQRForOrder((prev) => ({ ...prev, [orderId]: null }));
+      fetchOrders();
     } catch (error) {
-      const msg = error?.response?.data?.message || "Failed to assign QR code";
-      alert(msg);
+      setMessage(error?.response?.data?.message || "Khong the gan QR");
     }
   };
 
-  const updateTimestamp = async (id) => {
-    try {
-      const value = editedDates[id];
-      await orderService.updateOrderTimestamp(id, value);
-      fetchOrders();
-    } catch (error) {
-      const msg = error?.response?.data?.message || "Failed to update time";
-      alert(msg);
+  const renderItem = (item, index) => {
+    if (item.type === "service") {
+      const urls = item.serviceUrls || {};
+      return (
+        <li key={index}>
+          <strong>{item.name}</strong>
+          <div className="admin-order-meta">
+            {new Intl.NumberFormat("vi-VN").format(item.serviceQuantity || 0)}{" "}
+            {item.serviceUnitLabel || "luot"} | {money(item.price)}
+          </div>
+          {Object.entries(urls).map(([key, value]) => (
+            <div className="admin-order-link" key={key}>
+              {key}: <a href={value} target="_blank" rel="noreferrer">{value}</a>
+            </div>
+          ))}
+          {item.serviceServer?.name && <div className="admin-order-meta">Server: {item.serviceServer.name}</div>}
+          {item.serviceEmotion && <div className="admin-order-meta">Cam xuc: {item.serviceEmotion}</div>}
+        </li>
+      );
     }
-  };
 
-  const updateStatus = async (id, status) => {
-    try {
-      await orderService.updateOrderStatus(id, status);
-      fetchOrders();
-    } catch (error) {
-      const msg = error?.response?.data?.message || "Failed to update status";
-      alert(msg);
-    }
+    return (
+      <li key={index}>
+        <strong>{item.name}</strong> x {item.quantity} | {money(item.price * item.quantity)}
+      </li>
+    );
   };
 
   return (
     <div>
       <h3>Manage Orders</h3>
-      <table className="admin-table">
-        <thead>
+      <div className="admin-filters">
+        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="all">All statuses</option>
+          {statusOptions.map((status) => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </select>
+        <button className="outline-btn" onClick={fetchOrders} disabled={loading}>
+          Refresh
+        </button>
+      </div>
+
+      {message && <p className="info-text">{message}</p>}
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <table className="admin-table">
+          <thead>
             <tr>
-                <th>Order ID</th>
-                <th>User</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Edit Time</th>
-                <th>Actions</th>
+              <th>Order</th>
+              <th>User</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
             </tr>
-        </thead>
-        <tbody>
-            {Array.isArray(orders) ? orders.map(o => {
-              // #region agent log
-              fetch('http://127.0.0.1:7243/ingest/184732e4-e99b-4d9a-b389-4ce4ab8b11ff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminOrders.jsx:98',message:'orders.map - checking order.items',data:{orderId:o?._id,itemsIsArray:Array.isArray(o?.items),itemsType:typeof o?.items,itemsValue:o?.items},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-              // #endregion
-              return (
-                <tr key={o._id}>
-                    <td>{o._id.substring(0, 8)}...</td>
-                    <td>{o.user?.name || "Unknown"}</td>
-                    <td>
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(o.totalAmount)}
-                    </td>
-                    <td>
-                        <span className={`status ${o.status}`}>{o.status}</span>
-                    </td>
-                    <td>{new Date(o.createdAt).toLocaleString()}</td>
-                    <td>
-                      <input
-                        type="datetime-local"
-                        value={editedDates[o._id] || ""}
-                        onChange={(e) => setEditedDates((prev) => ({ ...prev, [o._id]: e.target.value }))}
-                      />
-                      <button className="edit-btn" onClick={() => updateTimestamp(o._id)}>Save</button>
-                    </td>
-                    <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                          {o.status === "pending" && (
-                              <button className="edit-btn" onClick={() => updateStatus(o._id, "paid")}>Mark Paid</button>
-                          )}
-                          {o.status === "paid" && (
-                              <button className="edit-btn" onClick={() => updateStatus(o._id, "delivered")}>Mark Delivered</button>
-                          )}
-                          {o.invoicePath && (
-                              <button 
-                                  className="edit-btn" 
-                                  onClick={async () => {
-                                      try {
-                                          await orderService.downloadInvoice(o._id);
-                                      } catch (error) {
-                                          alert(error.response?.data?.message || 'Lỗi khi tải invoice');
-                                      }
-                                  }}
-                                  style={{ marginRight: '5px' }}
-                              >
-                                  📄 Download Invoice
-                              </button>
-                          )}
-                          <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginTop: '5px' }}>
-                            <select
-                              value={selectedQRForOrder[o._id] || (o.customQRCode?._id || '')}
-                              onChange={(e) => setSelectedQRForOrder((prev) => ({ ...prev, [o._id]: e.target.value || null }))}
-                              style={{ padding: '4px', fontSize: '12px', flex: 1 }}
-                            >
-                              <option value="">-- Chọn QR code --</option>
-                              {Array.isArray(customQRs) ? customQRs.map((qr) => (
-                                <option key={qr._id} value={qr._id}>
-                                  {qr.name}
-                                </option>
-                              )) : null}
-                            </select>
-                            <button
-                              className="edit-btn"
-                              onClick={() => assignQRToOrder(o._id)}
-                              style={{ fontSize: '11px', padding: '4px 8px' }}
-                            >
-                              Gán QR
-                            </button>
-                          </div>
-                          {o.customQRCode && (
-                            <span style={{ fontSize: '11px', color: '#28a745' }}>
-                              QR: {o.customQRCode.name}
-                            </span>
-                          )}
-                          <button className="delete-btn" onClick={() => updateStatus(o._id, "failed")}>Fail</button>
-                        </div>
-                    </td>
-                </tr>
-              );
-            }) : (
-              <tr><td colSpan="7">Loading orders...</td></tr>
+          </thead>
+          <tbody>
+            {filteredOrders.map((order) => (
+              <tr key={order._id}>
+                <td>#{order._id.substring(0, 8)}</td>
+                <td>
+                  <strong>{order.user?.name || "Unknown"}</strong>
+                  <div className="admin-order-meta">{order.user?.email}</div>
+                  {order.paymentDetails?.telegramUsername && (
+                    <div className="admin-order-meta">Telegram: {order.paymentDetails.telegramUsername}</div>
+                  )}
+                </td>
+                <td>
+                  <ul className="admin-order-items">
+                    {(order.items || []).map(renderItem)}
+                  </ul>
+                </td>
+                <td>{money(order.totalAmount)}</td>
+                <td><span className={`status ${order.status}`}>{order.status}</span></td>
+                <td>
+                  <input
+                    type="datetime-local"
+                    value={editedDates[order._id] || ""}
+                    onChange={(e) => setEditedDates((prev) => ({ ...prev, [order._id]: e.target.value }))}
+                  />
+                  <button className="edit-btn" onClick={() => updateTimestamp(order._id)}>Save</button>
+                </td>
+                <td>
+                  <div className="admin-order-actions">
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateStatus(order._id, e.target.value)}
+                    >
+                      {statusOptions.map((status) => (
+                        <option key={status} value={status}>{status}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={selectedQRForOrder[order._id] ?? (order.customQRCode?._id || "")}
+                      onChange={(e) => setSelectedQRForOrder((prev) => ({ ...prev, [order._id]: e.target.value || null }))}
+                    >
+                      <option value="">No custom QR</option>
+                      {customQRs.map((qr) => (
+                        <option key={qr._id} value={qr._id}>{qr.name}</option>
+                      ))}
+                    </select>
+                    <button className="edit-btn" onClick={() => assignQRToOrder(order._id)}>Save QR</button>
+                    {order.invoicePath && (
+                      <button className="edit-btn" onClick={() => orderService.downloadInvoice(order._id)}>
+                        Invoice
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filteredOrders.length === 0 && (
+              <tr><td colSpan="7">No orders found.</td></tr>
             )}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
 
 export default AdminOrders;
-

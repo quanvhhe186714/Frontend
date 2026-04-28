@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+$bg: #0d1117; $surface: #161b22; $surface2: #1c2333;
+$border: #30363d; $accent: #1e90ff; $text: #e6edf3; $text2: #8b949e;
+$green: #3fb950; $yellow: #d29922; $red: #f85149; $radius: 10px;
+
+.sd-page { font-family: 'Inter',sans-serif; background: $bg; color: $text; min-height: 100vh; padding: 1.5rem 1rem; }
+
+.sd-container { max-width: 820px; margin: 0 auto; }
+
+.sd-loading { text-align: center; padding: 5rem; color: $text2; font-size: 1.1rem; }
+
+.sd-toast {
+  position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999;
+  background: $surface2; border: 1px solid $green; color: $green;
+  padding: .75rem 1.25rem; border-radius: 8px; font-size: .9rem; font-weight: 500;
+  animation: fadeIn .2s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+.sd-breadcrumb {
+  display: flex; align-items: center; gap: .5rem; margin-bottom: 1.25rem;
+  font-size: .85rem; color: $text2;
+  button { background: none; border: none; color: $accent; cursor: pointer; font-size: .85rem; font-family: 'Inter',sans-serif; padding: 0;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.sd-header { background: $surface; border: 1px solid $border; border-radius: $radius; padding: 1.25rem; margin-bottom: 1.25rem; }
+.sd-header-top { display: flex; align-items: flex-start; gap: 1rem; }
+.sd-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+
+  &.image-icon {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: $surface2;
+    border: 1px solid $border;
+    padding: 8px;
+  }
+}
+.sd-header-info h1 { margin: 0 0 .5rem; font-size: 1.4rem; font-weight: 700; }
+.sd-badges { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.sd-rating { font-size: .82rem; color: $yellow; }
+.sd-meta-badge { background: $surface2; border: 1px solid $border; color: $text2; border-radius: 6px; padding: .2rem .6rem; font-size: .78rem; }
+
+.sd-tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; border-bottom: 1px solid $border; padding-bottom: 0; }
+.sd-tab {
+  background: none; border: none; border-bottom: 2px solid transparent; color: $text2;
+  padding: .65rem 1rem; font-size: .9rem; font-family: 'Inter',sans-serif; cursor: pointer;
+  transition: all .15s; margin-bottom: -1px;
+  &:hover { color: $text; }
+  &.active { color: $accent; border-bottom-color: $accent; font-weight: 600; }
+}
+
+.sd-order { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.sd-step { background: $surface; border: 1px solid $border; border-radius: $radius; padding: 1.25rem; }
+.sd-step-title { display: flex; align-items: center; gap: .75rem; font-weight: 600; font-size: 1rem; margin-bottom: 1rem; }
+.sd-step-num { width: 26px; height: 26px; background: $accent; color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+
+.sd-input {
+  width: 100%; background: $surface2; border: 1px solid $border; color: $text;
+  border-radius: 8px; padding: .75rem 1rem; font-size: .95rem; font-family: 'Inter',sans-serif;
+  outline: none; transition: border .2s;
+  &::placeholder { color: $text2; }
+  &:focus { border-color: $accent; }
+  &.error { border-color: $red; }
+}
+.sd-error { color: $red; font-size: .82rem; margin-top: .35rem; }
+.sd-hint { color: $text2; font-size: .8rem; margin-top: .35rem; }
+
+.sd-server { display: flex; align-items: center; gap: .75rem; border: 2px solid $border; border-radius: 8px; padding: .85rem 1rem; cursor: pointer; margin-bottom: .5rem; transition: all .2s;
+  &:hover { border-color: rgba(30,144,255,.4); }
+  &.active { border-color: $accent; background: rgba(30,144,255,.08); }
+  input { accent-color: $accent; cursor: pointer; }
+}
+.sd-server-body { flex: 1; }
+.sd-server-name { font-weight: 600; font-size: .9rem; margin-bottom: .2rem; }
+.sd-server-desc { color: $text2; font-size: .82rem; }
+.sd-server-price { color: $accent; font-weight: 700; white-space: nowrap; }
+
+.sd-emotions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.sd-emotion-btn {
+  display: flex; align-items: center; gap: .4rem; background: $surface2; border: 2px solid $border;
+  color: $text2; border-radius: 8px; padding: .55rem .9rem; cursor: pointer; font-size: .88rem; font-family: 'Inter',sans-serif; transition: all .15s;
+  &:hover { border-color: rgba(30,144,255,.4); color: $text; }
+  &.active { border-color: $accent; background: rgba(30,144,255,.15); color: $text; font-weight: 600; }
+}
+
+.sd-quick-qty { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+.sd-qty-btn {
+  background: $surface2; border: 1px solid $border; color: $text2; border-radius: 6px;
+  padding: .4rem .85rem; font-size: .85rem; cursor: pointer; font-family: 'Inter',sans-serif; transition: all .15s;
+  &:hover { border-color: $accent; color: $text; }
+  &.active { background: $accent; border-color: $accent; color: #fff; font-weight: 600; }
+}
+
+.sd-price-box { background: $surface; border: 1px solid $border; border-radius: $radius; padding: 1.25rem; }
+.sd-price-row { display: flex; justify-content: space-between; padding: .5rem 0; color: $text2; font-size: .95rem; border-bottom: 1px solid rgba(255,255,255,.04);
+  &.total { border-bottom: none; border-top: 1px solid $border; padding-top: .85rem; margin-top: .25rem; font-size: 1.15rem; font-weight: 700; color: $text; }
+}
+.sd-wallet-row { display: flex; justify-content: space-between; padding: .5rem 0; font-size: .9rem; margin-top: .25rem;
+  &.ok { color: $green; }
+  &.warn { color: $yellow; }
+}
+.sd-topup-inline { width: 100%; margin-top: .75rem; background: $yellow; color: #000; border: none; border-radius: 8px; padding: .6rem 1rem; font-size: .9rem; font-weight: 600; cursor: pointer; font-family: 'Inter',sans-serif; }
+
+.sd-actions { display: flex; gap: 1rem;
+  @media(max-width:480px) { flex-direction: column; }
+}
+.sd-btn {
+  flex: 1; padding: .9rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: 'Inter',sans-serif; transition: all .2s;
+  &.primary { background: linear-gradient(135deg, $accent, #0ea5e9); color: #fff; box-shadow: 0 4px 14px rgba(30,144,255,.3); &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30,144,255,.4); } }
+  &.secondary { background: $surface; border: 2px solid $border; color: $text; &:hover:not(:disabled) { border-color: $accent; color: $accent; } }
+  &:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+}
+
+.sd-description { background: $surface; border: 1px solid $border; border-radius: $radius; padding: 1rem 1.25rem; color: $text2; font-size: .9rem; line-height: 1.6; border-left: 3px solid $accent; }
+
+.sd-pricetable-wrap { background: $surface; border: 1px solid $border; border-radius: $radius; padding: 1.25rem; }
+
+.sd-reviews { display: flex; flex-direction: column; gap: 1.25rem; }
+.sd-no-reviews { color: $text2; font-style: italic; text-align: center; padding: 2rem; }
+.sd-review-list { display: flex; flex-direction: column; gap: .75rem; }
+.sd-review-item { background: $surface; border: 1px solid $border; border-radius: $radius; padding: 1rem; }
+.sd-review-header { display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem; }
+.sd-review-avatar { width: 38px; height: 38px; border-radius: 50%; background: $accent; display: flex; align-items: center; justify-content: center; font-weight: 700; overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: cover; }
+  span { color: #fff; font-size: 1rem; }
+}
+.sd-review-name { font-weight: 600; font-size: .9rem; }
+.sd-review-date { font-size: .78rem; color: $text2; }
+.sd-review-stars { margin-left: auto; font-size: .85rem; }
+.sd-review-comment { margin: 0; color: $text2; font-size: .9rem; line-height: 1.5; }

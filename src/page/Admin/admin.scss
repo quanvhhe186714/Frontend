@@ -208,7 +208,42 @@ $primary-color: #0088cc;
             &.pending { background: #f1c40f; color: black; }
             &.failed { background: #e74c3c; color: white; }
             &.completed { background: #3498db; color: white; }
+            &.delivered { background: #16a085; color: white; }
+            &.cancelled { background: #7f8c8d; color: white; }
         }
+    }
+
+    .admin-order-items {
+        margin: 0;
+        padding-left: 1rem;
+        min-width: 260px;
+
+        li {
+            margin-bottom: 0.75rem;
+        }
+    }
+
+    .admin-order-meta {
+        color: #555;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .admin-order-link {
+        max-width: 320px;
+        overflow-wrap: anywhere;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+
+        a {
+            color: $primary-color;
+        }
+    }
+
+    .admin-order-actions {
+        display: grid;
+        gap: 0.5rem;
+        min-width: 160px;
     }
     
     h3 {

@@ -1,20 +1,3 @@
-http://localhost:9999 : The term 'http://localhost:9999' is not recognized as the name of a cmdlet, function, script 
-file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct 
-and try again.
-At line:1 char:24
-+ $env:REACT_APP_API_URL=http://localhost:9999; $env:BROWSER=none; npm  ...
-+                        ~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : ObjectNotFound: (http://localhost:9999:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
- 
-none : The term 'none' is not recognized as the name of a cmdlet, function, script file, or operable program. Check 
-the spelling of the name, or if a path was included, verify that the path is correct and try again.
-At line:1 char:60
-+ ... nv:REACT_APP_API_URL=http://localhost:9999; $env:BROWSER=none; npm st ...
-+                                                              ~~~~
-    + CategoryInfo          : ObjectNotFound: (none:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
- 
-(node:1580) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:1788) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
 (Use `node --trace-deprecation ...` to show where the warning was created)
-(node:1580) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:1788) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.

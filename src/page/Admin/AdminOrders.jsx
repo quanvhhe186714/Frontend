@@ -97,6 +97,17 @@ const AdminOrders = () => {
     }
   };
 
+  const deleteOrder = async (orderId) => {
+    if (!window.confirm("Delete this order? It will be hidden from the customer profile.")) return;
+    try {
+      await orderService.softDeleteOrder(orderId);
+      setMessage("Da xoa don hang. Don nay se khong con hien o tai khoan user.");
+      fetchOrders();
+    } catch (error) {
+      setMessage(error?.response?.data?.message || "Khong the xoa don hang");
+    }
+  };
+
   const renderItem = (item, index) => {
     if (item.type === "service") {
       const urls = item.serviceUrls || {};
@@ -207,6 +218,9 @@ const AdminOrders = () => {
                         Invoice
                       </button>
                     )}
+                    <button className="delete-btn" onClick={() => deleteOrder(order._id)}>
+                      Delete Order
+                    </button>
                   </div>
                 </td>
               </tr>

@@ -5,6 +5,7 @@ import AdminOrders from "./AdminOrders";
 import AdminUserList from "./AdminUserList";
 import AdminCoupons from "./AdminCoupons";
 import AdminTransactions from "./AdminTransactions";
+import AdminServices from "./AdminServices";
 import AdminCustomQR from "./AdminCustomQR";
 import AdminBankQR from "./AdminBankQR";
 import AdminFakeMessages from "./AdminFakeMessages";
@@ -41,8 +42,9 @@ const AdminHome = () => {
       <div className="admin-tabs">
         <button className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>Users</button>
         <button className={activeTab === "products" ? "active" : ""} onClick={() => setActiveTab("products")}>Products</button>
+        <button className={activeTab === "services" ? "active" : ""} onClick={() => setActiveTab("services")}>Services</button>
         <button className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>Orders</button>
-        <button className={activeTab === "transactions" ? "active" : ""} onClick={() => setActiveTab("transactions")}>Transactions</button>
+        <button className={activeTab === "transactions" ? "active" : ""} onClick={() => setActiveTab("transactions")}>Payments & Progress</button>
         <button className={activeTab === "coupons" ? "active" : ""} onClick={() => setActiveTab("coupons")}>Coupons</button>
         <button className={activeTab === "custom-qr" ? "active" : ""} onClick={() => setActiveTab("custom-qr")}>Custom QR</button>
         <button className={activeTab === "bank-qr" ? "active" : ""} onClick={() => setActiveTab("bank-qr")}>Bank QR</button>
@@ -53,6 +55,7 @@ const AdminHome = () => {
       <div className="tab-content">
         {activeTab === "users" && <AdminUserList />} 
         {activeTab === "products" && <AdminProducts />}
+        {activeTab === "services" && <AdminServices />}
         {activeTab === "orders" && <AdminOrders />}
         {activeTab === "transactions" && <AdminTransactions />}
         {activeTab === "coupons" && <AdminCoupons />}

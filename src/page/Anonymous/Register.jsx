@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/user";
 import "./register.scss";
 
 const Register = () => {
   const navigate = useNavigate();
+  const mascotRef = useRef(null);
+  const containerRef = useRef(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,6 +16,57 @@ const Register = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ── Mouse tilt / parallax effect ─────────────────────────────
+  useEffect(() => {
+    const container = containerRef.current;
+    const mascot = mascotRef.current;
+    if (!container || !mascot) return;
+
+    let rafId;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const onMouseMove = (e) => {
+      const rect = container.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const nx = (e.clientX - cx) / (rect.width / 2);
+      const ny = (e.clientY - cy) / (rect.height / 2);
+      targetX = nx * 18;
+      targetY = ny * -18;
+    };
+
+    const animate = () => {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+      mascot.style.transform = `
+        perspective(600px)
+        rotateY(${currentX}deg)
+        rotateX(${currentY}deg)
+        translateZ(20px)
+        scale(1.04)
+      `;
+      rafId = requestAnimationFrame(animate);
+    };
+
+    const onMouseLeave = () => {
+      targetX = 0;
+      targetY = 0;
+    };
+
+    container.addEventListener("mousemove", onMouseMove);
+    container.addEventListener("mouseleave", onMouseLeave);
+    rafId = requestAnimationFrame(animate);
+
+    return () => {
+      container.removeEventListener("mousemove", onMouseMove);
+      container.removeEventListener("mouseleave", onMouseLeave);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,11 +85,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await registerUser(
-        formData.name,
-        formData.email,
-        formData.password
-      );
+      await registerUser(formData.name, formData.email, formData.password);
       setSuccess("Đăng ký thành công! Đang chuyển đến trang đăng nhập...");
       setTimeout(() => {
         navigate("/login");
@@ -49,9 +98,24 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
+    <div className="register-container" ref={containerRef}>
+      {/* Mascot nổi bên trái, tilt theo chuột */}
+      <div className="register-mascot-wrap">
+        <img
+          ref={mascotRef}
+          src="/robot-mascot.png"
+          alt="ShopBS Robot Mascot"
+          className="register-mascot"
+          draggable={false}
+        />
+        <div className="mascot-glow" />
+      </div>
+
       <div className="register-box">
-        <div className="register-icon">🧍‍♂️</div>
+        {/* Icon nhỏ dùng chính ảnh robot */}
+        <div className="register-icon" aria-hidden="true">
+          <img src="/robot-mascot.png" alt="" />
+        </div>
         <h2>Đăng ký</h2>
 
         {error && <div className="register-error">{error}</div>}
@@ -66,6 +130,7 @@ const Register = () => {
               value={formData.name}
               onChange={handleChange}
               required
+              autoFocus
             />
           </div>
 

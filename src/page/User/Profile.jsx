@@ -396,7 +396,7 @@ const Profile = () => {
                   {!hasInvoice && !hasFiles && (
                     <p className="meta">
                       <span style={{ color: "#666", fontStyle: "italic" }}>
-                        Chờ người bán gửi file
+                     
                       </span>
                     </p>
                   )}

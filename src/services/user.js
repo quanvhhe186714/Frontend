@@ -6,6 +6,12 @@ export const registerUser = (name, email, password) =>
 export const loginUser = (email, password) =>
   api.post("/users/login", { email, password });
 
+export const loginWithGoogle = (credential) =>
+  api.post("/users/oauth/google", { credential });
+
+export const loginWithFacebook = (accessToken) =>
+  api.post("/users/oauth/facebook", { accessToken });
+
 // === Private Routes ===
 export const getMyProfile = () => api.get("/users/profile");
 

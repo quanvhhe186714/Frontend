@@ -186,8 +186,8 @@
 
   input {
     padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 10px;
     color: #f1f5f9;
     font-size: 0.95rem;
@@ -195,7 +195,7 @@
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 
-    &::placeholder { color: #475569; }
+    &::placeholder { color: #7a8fa8; font-style: italic; }
 
     &:-webkit-autofill,
     &:-webkit-autofill:hover,
@@ -204,14 +204,14 @@
       -webkit-box-shadow: 0 0 0 1000px rgba(30, 42, 58, 0.95) inset;
       box-shadow: 0 0 0 1000px rgba(30, 42, 58, 0.95) inset;
       caret-color: #f1f5f9;
-      border-color: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.22);
       transition: background-color 9999s ease-in-out 0s;
     }
 
     &:focus {
-      background: rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.13);
       border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
     }
   }
 }

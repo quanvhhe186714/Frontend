@@ -129,6 +129,7 @@ const Register = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              placeholder="Nhập họ và tên của bạn"
               required
               autoFocus
             />
@@ -141,6 +142,7 @@ const Register = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              placeholder="Nhập địa chỉ email của bạn"
               required
             />
           </div>
@@ -152,6 +154,7 @@ const Register = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
               required
             />
           </div>
@@ -163,6 +166,7 @@ const Register = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              placeholder="Nhập lại mật khẩu để xác nhận"
               required
             />
           </div>

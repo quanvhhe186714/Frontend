@@ -103,7 +103,7 @@ const Login = () => {
           client_id: googleClientId,
           callback: async (response) => {
             if (!response.credential) {
-              setError("Google khong tra ve thong tin dang nhap.");
+              setError("Google không trả về thông tin đăng nhập.");
               return;
             }
 
@@ -113,7 +113,7 @@ const Login = () => {
               const { data } = await loginWithGoogle(response.credential);
               handleAuthSuccess(data);
             } catch (err) {
-              setError(getErrorMessage(err, "Dang nhap Google that bai"));
+              setError(getErrorMessage(err, "Đăng nhập Google thất bại"));
             } finally {
               setLoading(false);
             }
@@ -129,7 +129,7 @@ const Login = () => {
         });
       })
       .catch(() => {
-        if (isMounted) setError("Khong tai duoc Google login.");
+        if (isMounted) setError("Không tải được Google login.");
       });
 
     return () => {
@@ -151,7 +151,7 @@ const Login = () => {
       const { data } = await loginUser(formData.email, formData.password);
       handleAuthSuccess(data);
     } catch (err) {
-      setError(getErrorMessage(err, "Dang nhap that bai"));
+      setError(getErrorMessage(err, "Đăng nhập thất bại"));
     } finally {
       setLoading(false);
     }
@@ -174,7 +174,7 @@ const Login = () => {
         <div className="login-icon" aria-hidden="true">
           <img src="/robot-mascot.png" alt="" />
         </div>
-        <h2>Dang nhap</h2>
+        <h2>Đăng nhập</h2>
 
         {error && <div className="login-error">{error}</div>}
 
@@ -186,29 +186,31 @@ const Login = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              placeholder="Nhập địa chỉ email của bạn"
               required
               autoFocus
             />
           </div>
 
           <div className="form-group">
-            <label>Mat khau</label>
+            <label>Mật khẩu</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
+              placeholder="Nhập mật khẩu của bạn"
               required
             />
           </div>
 
           <button type="submit" disabled={loading} className="login-btn">
-            {loading ? "Dang dang nhap..." : "Dang nhap"}
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
 
         <div className="login-divider">
-          <span>hoac</span>
+          <span>Hoặc</span>
         </div>
 
         <div className="social-login">
@@ -216,14 +218,14 @@ const Login = () => {
             <div ref={googleButtonRef} className="google-login-button" />
           ) : (
             <button type="button" className="social-btn google" disabled>
-              Google chua cau hinh
+              Google chưa cấu hình
             </button>
           )}
         </div>
 
         <p className="login-register">
-          Chua co tai khoan?{" "}
-          <span onClick={() => navigate("/register")}>Dang ky ngay</span>
+          Chưa có tài khoản?{" "}
+          <span onClick={() => navigate("/register")}>Đăng ký ngay</span>
         </p>
       </div>
     </div>

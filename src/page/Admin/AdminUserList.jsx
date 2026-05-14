@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllUsers, deleteUser, loginAsUser, updateUserWalletBalance, deleteUserOrderHistory, getUserOrders, getUserTransactions, promoteUser, demoteUser } from '../../services/user.js';
 import orderService from '../../services/order.js';
@@ -9,13 +9,21 @@ const AdminUserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
-  const [editingBalance, setEditingBalance] = useState({}); // { userId: { amount: '', operation: 'add' } }
+  const [editingBalance, setEditingBalance] = useState({}); 
   const [loadingBalance, setLoadingBalance] = useState({});
-  const [currentUser, setCurrentUser] = useState(null); // User hiện tại đang đăng nhập
+  const [currentUser, setCurrentUser] = useState(null); 
   
+  // Search & Filter
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  
+  // Bulk Actions
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
   // Modal state
   const [selectedUser, setSelectedUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'purchased', 'transactions'
+  const [activeTab, setActiveTab] = useState('pending'); 
   const [pendingOrders, setPendingOrders] = useState([]);
   const [purchasedOrders, setPurchasedOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -26,6 +34,7 @@ const AdminUserList = () => {
       setLoading(true);
       const { data } = await getAllUsers();
       setUsers(data);
+      setSelectedUsers([]); // Clear selection on refresh
       setLoading(false);
     } catch (error) {
       setMessage('Error fetching users.');
@@ -40,6 +49,24 @@ const AdminUserList = () => {
     setCurrentUser(userInfo.user || null);
   }, []);
 
+  const filteredUsers = useMemo(() => {
+    let result = users;
+    
+    if (roleFilter !== "all") {
+      result = result.filter(u => u.role === roleFilter);
+    }
+    
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(u => 
+        (u.name && u.name.toLowerCase().includes(term)) ||
+        (u.email && u.email.toLowerCase().includes(term))
+      );
+    }
+    
+    return result;
+  }, [users, roleFilter, searchTerm]);
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
@@ -49,6 +76,37 @@ const AdminUserList = () => {
       } catch (error) {
         setMessage('Error deleting user');
       }
+    }
+  };
+
+  // --- BULK ACTIONS ---
+  const toggleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedUsers(filteredUsers.map(u => u._id));
+    } else {
+      setSelectedUsers([]);
+    }
+  };
+
+  const toggleSelect = (userId) => {
+    if (selectedUsers.includes(userId)) {
+      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+    } else {
+      setSelectedUsers([...selectedUsers, userId]);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Bạn có chắc muốn xóa ${selectedUsers.length} người dùng đã chọn?`)) return;
+    setBulkActionLoading(true);
+    try {
+      await Promise.all(selectedUsers.map(id => deleteUser(id)));
+      setMessage(`Đã xóa ${selectedUsers.length} người dùng thành công.`);
+      fetchUsers();
+    } catch (error) {
+      setMessage("Lỗi khi xóa người dùng hàng loạt.");
+    } finally {
+      setBulkActionLoading(false);
     }
   };
 
@@ -280,11 +338,64 @@ const AdminUserList = () => {
 
   return (
     <div>
-      <h3>User Management</h3>
-      {message && <p>{message}</p>}
+      <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3>User Management</h3>
+      </div>
+
+      <div className="admin-filters">
+        <input 
+          type="text" 
+          placeholder="Tìm kiếm theo Tên, Email..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ minWidth: '250px' }}
+        />
+        <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+          <option value="all">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="customer">Customer</option>
+        </select>
+        <button className="outline-btn" onClick={fetchUsers} disabled={loading}>
+          Refresh
+        </button>
+      </div>
+
+      {selectedUsers.length > 0 && (
+        <div className="admin-bulk-actions" style={{
+          background: 'rgba(67, 24, 255, 0.05)', 
+          padding: '10px 20px', 
+          borderRadius: '10px', 
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '15px',
+          border: '1px solid rgba(67, 24, 255, 0.2)'
+        }}>
+          <span style={{ fontWeight: 600, color: '#4318FF' }}>Đã chọn {selectedUsers.length} người dùng</span>
+          
+          <button 
+            className="delete-btn" 
+            onClick={handleBulkDelete}
+            disabled={bulkActionLoading}
+            style={{ padding: '8px 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+          >
+            Xóa hàng loạt
+          </button>
+        </div>
+      )}
+
+      {message && <p className="info-text">{message}</p>}
+      
       <table className="admin-table">
         <thead>
           <tr>
+            <th>
+              <input 
+                type="checkbox" 
+                onChange={toggleSelectAll} 
+                checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length} 
+              />
+            </th>
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
@@ -293,8 +404,15 @@ const AdminUserList = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {filteredUsers.map((user) => (
             <tr key={user._id}>
+              <td>
+                <input 
+                  type="checkbox" 
+                  checked={selectedUsers.includes(user._id)}
+                  onChange={() => toggleSelect(user._id)}
+                />
+              </td>
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>
@@ -443,6 +561,9 @@ const AdminUserList = () => {
               </td>
             </tr>
           ))}
+          {filteredUsers.length === 0 && (
+            <tr><td colSpan="6" style={{ textAlign: "center" }}>No users found.</td></tr>
+          )}
         </tbody>
       </table>
 
@@ -452,7 +573,7 @@ const AdminUserList = () => {
           onClick={(e) => {
             // Đóng modal khi click vào backdrop
             if (e.target === e.currentTarget) {
-              handleCloseModal();
+               handleCloseModal();
             }
           }}
           style={{

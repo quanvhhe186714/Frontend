@@ -27,42 +27,73 @@ const AdminHome = () => {
   }, []);
 
   return (
-    <div className="admin-page container">
-      <h1 className="admin-title">Admin Dashboard</h1>
-
-      {stats && (
-        <div className="admin-stats">
-          <div className="stat-card"><span>Revenue</span><strong>${stats.totalRevenue?.toFixed?.(2) || 0}</strong></div>
-          <div className="stat-card"><span>Orders</span><strong>{stats.totalOrders}</strong></div>
-          <div className="stat-card"><span>Products</span><strong>{stats.totalProducts}</strong></div>
-          <div className="stat-card"><span>Users</span><strong>{stats.totalUsers}</strong></div>
+    <div className="admin-page">
+      <div className="admin-sidebar">
+        <h2 className="admin-brand">ShopBS Admin</h2>
+        <div className="admin-tabs">
+          <button className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>Users</button>
+          <button className={activeTab === "products" ? "active" : ""} onClick={() => setActiveTab("products")}>Products</button>
+          <button className={activeTab === "services" ? "active" : ""} onClick={() => setActiveTab("services")}>Services</button>
+          <button className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>Orders</button>
+          <button className={activeTab === "transactions" ? "active" : ""} onClick={() => setActiveTab("transactions")}>Payments</button>
+          <button className={activeTab === "coupons" ? "active" : ""} onClick={() => setActiveTab("coupons")}>Coupons</button>
+          <button className={activeTab === "custom-qr" ? "active" : ""} onClick={() => setActiveTab("custom-qr")}>Custom QR</button>
+          <button className={activeTab === "bank-qr" ? "active" : ""} onClick={() => setActiveTab("bank-qr")}>Bank QR</button>
+          <button className={activeTab === "fake-messages" ? "active" : ""} onClick={() => setActiveTab("fake-messages")}>Fake Messages</button>
+          <button className={activeTab === "fake-reviews" ? "active" : ""} onClick={() => setActiveTab("fake-reviews")}>Fake Reviews</button>
         </div>
-      )}
-      
-      <div className="admin-tabs">
-        <button className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>Users</button>
-        <button className={activeTab === "products" ? "active" : ""} onClick={() => setActiveTab("products")}>Products</button>
-        <button className={activeTab === "services" ? "active" : ""} onClick={() => setActiveTab("services")}>Services</button>
-        <button className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>Orders</button>
-        <button className={activeTab === "transactions" ? "active" : ""} onClick={() => setActiveTab("transactions")}>Payments & Progress</button>
-        <button className={activeTab === "coupons" ? "active" : ""} onClick={() => setActiveTab("coupons")}>Coupons</button>
-        <button className={activeTab === "custom-qr" ? "active" : ""} onClick={() => setActiveTab("custom-qr")}>Custom QR</button>
-        <button className={activeTab === "bank-qr" ? "active" : ""} onClick={() => setActiveTab("bank-qr")}>Bank QR</button>
-        <button className={activeTab === "fake-messages" ? "active" : ""} onClick={() => setActiveTab("fake-messages")}>Fake Messages</button>
-        <button className={activeTab === "fake-reviews" ? "active" : ""} onClick={() => setActiveTab("fake-reviews")}>Fake Reviews</button>
       </div>
 
-      <div className="tab-content">
-        {activeTab === "users" && <AdminUserList />} 
-        {activeTab === "products" && <AdminProducts />}
-        {activeTab === "services" && <AdminServices />}
-        {activeTab === "orders" && <AdminOrders />}
-        {activeTab === "transactions" && <AdminTransactions />}
-        {activeTab === "coupons" && <AdminCoupons />}
-        {activeTab === "custom-qr" && <AdminCustomQR />}
-        {activeTab === "bank-qr" && <AdminBankQR />}
-        {activeTab === "fake-messages" && <AdminFakeMessages />}
-        {activeTab === "fake-reviews" && <AdminFakeReviews />}
+      <div className="admin-main">
+        <div className="admin-header">
+          <h1 className="admin-title">Dashboard</h1>
+        </div>
+
+        {stats && (
+          <div className="admin-stats">
+            <div className="stat-card">
+              <div className="stat-icon revenue-icon">💰</div>
+              <div className="stat-info">
+                <span>Total Revenue</span>
+                <strong>${stats.totalRevenue?.toFixed?.(2) || 0}</strong>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon orders-icon">📦</div>
+              <div className="stat-info">
+                <span>Total Orders</span>
+                <strong>{stats.totalOrders}</strong>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon products-icon">🛒</div>
+              <div className="stat-info">
+                <span>Products</span>
+                <strong>{stats.totalProducts}</strong>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon users-icon">👥</div>
+              <div className="stat-info">
+                <span>Users</span>
+                <strong>{stats.totalUsers}</strong>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div className="tab-content">
+          {activeTab === "users" && <AdminUserList />} 
+          {activeTab === "products" && <AdminProducts />}
+          {activeTab === "services" && <AdminServices />}
+          {activeTab === "orders" && <AdminOrders />}
+          {activeTab === "transactions" && <AdminTransactions />}
+          {activeTab === "coupons" && <AdminCoupons />}
+          {activeTab === "custom-qr" && <AdminCustomQR />}
+          {activeTab === "bank-qr" && <AdminBankQR />}
+          {activeTab === "fake-messages" && <AdminFakeMessages />}
+          {activeTab === "fake-reviews" && <AdminFakeReviews />}
+        </div>
       </div>
     </div>
   );

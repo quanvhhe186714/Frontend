@@ -10,8 +10,11 @@ const AdminOrders = () => {
   const [customQRs, setCustomQRs] = useState([]);
   const [selectedQRForOrder, setSelectedQRForOrder] = useState({});
   const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedOrders, setSelectedOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
 
   const formatDateTimeLocal = (dateString) => {
     const d = new Date(dateString);
@@ -34,6 +37,7 @@ const AdminOrders = () => {
         initialDates[order._id] = formatDateTimeLocal(order.createdAt);
       });
       setEditedDates(initialDates);
+      setSelectedOrders([]); // Clear selection on refresh
     } catch (error) {
       setMessage(error?.response?.data?.message || "Khong the tai danh sach don hang");
       setOrders([]);
@@ -58,9 +62,23 @@ const AdminOrders = () => {
   }, [fetchOrders]);
 
   const filteredOrders = useMemo(() => {
-    if (filter === "all") return orders;
-    return orders.filter((order) => order.status === filter);
-  }, [orders, filter]);
+    let result = orders;
+    
+    if (filter !== "all") {
+      result = result.filter((order) => order.status === filter);
+    }
+    
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(order => 
+        order._id.toLowerCase().includes(term) ||
+        (order.user?.name && order.user.name.toLowerCase().includes(term)) ||
+        (order.user?.email && order.user.email.toLowerCase().includes(term))
+      );
+    }
+    
+    return result;
+  }, [orders, filter, searchTerm]);
 
   const money = (value) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value || 0);
@@ -108,6 +126,51 @@ const AdminOrders = () => {
     }
   };
 
+  // --- BULK ACTIONS ---
+  const toggleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedOrders(filteredOrders.map(o => o._id));
+    } else {
+      setSelectedOrders([]);
+    }
+  };
+
+  const toggleSelect = (orderId) => {
+    if (selectedOrders.includes(orderId)) {
+      setSelectedOrders(selectedOrders.filter(id => id !== orderId));
+    } else {
+      setSelectedOrders([...selectedOrders, orderId]);
+    }
+  };
+
+  const handleBulkUpdateStatus = async (status) => {
+    if (!window.confirm(`Bạn có chắc muốn chuyển ${selectedOrders.length} đơn hàng sang trạng thái '${status}'?`)) return;
+    setBulkActionLoading(true);
+    try {
+      await Promise.all(selectedOrders.map(id => orderService.updateOrderStatus(id, status)));
+      setMessage(`Đã cập nhật trạng thái ${selectedOrders.length} đơn hàng thành công.`);
+      fetchOrders();
+    } catch (error) {
+      setMessage("Lỗi khi cập nhật trạng thái hàng loạt.");
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Bạn có chắc muốn xóa ${selectedOrders.length} đơn hàng đã chọn?`)) return;
+    setBulkActionLoading(true);
+    try {
+      await Promise.all(selectedOrders.map(id => orderService.softDeleteOrder(id)));
+      setMessage(`Đã xóa ${selectedOrders.length} đơn hàng thành công.`);
+      fetchOrders();
+    } catch (error) {
+      setMessage("Lỗi khi xóa hàng loạt.");
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
   const renderItem = (item, index) => {
     if (item.type === "service") {
       const urls = item.serviceUrls || {};
@@ -138,8 +201,18 @@ const AdminOrders = () => {
 
   return (
     <div>
-      <h3>Manage Orders</h3>
+      <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3>Manage Orders</h3>
+      </div>
+      
       <div className="admin-filters">
+        <input 
+          type="text" 
+          placeholder="Tìm kiếm theo ID, Email, Tên..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ minWidth: '250px' }}
+        />
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
           <option value="all">All statuses</option>
           {statusOptions.map((status) => (
@@ -151,6 +224,44 @@ const AdminOrders = () => {
         </button>
       </div>
 
+      {selectedOrders.length > 0 && (
+        <div className="admin-bulk-actions" style={{
+          background: 'rgba(67, 24, 255, 0.05)', 
+          padding: '10px 20px', 
+          borderRadius: '10px', 
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '15px',
+          border: '1px solid rgba(67, 24, 255, 0.2)'
+        }}>
+          <span style={{ fontWeight: 600, color: '#4318FF' }}>Đã chọn {selectedOrders.length} mục</span>
+          
+          <select 
+            onChange={(e) => {
+              if(e.target.value) handleBulkUpdateStatus(e.target.value);
+              e.target.value = "";
+            }}
+            style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+            disabled={bulkActionLoading}
+          >
+            <option value="">-- Đổi trạng thái --</option>
+            {statusOptions.map((status) => (
+              <option key={status} value={status}>{status}</option>
+            ))}
+          </select>
+
+          <button 
+            className="delete-btn" 
+            onClick={handleBulkDelete}
+            disabled={bulkActionLoading}
+            style={{ padding: '8px 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+          >
+            Xóa hàng loạt
+          </button>
+        </div>
+      )}
+
       {message && <p className="info-text">{message}</p>}
       {loading ? (
         <p>Loading...</p>
@@ -158,6 +269,13 @@ const AdminOrders = () => {
         <table className="admin-table">
           <thead>
             <tr>
+              <th>
+                <input 
+                  type="checkbox" 
+                  onChange={toggleSelectAll} 
+                  checked={filteredOrders.length > 0 && selectedOrders.length === filteredOrders.length} 
+                />
+              </th>
               <th>Order</th>
               <th>User</th>
               <th>Items</th>
@@ -170,6 +288,13 @@ const AdminOrders = () => {
           <tbody>
             {filteredOrders.map((order) => (
               <tr key={order._id}>
+                <td>
+                  <input 
+                    type="checkbox" 
+                    checked={selectedOrders.includes(order._id)}
+                    onChange={() => toggleSelect(order._id)}
+                  />
+                </td>
                 <td>#{order._id.substring(0, 8)}</td>
                 <td>
                   <strong>{order.user?.name || "Unknown"}</strong>
@@ -186,12 +311,15 @@ const AdminOrders = () => {
                 <td>{money(order.totalAmount)}</td>
                 <td><span className={`status ${order.status}`}>{order.status}</span></td>
                 <td>
-                  <input
-                    type="datetime-local"
-                    value={editedDates[order._id] || ""}
-                    onChange={(e) => setEditedDates((prev) => ({ ...prev, [order._id]: e.target.value }))}
-                  />
-                  <button className="edit-btn" onClick={() => updateTimestamp(order._id)}>Save</button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <input
+                      type="datetime-local"
+                      value={editedDates[order._id] || ""}
+                      onChange={(e) => setEditedDates((prev) => ({ ...prev, [order._id]: e.target.value }))}
+                      style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
+                    />
+                    <button className="edit-btn" onClick={() => updateTimestamp(order._id)}>Save</button>
+                  </div>
                 </td>
                 <td>
                   <div className="admin-order-actions">
@@ -226,7 +354,7 @@ const AdminOrders = () => {
               </tr>
             ))}
             {filteredOrders.length === 0 && (
-              <tr><td colSpan="7">No orders found.</td></tr>
+              <tr><td colSpan="8" style={{ textAlign: "center" }}>No orders found.</td></tr>
             )}
           </tbody>
         </table>

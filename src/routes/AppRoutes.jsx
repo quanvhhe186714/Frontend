@@ -24,6 +24,9 @@ import FacebookServiceDetail from "../page/Portal/FacebookServiceDetail";
 import HoTro from "../page/Portal/HoTro";
 import ChiaSe from "../page/Portal/ChiaSe";
 import Faqs from "../page/Portal/Faqs";
+import TaiKhoanMang from "../page/Portal/TaiKhoanMang";
+import AiTools from "../page/Portal/AiTools";
+import VpnVps from "../page/Portal/VpnVps";
 import QRPayment from "../page/Portal/QRPayment";
 
 import AdminRoute from "./adminRouter";
@@ -35,7 +38,14 @@ const AppRoutes = () => {
       {/* 🌐 Public Shop Routes */}
       <Route path="/" element={<Home />} />
       <Route path="/products" element={<ProductList />} />
-      <Route path="/products/:id" element={<ProductDetail />} />
+      <Route
+        path="/products/:id"
+        element={
+          <ProtectedRoute>
+            <ProductDetail />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/payment" element={<Payment />} />
@@ -47,8 +57,18 @@ const AppRoutes = () => {
       {/* Portal style pages */}
       <Route path="/san-pham" element={<SanPham />} />
       <Route path="/dich-vu" element={<DichVu />} />
-      <Route path="/dich-vu/facebook/:id" element={<FacebookServiceDetail />} />
+      <Route
+        path="/dich-vu/facebook/:id"
+        element={
+          <ProtectedRoute>
+            <FacebookServiceDetail />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/ho-tro" element={<HoTro />} />
+      <Route path="/tai-khoan-mang" element={<TaiKhoanMang />} />
+      <Route path="/ai-tools" element={<AiTools />} />
+      <Route path="/vpn-vps" element={<VpnVps />} />
       <Route path="/chia-se" element={<ChiaSe />} />
       <Route path="/faqs" element={<Faqs />} />
 

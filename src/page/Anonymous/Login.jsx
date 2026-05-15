@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loginUser, loginWithGoogle } from "../../services/user";
 import "./login.scss";
 
@@ -28,6 +28,7 @@ const getErrorMessage = (err, fallback) =>
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const googleButtonRef = useRef(null);
   const mascotRef = useRef(null);
   const containerRef = useRef(null);
@@ -39,8 +40,9 @@ const Login = () => {
 
   const handleAuthSuccess = useCallback((data) => {
     localStorage.setItem("userInfo", JSON.stringify(data));
-    navigate(data.user?.role === "admin" ? "/admin" : "/profile");
-  }, [navigate]);
+    const from = location.state?.from;
+    navigate(from || (data.user?.role === "admin" ? "/admin" : "/profile"), { replace: true });
+  }, [location.state, navigate]);
 
   useEffect(() => {
     const container = containerRef.current;

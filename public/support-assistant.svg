@@ -1,0 +1,37 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" fill="#071526"/>
+  <circle cx="128" cy="128" r="104" fill="#0f2a52" stroke="#f5c84c" stroke-width="6"/>
+  <circle cx="128" cy="128" r="90" fill="#102b55" stroke="#f5c84c" stroke-width="2" stroke-dasharray="6 8"/>
+  <path d="M128 21L136 41L157 44L141 58L145 79L128 68L111 79L115 58L99 44L120 41L128 21Z" fill="#f9d86b"/>
+  <path d="M128 235L120 215L99 212L115 198L111 177L128 188L145 177L141 198L157 212L136 215L128 235Z" fill="#f9d86b"/>
+  <path d="M21 128L41 120L44 99L58 115L79 111L68 128L79 145L58 141L44 157L41 136L21 128Z" fill="#f9d86b"/>
+  <path d="M235 128L215 136L212 157L198 141L177 145L188 128L177 111L198 115L212 99L215 120L235 128Z" fill="#f9d86b"/>
+  <g filter="url(#glow)">
+    <path d="M87 103C87 80.9 104.9 63 127 63H133C155.1 63 173 80.9 173 103V115C173 137.1 155.1 155 133 155H127C104.9 155 87 137.1 87 115V103Z" fill="#dbeafe"/>
+    <path d="M99 101C99 88.3 109.3 78 122 78H138C150.7 78 161 88.3 161 101V112C161 124.7 150.7 135 138 135H122C109.3 135 99 124.7 99 112V101Z" fill="#06152b"/>
+    <circle cx="119" cy="106" r="9" fill="#22d3ee"/>
+    <path d="M142 108C147 114 154 114 158 108" stroke="#22d3ee" stroke-width="5" stroke-linecap="round"/>
+    <path d="M105 157H151L160 200H96L105 157Z" fill="#e0f2fe"/>
+    <path d="M114 168H142L138 189H118L114 168Z" fill="#38bdf8"/>
+    <path d="M108 201H148V217H108V201Z" fill="#cbd5e1"/>
+    <path d="M94 166L67 194" stroke="#e0f2fe" stroke-width="13" stroke-linecap="round"/>
+    <path d="M162 166L190 194" stroke="#e0f2fe" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="60" cy="200" r="16" fill="#ef4444"/>
+    <path d="M57 192L69 200L57 208V192Z" fill="white"/>
+    <circle cx="197" cy="198" r="16" fill="#229ED9"/>
+    <path d="M188 197L207 188L200 209L196 201L188 197Z" fill="white"/>
+  </g>
+  <circle cx="68" cy="75" r="12" fill="#111827" stroke="#22d3ee" stroke-width="4"/>
+  <text x="62" y="82" fill="#22d3ee" font-family="Arial, sans-serif" font-size="18" font-weight="700">f</text>
+  <circle cx="188" cy="73" r="13" fill="#ef4444"/>
+  <path d="M184 66L195 73L184 80V66Z" fill="white"/>
+  <circle cx="69" cy="55" r="5" fill="#f9d86b"/>
+  <circle cx="203" cy="51" r="4" fill="#bfdbfe"/>
+  <circle cx="51" cy="158" r="4" fill="#38bdf8"/>
+  <circle cx="197" cy="151" r="5" fill="#f9d86b"/>
+  <defs>
+    <filter id="glow" x="39" y="55" width="176" height="170" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#22d3ee" flood-opacity="0.36"/>
+    </filter>
+  </defs>
+</svg>

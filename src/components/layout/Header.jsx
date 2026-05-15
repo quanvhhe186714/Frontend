@@ -6,14 +6,22 @@ import "../layoutcss/_header.scss";
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [userInfo, setUserInfo] = useState(
-    () => JSON.parse(localStorage.getItem("userInfo"))
-  );
+  const [userInfo, setUserInfo] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("userInfo"));
+    } catch {
+      return null;
+    }
+  });
   const [openMenu, setOpenMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   const handleLogout = () => {
     localStorage.removeItem("userInfo");
+    setUserInfo(null);
+    closeMobileMenu();
     navigate("/login");
   };
 
@@ -34,43 +42,49 @@ const Header = () => {
           <Link to="/">WEB BUFF MXH</Link>
         </h1>
 
-        <button 
+        <button
           className="mobile-menu-toggle"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          type="button"
+          onClick={() => setMobileMenuOpen((value) => !value)}
           aria-label="Toggle menu"
+          aria-expanded={mobileMenuOpen}
         >
-          <span></span>
-          <span></span>
-          <span></span>
+          <span />
+          <span />
+          <span />
         </button>
 
-        <nav className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-          <Link to="/san-pham" onClick={() => setMobileMenuOpen(false)}>Sản phẩm</Link>
-          <Link to="/dich-vu" onClick={() => setMobileMenuOpen(false)}>Dịch vụ</Link>
-          <Link to="/ho-tro" onClick={() => setMobileMenuOpen(false)}>Hỗ trợ</Link>
-          <Link to="/chia-se" onClick={() => setMobileMenuOpen(false)}>Chia sẻ</Link>
-          <Link to="/faqs" onClick={() => setMobileMenuOpen(false)}>FAQs</Link>
-          <Link to="/cart" onClick={() => setMobileMenuOpen(false)}>Cart</Link>
+        <nav className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
+          <Link to="/san-pham" onClick={closeMobileMenu}>Sản phẩm</Link>
+          <Link to="/dich-vu" onClick={closeMobileMenu}>Dịch vụ</Link>
+          <Link to="/ho-tro" onClick={closeMobileMenu}>Hỗ trợ</Link>
+          <Link to="/tai-khoan-mang" onClick={closeMobileMenu}>TK mạng</Link>
+          <Link to="/ai-tools" onClick={closeMobileMenu}>AI Tools</Link>
+          <Link to="/vpn-vps" onClick={closeMobileMenu}>VPN/VPS</Link>
+          <Link to="/cart" onClick={closeMobileMenu}>Cart</Link>
           {userInfo && (
-            <Link to="/qr-payment" onClick={() => setMobileMenuOpen(false)}>
+            <Link to="/qr-payment" onClick={closeMobileMenu}>
               Thanh toán QR
             </Link>
           )}
-          
+
           {userInfo ? (
             <div className="user-menu">
               <button
                 className="avatar-button"
-                onClick={() => setOpenMenu((v) => !v)}
+                type="button"
+                onClick={() => setOpenMenu((value) => !value)}
+                aria-haspopup="menu"
+                aria-expanded={openMenu}
               >
                 {getAvatarUrl(userInfo.user?.avatar) ? (
                   <img
                     src={getAvatarUrl(userInfo.user?.avatar)}
                     alt="avatar"
                     onError={(e) => {
-                      e.target.style.display = 'none';
-                      const placeholder = e.target.parentElement.querySelector('.avatar-placeholder');
-                      if (placeholder) placeholder.style.display = 'flex';
+                      e.target.style.display = "none";
+                      const placeholder = e.target.parentElement.querySelector(".avatar-placeholder");
+                      if (placeholder) placeholder.style.display = "flex";
                     }}
                   />
                 ) : null}
@@ -81,21 +95,27 @@ const Header = () => {
                 )}
                 <span>{userInfo.user?.name}</span>
               </button>
-              
+
               {openMenu && (
-                <div className="dropdown">
-                  <button onClick={() => { navigate("/profile"); setMobileMenuOpen(false); }}>My Profile</button>
+                <div className="dropdown" role="menu">
+                  <button type="button" onClick={() => { navigate("/profile"); closeMobileMenu(); }}>
+                    My Profile
+                  </button>
                   {userInfo.user?.role === "admin" && (
-                    <button onClick={() => { navigate("/admin"); setMobileMenuOpen(false); }}>Admin Dashboard</button>
+                    <button type="button" onClick={() => { navigate("/admin"); closeMobileMenu(); }}>
+                      Admin Dashboard
+                    </button>
                   )}
-                  <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="logout">Logout</button>
+                  <button type="button" onClick={handleLogout} className="logout">
+                    Logout
+                  </button>
                 </div>
               )}
             </div>
           ) : (
             <div className="auth-links">
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link>
-              <Link to="/register" className="btn-register" onClick={() => setMobileMenuOpen(false)}>Register</Link>
+              <Link to="/login" onClick={closeMobileMenu}>Login</Link>
+              <Link to="/register" className="btn-register" onClick={closeMobileMenu}>Register</Link>
             </div>
           )}
         </nav>

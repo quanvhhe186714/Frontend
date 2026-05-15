@@ -75,6 +75,10 @@ const ProductDetail = () => {
   if (loading) return <div className="loading">Loading...</div>;
   if (!product) return null;
 
+  const productFeatures = Array.isArray(product.features)
+    ? product.features.filter((feature) => String(feature || "").trim())
+    : [];
+
   return (
     <div className="product-detail-page">
       <div className="detail-card">
@@ -103,11 +107,11 @@ const ProductDetail = () => {
           )}
           
           <p className="desc">{product.description}</p>
-          {Array.isArray(product.features) && product.features.length > 0 && (
+          {productFeatures.length > 0 && (
             <>
               <h4>Premium includes:</h4>
               <ul className="features">
-                {product.features.map((f, idx) => <li key={idx}>{f}</li>)}
+                {productFeatures.map((f, idx) => <li key={idx}>{f}</li>)}
               </ul>
             </>
           )}

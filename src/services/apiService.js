@@ -5,9 +5,7 @@ import axios from 'axios';
 // Ưu tiên: REACT_APP_API_URL > window.location.origin (nếu deploy cùng domain) > default
 export const BASE_URL =
   process.env.REACT_APP_API_URL ||
-  (process.env.NODE_ENV === "development"
-    ? "http://localhost:9999"
-    : "https://backend-cy6b.onrender.com");
+  "https://backend-cy6b.onrender.com";
 const API_URL = BASE_URL;
 
 // Log để debug (chỉ trong development)

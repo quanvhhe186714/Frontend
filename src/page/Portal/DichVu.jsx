@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import facebookService from "../../services/facebook/facebookService";
 import { getServiceRatingSummary } from "../../services/review";
 import { getWallet } from "../../services/wallet";
@@ -14,6 +14,9 @@ const PLATFORMS = [
   { key: "twitter", label: "Twitter (X)", icon: "X", color: "#1da1f2" },
   { key: "telegram", label: "Telegram", icon: "TG", color: "#229ed9" },
 ];
+
+const getValidPlatform = (value) =>
+  PLATFORMS.some((platform) => platform.key === value) ? value : "facebook";
 
 const SERVICE_TYPES = {
   all: "Tất cả",
@@ -36,7 +39,10 @@ const ServiceIcon = ({ icon, fallback = "S", className = "" }) => {
 
 const DichVu = () => {
   const navigate = useNavigate();
-  const [activePlatform, setActivePlatform] = useState("facebook");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activePlatform, setActivePlatform] = useState(() =>
+    getValidPlatform(searchParams.get("platform"))
+  );
   const [activeType, setActiveType] = useState("all");
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +59,15 @@ const DichVu = () => {
     }
   }, []);
 
+  const requireLogin = (targetPath) => {
+    if (userInfo?.token) {
+      navigate(targetPath);
+      return true;
+    }
+    navigate("/login", { state: { from: targetPath } });
+    return false;
+  };
+
   useEffect(() => {
     if (userInfo) {
       getWallet()
@@ -60,6 +75,16 @@ const DichVu = () => {
         .catch(() => {});
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    const nextPlatform = getValidPlatform(searchParams.get("platform"));
+    if (nextPlatform !== activePlatform) {
+      setActivePlatform(nextPlatform);
+      setActiveType("all");
+      setSearchQuery("");
+      setSidebarOpen(false);
+    }
+  }, [activePlatform, searchParams]);
 
   useEffect(() => {
     const loadServices = async () => {
@@ -172,6 +197,7 @@ const DichVu = () => {
                   setActivePlatform(platform.key);
                   setActiveType("all");
                   setSidebarOpen(false);
+                  setSearchParams({ platform: platform.key });
                 }}
               >
                 <span className="dv-platform-icon">{platform.icon}</span>
@@ -180,13 +206,13 @@ const DichVu = () => {
             ))}
 
             <div className="dv-sidebar-divider" />
-            <button className="dv-sidebar-link" onClick={() => navigate("/qr-payment")}>
+            <button className="dv-sidebar-link" onClick={() => requireLogin("/qr-payment")}>
               Nạp tiền
             </button>
-            <button className="dv-sidebar-link" onClick={() => navigate("/transaction-history")}>
+            <button className="dv-sidebar-link" onClick={() => requireLogin("/transaction-history")}>
               Lịch sử giao dịch
             </button>
-            <button className="dv-sidebar-link" onClick={() => navigate("/cart")}>
+            <button className="dv-sidebar-link" onClick={() => requireLogin("/cart")}>
               Giỏ hàng
             </button>
           </div>
@@ -241,7 +267,7 @@ const DichVu = () => {
                   <div
                     key={service._id}
                     className="dv-card"
-                    onClick={() => navigate(`/dich-vu/facebook/${service._id}`)}
+                    onClick={() => requireLogin(`/dich-vu/facebook/${service._id}`)}
                   >
                     <div className="dv-card-top">
                       <ServiceIcon className="dv-card-icon" icon={service.icon} />

@@ -1,0 +1,62 @@
+.snowfall {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.snowflake {
+  position: absolute;
+  top: -12px;
+  left: var(--snow-left);
+  width: var(--snow-size);
+  height: var(--snow-size);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, var(--snow-alpha));
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 18px rgba(0, 210, 255, 0.18);
+  filter: blur(var(--snow-blur));
+  animation:
+    snow-fall var(--snow-duration) linear var(--snow-delay) infinite,
+    snow-sway var(--snow-sway-duration) ease-in-out var(--snow-delay) infinite alternate;
+}
+
+@keyframes snow-fall {
+  from {
+    transform: translate3d(0, -12px, 0);
+  }
+  to {
+    transform: translate3d(var(--snow-drift), calc(100vh + 24px), 0);
+  }
+}
+
+@keyframes snow-sway {
+  from {
+    margin-left: calc(var(--snow-sway) * -1);
+  }
+  to {
+    margin-left: var(--snow-sway);
+  }
+}
+
+@for $i from 1 through 70 {
+  .snowflake:nth-child(#{$i}) {
+    --snow-left: #{random(100)}vw;
+    --snow-size: #{random(4) + 2}px;
+    --snow-alpha: #{0.34 + random(55) / 100};
+    --snow-blur: #{random(2)}px;
+    --snow-duration: #{random(12) + 8}s;
+    --snow-delay: -#{random(20)}s;
+    --snow-drift: #{random(70) - 35}px;
+    --snow-sway: #{random(28) + 8}px;
+    --snow-sway-duration: #{random(5) + 4}s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snowfall {
+    display: none;
+  }
+}

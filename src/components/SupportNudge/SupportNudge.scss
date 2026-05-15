@@ -1,0 +1,138 @@
+.support-nudge {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.support-nudge__card {
+  position: relative;
+  width: min(320px, calc(100vw - 32px));
+  padding: 22px 18px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background:
+    linear-gradient(160deg, rgba(9, 18, 39, 0.96), rgba(18, 34, 72, 0.96)),
+    #111827;
+  box-shadow: 0 22px 70px rgba(2, 8, 23, 0.42);
+  color: #ffffff;
+  text-align: center;
+  pointer-events: auto;
+  animation: support-nudge-run-in 520ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.support-nudge__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.support-nudge__close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.support-nudge__avatar {
+  width: 132px;
+  height: 132px;
+  margin: 0 auto 14px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(250, 204, 21, 0.85);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(34, 211, 238, 0.35), transparent 42%),
+    linear-gradient(145deg, #071526, #15264b);
+  box-shadow:
+    0 0 0 6px rgba(250, 204, 21, 0.08),
+    0 0 34px rgba(34, 211, 238, 0.32);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.support-nudge__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.support-nudge__avatar span {
+  color: #67e8f9;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.support-nudge__message {
+  margin: 0 auto 16px;
+  max-width: 260px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.support-nudge__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.support-nudge__actions button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.support-nudge__actions button:first-child {
+  background: linear-gradient(135deg, #22d3ee, #2563eb);
+  color: #ffffff;
+}
+
+.support-nudge__actions button:last-child {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.86);
+}
+
+@keyframes support-nudge-run-in {
+  from {
+    opacity: 0;
+    transform: translate(42vw, 34vh) scale(0.5) rotate(8deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-nudge__card {
+    animation: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .support-nudge__card {
+    width: calc(100vw - 24px);
+    padding: 20px 14px 14px;
+  }
+
+  .support-nudge__avatar {
+    width: 112px;
+    height: 112px;
+  }
+}

@@ -12,6 +12,22 @@ const ProductList = () => {
   const [ratingSummaries, setRatingSummaries] = useState({});
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("ALL");
+  const userInfo = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("userInfo"));
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const requireLogin = (targetPath) => {
+    if (userInfo?.token) {
+      navigate(targetPath);
+      return true;
+    }
+    navigate("/login", { state: { from: targetPath } });
+    return false;
+  };
 
   useEffect(() => {
     loadProducts();
@@ -57,6 +73,8 @@ const ProductList = () => {
   };
 
   const addToCart = (product) => {
+    if (!requireLogin(`/products/${product._id}`)) return;
+
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const existingItem = cart.find(item => item.productId === product._id);
     
@@ -173,7 +191,7 @@ const ProductList = () => {
                         </ul>
                         <div style={{ display: 'grid', gap: 10 }}>
                           <button onClick={() => addToCart(p)}>Mua ngay</button>
-                          <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
+                          <button onClick={() => requireLogin(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
                         </div>
                       </div>
                     );
@@ -212,7 +230,7 @@ const ProductList = () => {
                       </ul>
                       <div style={{ display: 'grid', gap: 10 }}>
                         <button onClick={() => addToCart(p)}>Mua ngay</button>
-                        <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
+                        <button onClick={() => requireLogin(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
                       </div>
                     </div>
                   );
@@ -247,7 +265,7 @@ const ProductList = () => {
                 </ul>
                 <div style={{ display: 'grid', gap: 10 }}>
                   <button onClick={() => addToCart(p)}>Mua ngay</button>
-                  <button onClick={() => navigate(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
+                  <button onClick={() => requireLogin(`/products/${p._id}`)} style={{ background: '#333' }}>Xem chi tiết</button>
                 </div>
               </div>
             );

@@ -1,27 +1,29 @@
 @use "variables" as *;
 
+// ─── Light theme (deprecated — dùng CSS vars trong :root) ──────────────────
 .light-theme {
-  --color-primary: #{$color-primary};
-  --color-secondary: #{$color-secondary};
-  --color-background: #{$color-white};
-  --color-surface: #{$color-gray-100};
-  --color-text: #{$color-gray-800};
-  --color-text-secondary: #{$color-gray-600};
-  --color-border: #{$color-gray-200};
-  --color-success: #{$color-success};
-  --color-warning: #{$color-warning};
-  --color-danger: #{$color-danger};
+  --color-primary:          #{$primary};
+  --color-secondary:        #{$accent-purple};
+  --color-background:       #{$bg-deep};
+  --color-surface:          #{$bg-card};
+  --color-text:             #{$text-main};
+  --color-text-secondary:   #{$text-muted};
+  --color-border:           #{$border-glass};
+  --color-success:          #{$accent-green};
+  --color-warning:          #{$accent-orange};
+  --color-danger:           #ef4444;
 }
 
+// ─── Dark theme ─────────────────────────────────────────────────────────────
 .dark-theme {
-  --color-primary: #{$color-primary};
-  --color-secondary: #3399ff;
-  --color-background: #121212;
-  --color-surface: #1e1e1e;
-  --color-text: #ffffff;
-  --color-text-secondary: #aaaaaa;
-  --color-border: #333333;
-  --color-success: #4caf50;
-  --color-warning: #ffd54f;
-  --color-danger: #e57373;
+  --color-primary:          #{$primary};
+  --color-secondary:        #{$accent-purple};
+  --color-background:       #{$bg-deep};
+  --color-surface:          #{$bg-card};
+  --color-text:             #{$text-main};
+  --color-text-secondary:   #{$text-muted};
+  --color-border:           #{$border-glass};
+  --color-success:          #{$accent-green};
+  --color-warning:          #{$accent-orange};
+  --color-danger:           #ef4444;
 }

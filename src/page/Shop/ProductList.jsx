@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import productService from "../../services/product";
 import categoryService from "../../services/category";
-import { getProductRatingSummary } from "../../services/review";
 import "./shop.scss";
 
 const ProductList = () => {
@@ -38,19 +37,11 @@ const ProductList = () => {
     try {
       const data = await productService.getProducts();
       setProducts(data);
-      
-      // Load rating summaries for all products
-      const summaryPromises = data.map(async (product) => {
-        try {
-          const summary = await getProductRatingSummary(product._id);
-          return { productId: product._id, summary };
-        } catch (error) {
-          console.error(`Failed to load rating for product ${product._id}`, error);
-          return { productId: product._id, summary: { averageRating: 0, totalReviews: 0 } };
-        }
-      });
-      
-      const summaries = await Promise.all(summaryPromises);
+
+      const summaries = data.map((product) => ({
+        productId: product._id,
+        summary: product.ratingSummary || { averageRating: 0, totalReviews: 0, totalUsers: 0 },
+      }));
       const summaryMap = {};
       summaries.forEach(({ productId, summary }) => {
         summaryMap[productId] = summary;

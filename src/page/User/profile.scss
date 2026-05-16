@@ -1,12 +1,15 @@
-$primary-color: #0088cc;
-$text-color: #333;
-$border-color: #e0e0e0;
-$bg-color: #f4f6f8;
+$primary-color: #0b7fb3;
+$primary-dark: #075f89;
+$text-color: #17202a;
+$muted-color: #5f6b7a;
+$border-color: #dbe3ea;
+$bg-color: #f3f6f9;
 $white: #ffffff;
 
 .profile-container {
-  padding: 2rem 1rem;
-  background: $bg-color;
+  padding: 2rem 1rem 3rem;
+  background: radial-gradient(circle at top, #ffffff 0, $bg-color 42%, #eef3f7 100%);
+  color: $text-color;
   min-height: calc(100vh - 60px); // Adjust based on header height
 
   .profile-dashboard {
@@ -26,16 +29,17 @@ $white: #ffffff;
     .sidebar-card {
       background: $white;
       padding: 2rem;
-      border-radius: 12px;
+      border: 1px solid rgba(219, 227, 234, 0.8);
+      border-radius: 8px;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 10px 28px rgba(20, 35, 50, 0.06);
       margin-bottom: 1.5rem;
 
       .avatar-placeholder {
         width: 80px;
         height: 80px;
         margin: 0 auto 1rem;
-        background: linear-gradient(135deg, $primary-color, #667eea);
+        background: linear-gradient(135deg, #0b93d1, #4169dc);
         color: $white;
         font-size: 2rem;
         font-weight: bold;
@@ -50,16 +54,17 @@ $white: #ffffff;
           display: block;
           font-size: 1.1rem;
           margin-bottom: 0.25rem;
+          color: $text-color;
         }
         p {
           font-size: 0.9rem;
-          color: #666;
+          color: $muted-color;
           margin-bottom: 0.75rem;
         }
         .role-chip {
           display: inline-block;
           padding: 4px 12px;
-          background: rgba($primary-color, 0.1);
+          background: #e8f5fb;
           color: $primary-color;
           border-radius: 20px;
           font-size: 0.8rem;
@@ -73,9 +78,10 @@ $white: #ffffff;
       list-style: none;
       padding: 0;
       background: $white;
-      border-radius: 12px;
+      border: 1px solid rgba(219, 227, 234, 0.9);
+      border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 10px 28px rgba(20, 35, 50, 0.06);
 
       li {
         padding: 1rem 1.5rem;
@@ -90,12 +96,12 @@ $white: #ffffff;
         }
 
         &:hover {
-          background: #f8f9fa;
+          background: #f5f9fc;
           color: $primary-color;
         }
 
         &.active {
-          background: rgba($primary-color, 0.05);
+          background: #eef8fd;
           color: $primary-color;
           border-left: 3px solid $primary-color;
         }
@@ -108,8 +114,9 @@ $white: #ffffff;
     .section-card {
       background: $white;
       padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(219, 227, 234, 0.9);
+      border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(20, 35, 50, 0.07);
       animation: fadeIn 0.3s ease-in-out;
     }
 
@@ -125,10 +132,11 @@ $white: #ffffff;
         font-size: 1.5rem;
         margin-bottom: 0.5rem;
         color: $text-color;
+        line-height: 1.15;
       }
 
       p {
-        color: #666;
+        color: $muted-color;
         font-size: 0.95rem;
       }
     }
@@ -151,11 +159,25 @@ $white: #ffffff;
         border: 1px solid $border-color;
         border-radius: 8px;
         font-size: 1rem;
+        color: $text-color;
+        background: #ffffff;
         transition: border-color 0.2s;
+
+        &::placeholder {
+          color: #8b98a7;
+          opacity: 1;
+        }
 
         &:focus {
           outline: none;
           border-color: $primary-color;
+          box-shadow: 0 0 0 3px rgba(11, 127, 179, 0.14);
+        }
+
+        &:disabled {
+          color: #5f6b7a;
+          background: #f7fafc;
+          cursor: not-allowed;
         }
       }
     }
@@ -171,7 +193,7 @@ $white: #ffffff;
       transition: background 0.2s;
 
       &:hover {
-        background: darken($primary-color, 10%);
+        background: $primary-dark;
       }
 
       &:disabled {
@@ -181,16 +203,19 @@ $white: #ffffff;
     }
 
     .outline-btn {
-      background: transparent;
+      background: #ffffff;
       border: 1px solid $border-color;
+      color: $primary-color;
       padding: 8px 16px;
       border-radius: 6px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
 
       &:hover {
-        border-color: $text-color;
-        background: #f8f9fa;
+        border-color: rgba(11, 127, 179, 0.4);
+        background: #f3fafe;
+        color: $primary-dark;
       }
 
       &.small {
@@ -213,13 +238,15 @@ $white: #ffffff;
         h4 {
           margin-bottom: 1.5rem;
           font-size: 1.1rem;
+          color: $text-color;
         }
       }
     }
 
     // Wallet
     .wallet-balance {
-      background: rgba($primary-color, 0.05);
+      background: #eef7fb;
+      border: 1px solid #d6edf7;
       padding: 1.5rem;
       border-radius: 8px;
       margin-bottom: 1.5rem;
@@ -233,7 +260,7 @@ $white: #ffffff;
       }
       p {
         font-size: 0.85rem;
-        color: #666;
+        color: $muted-color;
         margin: 0;
       }
     }

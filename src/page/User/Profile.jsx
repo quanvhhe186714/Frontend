@@ -27,8 +27,6 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const [selectedBank] = useState("vietin");
-  const [topupInstructions] = useState(null);
   const [activeSection, setActiveSection] = useState("account");
   
   // Password change state
@@ -207,30 +205,6 @@ const Profile = () => {
 
   if (loading) return <div className="loading">Đang tải...</div>;
   if (!user) return <div className="error">{message}</div>;
-
-  // Nếu server trả về sẵn imageUrl thì dùng luôn, ngược lại tự build
-  
-  const STATIC_BANK_QR = {
-    bidv: "https://img.vietqr.io/image/BIDV-8835915459-compact2.png",
-
-  };
-
-  // Nếu server trả về sẵn imageUrl thì dùng luôn.
-  // Nếu chưa có (đặc biệt BIDV), vẫn build VietQR theo accountNumber.
-  // Và có fallback ảnh QR tĩnh (không có amount/nội dung) để đảm bảo luôn hiện QR.
-  // Ưu tiên: QR tĩnh theo ngân hàng đã chọn (đúng “giống 2 QR trước đó”)
-  // Nếu chưa có QR tĩnh thì mới dùng QR do server trả về / tự build theo instructions.
-  const qrUrl = STATIC_BANK_QR[selectedBank]
-    ? STATIC_BANK_QR[selectedBank]
-    : topupInstructions && topupInstructions.imageUrl
-      ? topupInstructions.imageUrl
-      : topupInstructions
-        ? `https://img.vietqr.io/image/${encodeURIComponent(
-            topupInstructions.bin || topupInstructions.BIN || topupInstructions.bank || ""
-          )}-${encodeURIComponent(topupInstructions.accountNumber)}-compact2.png?amount=${topupInstructions.amount}&addInfo=${encodeURIComponent(
-            topupInstructions.transferContent || ""
-          )}&accountName=${encodeURIComponent(topupInstructions.accountName || "")}`
-        : null;
 
   const renderOrders = (orderList, emptyLabel) => {
     const safeOrderList = Array.isArray(orderList) ? orderList : [];
@@ -470,48 +444,12 @@ const Profile = () => {
                   </div>
                   <button 
                     className="primary-btn" 
-                    onClick={() => navigate("/payment")}
+                    onClick={() => navigate("/qr-payment")}
                     style={{ width: "100%", marginTop: "1rem" }}
                   >
                     Tạo yêu cầu nạp tiền
                   </button>
 
-                  {topupInstructions && (
-                    <div className="topup-instructions">
-                      <h4>Hướng dẫn chuyển khoản</h4>
-                      <ul>
-                        <li>
-                          Ngân hàng: <strong>{topupInstructions.bank}</strong>
-                        </li>
-                        <li>
-                          Chủ TK: <strong>{topupInstructions.accountName}</strong>
-                        </li>
-                        <li>
-                          Số tài khoản:{" "}
-                          <strong>{topupInstructions.accountNumber}</strong>
-                        </li>
-                        <li>
-                          Số tiền:{" "}
-                          <strong>
-                            {new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(topupInstructions.amount)}
-                          </strong>
-                        </li>
-                        <li>
-                          Nội dung:{" "}
-                          <strong>{topupInstructions.transferContent}</strong>
-                        </li>
-                      </ul>
-                      {qrUrl && (
-                        <div className="qr-preview">
-                          <img src={qrUrl} alt="QR Code" />
-                          <p>Quét QR để nạp nhanh</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             </section>
@@ -562,7 +500,7 @@ const Profile = () => {
                     <tr>
                       <th>Mã giao dịch</th>
                       <th>Số tiền</th>
-                      <th>Ngân hàng</th>
+                      <th>Phương thức</th>
                       <th>Trạng thái</th>
                       <th>Ngày tạo</th>
                     </tr>
@@ -577,7 +515,7 @@ const Profile = () => {
                             currency: "VND",
                           }).format(tx.amount)}
                         </td>
-                        <td>{tx.bank?.toUpperCase()}</td>
+                        <td>{tx.provider === "sepay" ? "Sepay" : tx.method || "—"}</td>
                         <td>
                           <span className={`status ${tx.status}`}>{tx.status}</span>
                         </td>

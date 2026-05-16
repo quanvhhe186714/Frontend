@@ -8,7 +8,7 @@ import api from "./apiService";
  * @param {string} bank - Ngân hàng: 'mb' (mặc định), 'hdbank', etc.
  * @returns {Promise} Response từ API với imageUrl và thông tin QR code
  */
-export const generatePaymentQR = (amount, bank = "mb") => {
+export const generatePaymentQR = (amount, bank = "vietin") => {
   const params = new URLSearchParams();
   params.append("amount", amount);
   if (bank) {

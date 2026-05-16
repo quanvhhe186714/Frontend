@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import facebookService from "../../services/facebook/facebookService";
-import { getServiceRatingSummary } from "../../services/review";
 import { getWallet } from "../../services/wallet";
 import ServiceStatusBadge from "../../components/ServiceStatusBadge/ServiceStatusBadge";
 import "./dich-vu.scss";
@@ -92,16 +91,10 @@ const DichVu = () => {
       try {
         const data = await facebookService.getServices(activePlatform);
         setServices(data);
-        const ratings = await Promise.all(
-          data.map(async (service) => {
-            try {
-              const rating = await getServiceRatingSummary(service._id);
-              return { id: service._id, rating };
-            } catch {
-              return { id: service._id, rating: { averageRating: 0, totalReviews: 0 } };
-            }
-          })
-        );
+        const ratings = data.map((service) => ({
+          id: service._id,
+          rating: service.ratingSummary || { averageRating: 0, totalReviews: 0, totalUsers: 0 },
+        }));
         const ratingMap = {};
         ratings.forEach(({ id, rating }) => {
           ratingMap[id] = rating;

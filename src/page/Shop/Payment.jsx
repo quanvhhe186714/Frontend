@@ -142,7 +142,7 @@ const Payment = () => {
       
       if (response.data) {
         setQrData({
-          imageUrl: BANK_MAP[bank]?.qrImage || response.data.imageUrl,
+          imageUrl: response.data.imageUrl,
           amount: response.data.amount,
           content: response.data.content,
           accountName: response.data.accountName,

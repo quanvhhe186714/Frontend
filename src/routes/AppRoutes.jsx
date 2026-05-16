@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "../page/Anonymous/Login";
 import Register from "../page/Anonymous/Register";
@@ -12,11 +12,7 @@ import ProductList from "../page/Shop/ProductList";
 import Cart from "../page/Shop/Cart";
 import ProductDetail from "../page/Shop/ProductDetail";
 import Checkout from "../page/Shop/Checkout";
-import Payment from "../page/Shop/Payment";
-import PublicQRDisplay from "../page/Shop/PublicQRDisplay";
 import TransactionHistory from "../page/Shop/TransactionHistory";
-import PaymentHistory from "../page/Shop/PaymentHistory";
-
 // Portal pages (market-like)
 import SanPham from "../page/Portal/SanPham";
 import DichVu from "../page/Portal/DichVu";
@@ -48,11 +44,11 @@ const AppRoutes = () => {
       />
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
-      <Route path="/payment" element={<Payment />} />
-      <Route path="/payment-qr" element={<PublicQRDisplay />} />
+      <Route path="/payment" element={<Navigate to="/qr-payment" replace />} />
+      <Route path="/payment-qr" element={<Navigate to="/qr-payment" replace />} />
+      <Route path="/payment-history" element={<Navigate to="/transaction-history" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/payment-history" element={<PaymentHistory />} />
 
       {/* Portal style pages */}
       <Route path="/san-pham" element={<SanPham />} />

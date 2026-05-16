@@ -1,11 +1,30 @@
 // src/services/apiService.js
 import axios from 'axios';
 
-// URL của backend API
-// Ưu tiên: REACT_APP_API_URL > window.location.origin (nếu deploy cùng domain) > default
-export const BASE_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://backend-cy6b.onrender.com";
+const PRODUCTION_API_URL = "https://backend-cy6b.onrender.com";
+const LOCAL_API_URL = "http://localhost:9999";
+
+/** Resolve API base URL: local dev vs Vercel/production (never call localhost from prod domain). */
+export const resolveApiBaseUrl = () => {
+  const fromEnv = process.env.REACT_APP_API_URL?.replace(/\/$/, "");
+  const isBrowser = typeof window !== "undefined";
+  const isLocalHost =
+    isBrowser &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+
+  if (isLocalHost) {
+    return fromEnv || LOCAL_API_URL;
+  }
+
+  if (fromEnv && !/localhost|127\.0\.0\.1/i.test(fromEnv)) {
+    return fromEnv;
+  }
+
+  return PRODUCTION_API_URL;
+};
+
+export const BASE_URL = resolveApiBaseUrl();
 const API_URL = BASE_URL;
 
 // Log để debug (chỉ trong development)
